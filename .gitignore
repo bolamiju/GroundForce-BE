@@ -348,3 +348,15 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+obj
+.vscode
+bin
+.dockerignore
+*.db
+Groundforce.Services/Groundforce.Services.API/appsettings.json
+Groundforce.Services/Groundforce.Services.API/appsettings.Development.json
