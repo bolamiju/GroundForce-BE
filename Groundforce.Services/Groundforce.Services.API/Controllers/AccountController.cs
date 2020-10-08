@@ -103,6 +103,8 @@ namespace Groundforce.Services.API.Controllers
                 }
                 catch (Exception e)
                 {
+                    await _userManager.DeleteAsync(savedUser);
+
                     return BadRequest(e.Message);
                 }
 
@@ -111,19 +113,26 @@ namespace Groundforce.Services.API.Controllers
                 // Creating new bank account
                 try
                 {
-                    var newBankAccount = new BankAccount()
+                    if (savedAgent != null)
                     {
-                        FieldAgentId = savedAgent.FieldAgentId,
-                        AccountNumber = model.AccountNumber,
-                        BankName = model.BankName,
-                        FieldAgent = savedAgent
-                    };
+                        var newBankAccount = new BankAccount()
+                        {
+                            FieldAgentId = savedAgent.FieldAgentId,
+                            AccountNumber = model.AccountNumber,
+                            BankName = model.BankName,
+                            FieldAgent = savedAgent
+                        };
 
-                    await _dbContext.BankAccounts.AddRangeAsync(newBankAccount);
-                    await _dbContext.SaveChangesAsync();
+                        await _dbContext.BankAccounts.AddRangeAsync(newBankAccount);
+                        await _dbContext.SaveChangesAsync();
+                    }
                 }
                 catch (Exception e)
                 {
+                    await _userManager.DeleteAsync(savedUser);
+                    if (savedAgent != null) _dbContext.FieldAgents.Remove(savedAgent);
+                    await _dbContext.SaveChangesAsync();
+
                     return BadRequest(e.Message);
                 }
 
