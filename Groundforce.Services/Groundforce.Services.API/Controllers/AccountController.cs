@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Groundforce.Common.Utilities.Util;
 using Groundforce.Services.API.DTOs;
 using Groundforce.Services.Data;
 using Groundforce.Services.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -17,7 +21,7 @@ namespace Groundforce.Services.API.Controllers
     [ApiController]
     [Route("api/v1")]
     public class AccountController : ControllerBase
-    {   
+    {
         private readonly ILogger<AccountController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -26,11 +30,11 @@ namespace Groundforce.Services.API.Controllers
         private readonly AppDbContext _dbContext;
         private readonly IWebHostEnvironment _hostEnvironment;
 
-        public AccountController(ILogger<AccountController>logger,
+        public AccountController(ILogger<AccountController> logger,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration config, 
-            AppDbContext dbContext, 
+            IConfiguration config,
+            AppDbContext dbContext,
             IWebHostEnvironment hostEnvironment
             )
         {
@@ -53,11 +57,6 @@ namespace Groundforce.Services.API.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (model == null)
-                {
-                    return BadRequest(ModelState);
-                }
-
                 var userToAdd = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
 
                 if (userToAdd != null)
@@ -153,7 +152,7 @@ namespace Groundforce.Services.API.Controllers
                 return Ok(result);
             }
             return BadRequest(ModelState);
-        }      
+        }
 
         [AllowAnonymous]
         [HttpPost("Login")]
@@ -183,6 +182,5 @@ namespace Groundforce.Services.API.Controllers
             }
             return BadRequest();
         }
-
     }
 }
