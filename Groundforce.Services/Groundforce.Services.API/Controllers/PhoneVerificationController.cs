@@ -56,7 +56,7 @@ namespace GroundforceModel.Controllers
         /// </summary>
         /// <param name="detail"></param>
         /// <returns>The status code </returns>
-        [HttpPost("verify")]
+        [HttpPost("confirmation")]
         public IActionResult Verify([FromBody] TokenDetail detail)
         {
             
