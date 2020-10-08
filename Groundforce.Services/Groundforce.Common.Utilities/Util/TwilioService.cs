@@ -54,6 +54,26 @@ namespace Groundforce.Common.Utilities.Util
             );
 
             return verification.Status;
+<<<<<<< HEAD
+        }   
+        
+
+         public VerificationCheckResource VerifyPhoneNumberWithToken(string phoneNumber, string token)
+        {
+            CreateTwilioService();
+
+            // verify number 
+            var verificationCheck = VerificationCheckResource.Create(
+                to: phoneNumber,
+                code: token,
+                pathServiceSid: _config.GetSection("AuthyApiKey:SERVICE_SID").Value
+            );
+
+            // return result 
+            return verificationCheck;
+
+=======
+>>>>>>> e9c7344cb9a94906fa0f17f70c13095b6269948c
         }
     }
 }
