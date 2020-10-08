@@ -17,7 +17,7 @@ namespace Groundforce.Services.Models
         public string BankName { get; set; }
         [Required]
         [Display(Name = "AccountNumber")]
-        public int AccountNumber { get; set; }
+        public string AccountNumber { get; set; }
         public bool IsActive { get; set; } = false;
         [Required]
         [Display(Name = "Field Agent Id")]
