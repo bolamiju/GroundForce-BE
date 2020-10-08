@@ -10,6 +10,7 @@ using Twilio.Types;
 
 namespace Groundforce.Common.Utilities.Util
 {
+    //class to contain the twilio services
     public class TwilioService
     {
         private readonly IConfiguration _configuration;
@@ -18,18 +19,18 @@ namespace Groundforce.Common.Utilities.Util
         {
             _configuration = configuration;
         }
-
+        
+        //method to send otp to the phoneNumber collected 
         public async Task<string> SendOtp(string phoneNumber)
         {
+            //get the AccountSid, AuthToken, Sid from the appsettings file
             string accountSid = _configuration.GetSection("AppSettings:AccountSid").Value;
             string authToken = _configuration.GetSection("AppSettings:AuthToken").Value;
             string sid = _configuration.GetSection("AppSettings:ServiceSID").Value;
 
-
-            try
-            {
+            //set the twilio client username and password
                 TwilioClient.Init(accountSid, authToken);
-
+            //call the method to send the OTP
                 var verification = await VerificationResource.CreateAsync(
                     to: phoneNumber,
                     channel: "sms",
@@ -37,13 +38,6 @@ namespace Groundforce.Common.Utilities.Util
                 );
 
                 return verification.Status;
-
-            }
-            catch (Exception e)
-            {
-                return (e.Message);
-            }
-
         }
 
 
