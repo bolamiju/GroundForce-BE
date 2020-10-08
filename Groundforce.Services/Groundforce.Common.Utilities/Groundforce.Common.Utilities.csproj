@@ -9,4 +9,8 @@
     <PackageReference Include="Twilio" Version="5.47.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Groundforce.Services.Models\Groundforce.Services.Models.csproj" />
+  </ItemGroup>
+
 </Project>
