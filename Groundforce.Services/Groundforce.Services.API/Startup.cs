@@ -14,6 +14,10 @@ using Microsoft.Extensions.Logging;
 using Groundforce.Services.Data;
 using Microsoft.AspNetCore.Identity;
 using Groundforce.Services.Models;
+using System.Net;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using Groundforce.Common.Utilities.Enums;
 
 namespace Groundforce.Services.API
 {
@@ -50,7 +54,29 @@ namespace Groundforce.Services.API
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                app.UseExceptionHandler(errorApp =>
+                {
+                    errorApp.Run(async context =>
+                    {
+                        context.Response.StatusCode = 500;
+                        context.Response.ContentType = "application/json; charset=utf-8";
+                        await context.Response.WriteAsync(((int)Status.InternalServerError).ToString());
+                    });
+                });
+                app.UseHsts();
+            }
+            else
+            {
+                app.UseExceptionHandler(errorApp =>
+                {
+                    errorApp.Run(async context =>
+                    {
+                        context.Response.StatusCode = 500;
+                        context.Response.ContentType = "application/json; charset=utf-8";
+                        await context.Response.WriteAsync(((int)Status.InternalServerError).ToString());
+                    });
+                });
+                app.UseHsts();
             }
 
             app.UseHttpsRedirection();
