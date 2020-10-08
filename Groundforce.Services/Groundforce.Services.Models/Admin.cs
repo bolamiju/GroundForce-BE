@@ -13,9 +13,12 @@ namespace Groundforce.Services.Models
         public int AdminId { get; set; }
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
-        public ICollection<Transaction> Transactions { get; set; }
 
         public ICollection<BuildingType> BuildingTypes { get; set; }
+        public ICollection<AssignedAddresses> AssignedAddresses { get; set; }
+        public ICollection<Point> Points { get; set; }
+        public ICollection<PointAllocated> PointsAllocated { get; set; }
+        public ICollection<Transaction> Transactions { get; set; }
 
     }
 }

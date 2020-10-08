@@ -24,7 +24,7 @@ namespace Groundforce.Services.Models
         [Required]
         [Display(Name = "Point Id")]
         public int PointsId { get; set; }
-        public Point Points { get; set; }
+        public Point Point { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
     }

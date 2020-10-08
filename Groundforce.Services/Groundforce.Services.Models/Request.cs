@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Groundforce.Services.Models
 {
-    class Request
+    public class Request
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -15,5 +15,7 @@ namespace Groundforce.Services.Models
         public string PhoneNumber { get; set; }
         public bool IsVerified { get; set; } = false;
         public int RequestFailedCount { get; set; } = 0;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
     }
 }

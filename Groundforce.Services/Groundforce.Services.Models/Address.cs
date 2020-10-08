@@ -17,11 +17,11 @@ namespace Groundforce.Services.Models
         [Display(Name = "Address")]
         public string AddressName { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
 
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
         public AssignedAddresses AssignedAddresses { get; set; }
 
     }

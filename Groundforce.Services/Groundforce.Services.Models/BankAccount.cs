@@ -18,12 +18,12 @@ namespace Groundforce.Services.Models
         [Required]
         [Display(Name = "AccountNumber")]
         public int AccountNumber { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
         public bool IsActive { get; set; } = false;
         [Required]
         [Display(Name = "Field Agent Id")]
         public int FieldAgentId { get; set; }
         public FieldAgent FieldAgent { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
     }
 }

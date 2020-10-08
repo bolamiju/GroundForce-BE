@@ -22,7 +22,7 @@ namespace Groundforce.Services.Models
         public Admin Admin { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
-        public ICollection<PointAllocated> PointAllocated { get; set; }
+        public ICollection<PointAllocated> PointsAllocated { get; set; }
 
     }
 }

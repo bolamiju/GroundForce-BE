@@ -18,16 +18,8 @@ namespace Groundforce.Services.Models
         public string BuildingColor { get; set; }
         public bool IsVerified { get; set; } = false;
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         //Foriegn Keys
-        [Required]
-        [Display(Name = "Field Agent Id")]
-        public int FieldAgentId { get; set; }
-        [Display(Name = "Field Agent")]
-        public FieldAgent FieldAgent { get; set; }
-
         [Required]
         [Display(Name = "Address Id")]
         public int AddressId { get; set; }
@@ -37,6 +29,19 @@ namespace Groundforce.Services.Models
         [Display(Name = "Building Type Id")]
         public int BuildingTypeId { get; set; }
         public BuildingType BuildingType { get; set; }
+
+        [Required]
+        [Display(Name = "Field Agent Id")]
+        public int FieldAgentId { get; set; }
+        [Display(Name = "Field Agent")]
+        public FieldAgent FieldAgent { get; set; }
+
+        [Display(Name = "Admin Id")]
+        public int AdminId { get; set; }
+        public Admin Admin { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
     }
 }

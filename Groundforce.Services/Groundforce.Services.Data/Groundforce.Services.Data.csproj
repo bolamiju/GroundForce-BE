@@ -5,14 +5,30 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20201005150112_DBExtendedMigration.cs" />
-    <Compile Remove="Migrations\20201005150112_DBExtendedMigration.Designer.cs" />
-    <Compile Remove="Migrations\20201005152158_DBExtendedMigration.cs" />
-    <Compile Remove="Migrations\20201005152158_DBExtendedMigration.Designer.cs" />
-    <Compile Remove="Migrations\20201005152807_DBExtendedMigration.cs" />
-    <Compile Remove="Migrations\20201005152807_DBExtendedMigration.Designer.cs" />
-    <Compile Remove="Migrations\20201005160343_DBExtendedMigrations.cs" />
-    <Compile Remove="Migrations\20201005160343_DBExtendedMigrations.Designer.cs" />
+    <Compile Remove="Migrations\20201007213206_InitialMigration.cs" />
+    <Compile Remove="Migrations\20201007213206_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201007214644_InitialMigration.cs" />
+    <Compile Remove="Migrations\20201007214644_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201007215820_InitialMigration.cs" />
+    <Compile Remove="Migrations\20201007215820_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201007215958_InitialMigration.cs" />
+    <Compile Remove="Migrations\20201007215958_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201007222416_InitialMigration.cs" />
+    <Compile Remove="Migrations\20201007222416_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201007223212_InitialMigration.cs" />
+    <Compile Remove="Migrations\20201007223212_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201007224134_InitialMigration.cs" />
+    <Compile Remove="Migrations\20201007224134_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201007224341_InitialMigration.cs" />
+    <Compile Remove="Migrations\20201007224341_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201007224525_InitialMigration.cs" />
+    <Compile Remove="Migrations\20201007224525_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201007233433_InitialMigration.cs" />
+    <Compile Remove="Migrations\20201007233433_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201007235852_InitialMigration.cs" />
+    <Compile Remove="Migrations\20201007235852_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201008000019_InitialMigration.cs" />
+    <Compile Remove="Migrations\20201008000019_InitialMigration.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

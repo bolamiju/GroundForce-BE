@@ -28,8 +28,6 @@ namespace Groundforce.Services.Models
         [Required]
         [Display(Name = "Actual Amount")]
         public int ActualAmount { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         [Required]
         [Display(Name = "Field Agent Id")]
@@ -40,5 +38,7 @@ namespace Groundforce.Services.Models
         [Display(Name = "Admin Id")]
         public int AdminId { get; set; }
         public Admin Admin { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
     }
 }
