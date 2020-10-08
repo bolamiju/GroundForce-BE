@@ -35,5 +35,22 @@ namespace Groundforce.Services.API.Controllers
 
             return BadRequest();
         }
+
+        //confirm OTP
+        // api/v1/confirmation
+        [HttpPost("confirmation")]
+        public async Task<IActionResult> Confirmation([FromBody] ConfirmationDTO model)
+        {
+            string response = await CreateTwilioService.ConfirmOTP(model.PhoneNumber, model.VerifyCode);
+
+            if (response.Equals("approved"))
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest(response);
+            }
+        }
     }
 }

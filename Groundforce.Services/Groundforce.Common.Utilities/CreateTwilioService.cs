@@ -41,5 +41,22 @@ namespace Groundforce.Common.Utilities
                 return e.Message;
             }
         }
+
+        public static async Task<string> ConfirmOTP(string phoneNumber, string verifyCode)
+        {
+            try
+            {
+                VerificationCheckResource verificationCheck = await VerificationCheckResource.CreateAsync(
+                            to: phoneNumber,
+                            code: verifyCode,
+                            pathServiceSid: ServiceSid
+                            );
+                return verificationCheck.Status;
+            }
+            catch (TwilioException e)
+            {
+                return e.Message;
+            }
+        }
     }
 }
