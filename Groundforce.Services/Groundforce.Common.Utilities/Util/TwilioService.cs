@@ -26,8 +26,7 @@ namespace Groundforce.Common.Utilities.Util
             string sid = _configuration.GetSection("AppSettings:ServiceSID").Value;
 
 
-            try
-            {
+           
                 TwilioClient.Init(accountSid, authToken);
 
                 var verification = await VerificationResource.CreateAsync(
@@ -38,11 +37,6 @@ namespace Groundforce.Common.Utilities.Util
 
                 return verification.Status;
 
-            }
-            catch (Exception e)
-            {
-                return (e.Message);
-            }
 
         }
 
