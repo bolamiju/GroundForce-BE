@@ -50,5 +50,38 @@ namespace GroundforceModel.Controllers
 
             return StatusCode((int)Status.InternalServerError);
         }
+
+        /// <summary>
+        /// get token and verify
+        /// </summary>
+        /// <param name="detail"></param>
+        /// <returns>The status code </returns>
+        [HttpPost("verify")]
+        public IActionResult Verify([FromBody] TokenDetail detail)
+        {
+            
+            if (!ModelState.IsValid)
+            {
+                return BadRequest((int)Status.BadRequest);
+            }
+
+            // verify number 
+            var verificationResult = _twilio.VerifyPhoneNumberWithToken(detail.PhoneNumber, detail.Token);
+            // check if approved 
+            if (verificationResult.Status == Enum.GetName(typeof(TwilioStatus), TwilioStatus.approved))
+            {
+                return Ok((int)Status.Success);
+            }
+
+            // check pending
+            if (verificationResult.Status == Enum.GetName(typeof(TwilioStatus), TwilioStatus.pending))
+            {
+                return BadRequest((int)Status.BadRequest);
+            }
+
+            // return code 
+            return StatusCode((int)Status.InternalServerError);
+
+        }
     }
 }
