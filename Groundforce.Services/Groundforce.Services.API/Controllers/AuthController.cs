@@ -12,6 +12,7 @@ using Groundforce.Services.Models;
 using Microsoft.Extensions.Logging;
 using Groundforce.Services.Data;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -110,6 +111,8 @@ namespace Groundforce.Services.API.Controllers
 
             var createdUser = await _userManager.FindByEmailAsync(model.Email);
 
+            if (createdUser == null) return BadRequest();
+
             //create new field agent
             var agent = new FieldAgent
             {
@@ -120,11 +123,20 @@ namespace Groundforce.Services.API.Controllers
                 AdditionalPhoneNumber = model.AdditionalPhoneNumber
             };
 
-            //add fieldagent created to the table
-            await _ctx.FieldAgents.AddAsync(agent);
-            await _ctx.SaveChangesAsync();
+            try
+            {
+                await _ctx.FieldAgents.AddAsync(agent);
+            }
+            catch (Exception)
+            {
+                _ctx.Remove(createdUser);
+                _ctx.SaveChanges();
+                return BadRequest(StatusCodes.Status400BadRequest);
+            }
 
             var createdFieldAgent = _ctx.FieldAgents.Where(x => x.ApplicationUserId == createdUser.Id).FirstOrDefault();
+
+            if (createdFieldAgent == null) return BadRequest();
 
             var bank = new BankAccount
             {
@@ -133,7 +145,18 @@ namespace Groundforce.Services.API.Controllers
                 AccountNumber = model.AccountNumber
             };
 
-            await _ctx.BankAccounts.AddAsync(bank);
+            try
+            {
+                await _ctx.BankAccounts.AddAsync(bank);
+            }
+            catch (Exception)
+            {
+                _ctx.Remove(createdUser);
+                _ctx.Remove(createdFieldAgent);
+                _ctx.SaveChanges();
+                return BadRequest(StatusCodes.Status400BadRequest);
+            }
+
             await _ctx.SaveChangesAsync();
 
             return StatusCode(201);
