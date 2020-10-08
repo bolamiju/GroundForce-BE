@@ -39,8 +39,25 @@ namespace Groundforce.Common.Utilities.Util
 
                 return verification.Status;
         }
+        /** Method to confirm otp and the number that received the otp **/
+        public async Task<string> ConfirmOtp(string phoneNumber, string verifyCode)
+        {
+            // get the AccountSid, AuthToken, Sid from the appsettings file
+            string accountSid = _configuration.GetSection("AppSettings:AccountSid").Value;
+            string authToken = _configuration.GetSection("AppSettings:AuthToken").Value;
+            string sid = _configuration.GetSection("AppSettings:ServiceSID").Value;
 
+            // Initializes Twillo client with the username and password
+            TwilioClient.Init(accountSid, authToken);
+            // Calls the method and checks the verification resource for confirmation
+            var verificationCheck = await VerificationCheckResource.CreateAsync(
+                to: phoneNumber,
+                code: verifyCode,
+                pathServiceSid: sid
+            );
+            // Returns either pending or approved as a response
+            return verificationCheck.Status;
 
-
+        }
     }
 }
