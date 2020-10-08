@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,14 +17,28 @@ namespace Groundforce.Services.API.Controllers
     [ApiController]
     [Route("api/v1")]
     public class AccountController : ControllerBase
-    {
+    {   
+        private readonly ILogger<AccountController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IConfiguration _config;
+        private readonly AuthRepo _AuthRepo;
         private readonly AppDbContext _dbContext;
         private readonly IWebHostEnvironment _hostEnvironment;
 
-        public AccountController(UserManager<ApplicationUser> userManager, AppDbContext dbContext, IWebHostEnvironment hostEnvironment)
+        public AccountController(ILogger<AccountController>logger,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            IConfiguration config, 
+            AppDbContext dbContext, 
+            IWebHostEnvironment hostEnvironment
+            )
         {
+            _logger = logger;
             _userManager = userManager;
+            _signInManager = signInManager;
+            _config = config;
+            _AuthRepo = new AuthRepo(_config);
             _dbContext = dbContext;
             _hostEnvironment = hostEnvironment;
         }
@@ -139,6 +153,36 @@ namespace Groundforce.Services.API.Controllers
                 return Ok(result);
             }
             return BadRequest(ModelState);
+        }      
+
+        [AllowAnonymous]
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromBody] LoginUsers model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
+
+                if (user == null)
+                {
+                    return BadRequest();
+                }
+
+                var result = await _signInManager.PasswordSignInAsync(user, model.Pin, false, false);
+
+                if (result.Succeeded)
+                {
+                    var token = _AuthRepo.GetToken(user.Id, user.LastName);
+
+                    return Ok(token);
+                }
+                else
+                {
+                    return Unauthorized("Invalid credentials");
+                }
+            }
+            return BadRequest();
         }
+
     }
 }
