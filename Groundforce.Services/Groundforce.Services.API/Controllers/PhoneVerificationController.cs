@@ -23,6 +23,7 @@ namespace GroundforceModel.Controllers
         /// Global variable
         /// </summary>
         private readonly IConfiguration _config;
+
         private readonly TwilioService _twilio;
 
         public PhoneVerificationController(IConfiguration config)
@@ -30,6 +31,7 @@ namespace GroundforceModel.Controllers
             _config = config;
             _twilio = new TwilioService(_config);
         }
+
         /// <summary>
         /// Sends dotp to phone number
         /// </summary>
@@ -42,7 +44,7 @@ namespace GroundforceModel.Controllers
             {
                 return BadRequest(Status.BadRequest);
             }
-            
+
             if (_twilio.SentOtp(client.PhoneNumber) == Enum.GetName(typeof(TwilioStatus), TwilioStatus.pending))
             {
                 return Ok((int)Status.Success);
