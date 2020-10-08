@@ -180,16 +180,14 @@ namespace Groundforce.Services.API.Controllers
                     return BadRequest("Account does not exist");
                 }
 
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Pin.ToString(), false, false);
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Pin, false, false);
 
                 if (result.Succeeded)
                 {
                     var tokenGetter = new GetTokenHelperClass();
                     var getToken = tokenGetter.GetToken(user, _config);
-                    var tokenObj = new TokenHelperClass { TokenString = getToken };
-                    var data = new DatasHelperClass { Tokens = tokenObj };
 
-                    return Ok(data);
+                    return Ok(getToken);
                 }
                 else
                 {

@@ -11,7 +11,7 @@ namespace Groundforce.Services.DTOs
         [Required]
         public string Email { get; set; }
         [Required]
-        public int Pin { get; set; }
+        public string Pin { get; set; }
 
     }
 }
