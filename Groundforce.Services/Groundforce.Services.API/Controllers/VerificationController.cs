@@ -31,6 +31,7 @@ namespace Groundforce.Services.API.Controllers
 
             try
             {
+                //call the SendOTP method in the twilioService class
                 var result = await _service.SendOtp(model.PhoneNumber);
                 if (result == "pending")
                 {
