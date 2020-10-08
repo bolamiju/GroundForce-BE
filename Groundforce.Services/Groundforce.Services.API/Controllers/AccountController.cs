@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Groundforce.Common.Utilities.Services;
+using Groundforce.Common.Utilities.Util;
 using Groundforce.Services.API.DTOs;
 using Groundforce.Services.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -19,7 +19,7 @@ namespace Groundforce.Services.API.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _config;
-        private readonly AccountRepo _accountRepo;
+        private readonly AuthRepo _AuthRepo;
 
         public AccountController(ILogger<AccountController>logger,
             UserManager<ApplicationUser> userManager,
@@ -31,7 +31,7 @@ namespace Groundforce.Services.API.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _config = config;
-            _accountRepo = new AccountRepo(_userManager, _config);
+            _AuthRepo = new AuthRepo(_config);
         }
 
         [AllowAnonymous]
@@ -51,7 +51,7 @@ namespace Groundforce.Services.API.Controllers
 
                 if (result.Succeeded)
                 {
-                    var token = _accountRepo.GetToken(user.Id, user.LastName);
+                    var token = _AuthRepo.GetToken(user.Id, user.LastName);
 
                     return Ok(token);
                 }

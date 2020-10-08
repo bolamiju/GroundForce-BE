@@ -1,22 +1,18 @@
-﻿using Groundforce.Services.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Groundforce.Common.Utilities.Services
+namespace Groundforce.Common.Utilities.Util
 {
-    public class AccountRepo
-    {
-        private readonly UserManager<ApplicationUser> _userManager;
+    public class AuthRepo
+    {       
         private readonly IConfiguration _config;
 
-        public AccountRepo(UserManager<ApplicationUser> userManager, IConfiguration config)
-        {
-            _userManager = userManager;
+        public AuthRepo(IConfiguration config)
+        {           
             _config = config;
         }
 
