@@ -17,6 +17,7 @@ namespace Groundforce.Common.Utilities.Util
         /// Global varaible
         /// </summary>
         private readonly IConfiguration _config;
+
         /// <summary>
         /// Constructor for the class
         /// </summary>
@@ -25,6 +26,7 @@ namespace Groundforce.Common.Utilities.Util
         {
             _config = config;
         }
+
         /// <summary>
         /// Creates my twilio service
         /// </summary>
@@ -35,6 +37,7 @@ namespace Groundforce.Common.Utilities.Util
 
             TwilioClient.Init(sid, auth_token);
         }
+
         /// <summary>
         /// Sends OTP code to phonemunber via twilio
         /// </summary>
@@ -51,6 +54,7 @@ namespace Groundforce.Common.Utilities.Util
             );
 
             return verification.Status;
+<<<<<<< HEAD
         }   
         
 
@@ -68,6 +72,8 @@ namespace Groundforce.Common.Utilities.Util
             // return result 
             return verificationCheck;
 
+=======
+>>>>>>> e9c7344cb9a94906fa0f17f70c13095b6269948c
         }
     }
 }
