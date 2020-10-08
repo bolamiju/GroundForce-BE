@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Groundforce.Services.DTOs.DTOs
+namespace Groundforce.Services.DTOs
 {
     public class SendOTPDTOs
     {

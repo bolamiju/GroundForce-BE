@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Groundforce.Services.DTOs.DTOs;
-using Groundforce.Common.Utilities.Util;
+using Groundforce.Services.DTOs;
+using Groundforce.Common.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;

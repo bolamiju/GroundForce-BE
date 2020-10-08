@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Groundforce.Common.Utilities.Util
+namespace Groundforce.Common.Utilities
 {
     public enum TwilioStatus
     {

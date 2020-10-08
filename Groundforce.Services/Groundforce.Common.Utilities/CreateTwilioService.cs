@@ -7,7 +7,7 @@ using Twilio;
 using Twilio.Exceptions;
 using Twilio.Rest.Verify.V2.Service;
 
-namespace Groundforce.Common.Utilities.Util
+namespace Groundforce.Common.Utilities
 {
     public class CreateTwilioService
     {
