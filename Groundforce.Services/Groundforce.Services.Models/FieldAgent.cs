@@ -17,6 +17,9 @@ namespace Groundforce.Services.Models
         public string Longitude { get; set; }
         [Required]
         public string Latitude { get; set; }
+        [Required]
+        public string Religion { get; set; }
+        public string AdditionalPhoneNumber { get; set; }
         public BankAccount BankAccounts { get; set; }
         public ICollection<AssignedAddresses> AssignedAddresses { get; set; }
         public ICollection<PointAllocated> PointsAllocated { get; set; }
