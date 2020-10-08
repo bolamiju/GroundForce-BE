@@ -54,5 +54,29 @@ namespace Groundforce.Services.API.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpPatch]
+        [Route("resetpin")]
+        public async Task<IActionResult> resetpin([FromBody] VerifiedUserDTO model)
+        {
+            if (ModelState.IsValid)
+            {
+                // get user using user phone number
+                var user = await _userManager.FindByIdAsync(model.UserId);
+                //if user not found, return notfound
+                if (user == null) return NotFound();
+                // change user password
+                var updatePassword = await _userManager.ChangePasswordAsync(user, model.currentPin, model.newPin);
+                if (updatePassword.Succeeded)
+                {
+                    // return ok status if password updates successfully
+                    return Ok();
+                }
+            }
+
+            // return  Bad Request otherwise
+            ModelState.AddModelError("", "Failed to update password");
+            return BadRequest();
+        }
     }
 }
