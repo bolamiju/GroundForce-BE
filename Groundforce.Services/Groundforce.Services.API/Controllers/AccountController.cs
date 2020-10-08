@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Groundforce.Common.Utilities.Util;
 using Groundforce.Services.API.DTOs;
 using Groundforce.Services.Data;
+using Groundforce.Services.DTOs;
 using Groundforce.Services.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -181,6 +182,55 @@ namespace Groundforce.Services.API.Controllers
                 }
             }
             return BadRequest();
+        }
+
+        /// <summary>
+        /// This Method helps a user to change or reset their pin
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPatch("resetpin")]
+        public async Task<IActionResult> Resetpin([FromBody] ResetPinDto model)
+        {
+            // check to see if passed in model is not null
+            if (ModelState.IsValid)
+            {
+                // Use the use id passed in the model to get the user from the database
+                var user = await _userManager.FindByIdAsync(model.Id);
+
+                // If the user is found, do the following:
+                if (user != null)
+                {
+                    // use the user, current pin and new pin to change the pin of the user
+                    var result = await _userManager.ChangePasswordAsync(user, model.CurrentPin, model.NewPin);
+
+                    // If the password is successfully changed:
+                    if (result.Succeeded)
+                    {
+                        // return an OK result
+                        return Ok();
+                    }
+                    // If the password is not successfully changed
+                    else
+                    {
+                        // return Bad Result
+                        return BadRequest();
+                    }
+                }
+                // If the User is  not found
+                else
+                {
+                    // return Bad Request
+                    return BadRequest();
+                }
+
+            }
+            // if the model state is not valid
+            else
+            {
+                // return Bad Request
+                return BadRequest();
+            }
         }
     }
 }
