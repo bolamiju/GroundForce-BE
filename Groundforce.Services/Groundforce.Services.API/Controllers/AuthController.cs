@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Groundforce.Services.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -160,6 +161,46 @@ namespace Groundforce.Services.API.Controllers
             await _ctx.SaveChangesAsync();
 
             return StatusCode(201);
+        }
+
+        //User Login
+        [AllowAnonymous]
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login(LoginDTO model)
+        {
+            if (ModelState.IsValid)
+            {
+
+                //get user by email
+                var user = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
+
+                //Check if user exist
+                if (user == null)
+                {
+                    return BadRequest("Account does not exist");
+                }
+
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Pin.ToString(), false, false);
+
+                if (result.Succeeded)
+                {
+                    var tokenGetter = new GetTokenHelperClass();
+                    var getToken = tokenGetter.GetToken(user, _config);
+                    var tokenObj = new TokenHelperClass { TokenString = getToken };
+                    var data = new DatasHelperClass { Tokens = tokenObj };
+
+                    return Ok(data);
+                }
+                else
+                {
+                    return Unauthorized("Invalid creadentials");
+                }
+            }
+            else
+            {
+                return BadRequest("Enter valid credentials");
+            }
+
         }
 
     }
