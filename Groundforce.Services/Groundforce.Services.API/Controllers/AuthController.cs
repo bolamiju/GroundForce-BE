@@ -104,7 +104,7 @@ namespace Groundforce.Services.API.Controllers
                 {
                     ModelState.AddModelError("", err.Description);
                 }
-                return BadRequest(StatusCodes.Status400BadRequest);
+                return BadRequest(ModelState);
             }
 
             await _userManager.AddToRoleAsync(user, "Agent");
