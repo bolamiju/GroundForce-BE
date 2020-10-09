@@ -13,12 +13,12 @@ namespace Groundforce.Services.API.Controllers
 {
     [Route("api/v1")]
     [ApiController]
-    public class VerificationController : ControllerBase
+    public class AuthController : ControllerBase
     {
         private readonly TwilioService _service;
         private IConfiguration _config;
 
-        public VerificationController(IConfiguration config)
+        public AuthController(IConfiguration config)
         {
             _config = config;
             _service = new TwilioService(config);
