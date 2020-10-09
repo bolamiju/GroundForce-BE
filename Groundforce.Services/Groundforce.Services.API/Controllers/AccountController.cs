@@ -19,7 +19,6 @@ namespace Groundforce.Services.API.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-
         // private fields
         private IConfiguration _config;
         private readonly ILogger<AccountController> _logger;
