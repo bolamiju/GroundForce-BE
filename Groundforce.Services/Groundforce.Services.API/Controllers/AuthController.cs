@@ -184,8 +184,7 @@ namespace Groundforce.Services.API.Controllers
 
                 if (result.Succeeded)
                 {
-                    var tokenGetter = new GetTokenHelperClass();
-                    var getToken = tokenGetter.GetToken(user, _config);
+                    var getToken = GetTokenHelperClass.GetToken(user, _config);
 
                     return Ok(getToken);
                 }
@@ -196,7 +195,7 @@ namespace Groundforce.Services.API.Controllers
             }
             else
             {
-                return BadRequest("Enter valid credentials");
+                return BadRequest(model);
             }
 
         }

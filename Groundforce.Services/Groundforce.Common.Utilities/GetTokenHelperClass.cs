@@ -9,24 +9,21 @@ using System.Text;
 
 namespace Groundforce.Common.Utilities
 {
-    public class GetTokenHelperClass
+    public static class GetTokenHelperClass
     {
 
-        public string GetToken(ApplicationUser _user, IConfiguration _config)
+        public static string GetToken(ApplicationUser _user, IConfiguration _config)
         {
-            //get application user model
-            var user = _user;
-            var config = _config;
             //Create claim for JWT
             var claims = new Claim[]
             {
-                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                 new Claim (ClaimTypes.Name, user.FirstName),
-                 new Claim(ClaimTypes.Email, user.Email)
+                 new Claim(ClaimTypes.NameIdentifier, _user.Id),
+                 new Claim (ClaimTypes.Name, _user.FirstName),
+                 new Claim(ClaimTypes.Email, _user.Email)
             };
 
             //Create jwt secret key
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSection("AppSettings:Token").Value));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetSection("AppSettings:Token").Value));
 
             //Generate signin creadentials
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
