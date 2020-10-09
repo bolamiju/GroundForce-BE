@@ -143,14 +143,14 @@ namespace Groundforce.Services.API.Controllers
                 var updatePwd = await _userManager.ChangePasswordAsync(user, userToUpdate.CurrentPwd, userToUpdate.NewPwd);
 
                 if (updatePwd.Succeeded) return Ok();
+
+                foreach (var error in updatePwd.Errors)
+                {
+                    ModelState.AddModelError("", $"{error.Code} - {error.Description}");
+                }
             }
 
-            foreach (var error in ModelState)
-            {
-                ModelState.AddModelError("", "Invalid credentials. Try again");
-            }
-
-            return BadRequest(ModelState);
+            return BadRequest();
         }
     }
 }
