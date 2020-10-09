@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Identity;
 using Groundforce.Services.Models;
 using Groundforce.Services.DTOs;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -127,6 +128,29 @@ namespace Groundforce.Services.API.Controllers
             await _ctx.SaveChangesAsync();
 
             return StatusCode(201);
+        }
+
+        [HttpPatch]
+        [Route("resetPin")]
+        public async Task<IActionResult> resetPin([FromBody] ResetUserPwdDTO userToUpdate)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByIdAsync(userToUpdate.UserId);
+
+                if (user == null) return NotFound();
+
+                var updatePwd = await _userManager.ChangePasswordAsync(user, userToUpdate.CurrentPwd, userToUpdate.NewPwd);
+
+                if (updatePwd.Succeeded) return Ok();
+            }
+
+            foreach (var error in ModelState)
+            {
+                ModelState.AddModelError("", "Invalid credentials. Try again");
+            }
+
+            return BadRequest(ModelState);
         }
     }
 }
