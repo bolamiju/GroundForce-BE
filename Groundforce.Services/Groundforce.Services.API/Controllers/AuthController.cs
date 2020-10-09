@@ -13,7 +13,7 @@ namespace Groundforce.Services.API.Controllers
     public class AuthController : ControllerBase
     {
         // private fields
-        private IConfiguration _config;
+        private readonly IConfiguration _config;
 
         public AuthController(IConfiguration configuration)
         {
