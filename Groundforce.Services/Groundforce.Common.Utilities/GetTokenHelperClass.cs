@@ -9,10 +9,10 @@ using System.Text;
 
 namespace Groundforce.Common.Utilities
 {
-    public class GetTokenHelperClass
+    public static class GetTokenHelperClass
     {
 
-        public string GetToken(ApplicationUser _user, IConfiguration _config)
+        public static string GetToken(ApplicationUser _user, IConfiguration _config)
         {
             //get application user model
             var user = _user;

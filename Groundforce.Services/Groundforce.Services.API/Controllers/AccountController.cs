@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Identity;
 using Groundforce.Services.Models;
 using Groundforce.Services.DTOs;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Authorization;
+using Groundforce.Common.Utilities;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -21,7 +23,7 @@ namespace Groundforce.Services.API.Controllers
     public class AccountController : ControllerBase
     {
         // private fields
-        private IConfiguration _config;
+        private readonly IConfiguration _config;
         private readonly ILogger<AccountController> _logger;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly AppDbContext _ctx;
@@ -130,8 +132,44 @@ namespace Groundforce.Services.API.Controllers
             return StatusCode(201);
         }
 
+        //User Login
+        [AllowAnonymous]
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login(LoginDTO model)
+        {
+            if (ModelState.IsValid)
+            {
 
+                //get user by email
+                var user = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
 
+                //Check if user exist
+                if (user == null)
+                {
+                    return BadRequest("Account does not exist");
+                }
+
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Pin, false, false);
+
+                if (result.Succeeded)
+                {
+                    var getToken = GetTokenHelperClass.GetToken(user, _config);
+
+                    return Ok(getToken);
+                }
+                else
+                {
+                    return Unauthorized("Invalid creadentials");
+                }
+            }
+            else
+            {
+                return BadRequest(model);
+            }
+
+        }
+
+        //reset pin
         [HttpPatch]
         [Route("resetPin")]
         public async Task<IActionResult> resetPin([FromBody] ResetUserPwdDTO userToUpdate)
