@@ -74,7 +74,7 @@ namespace Groundforce.Services.API.Controllers
                 {
                     ModelState.AddModelError("", err.Description);
                 }
-                return BadRequest(StatusCodes.Status400BadRequest);
+                return BadRequest();
             }
 
             await _userManager.AddToRoleAsync(user, "Agent");
@@ -101,7 +101,7 @@ namespace Groundforce.Services.API.Controllers
             {
                 _ctx.Remove(createdUser);
                 _ctx.SaveChanges();
-                return BadRequest(StatusCodes.Status400BadRequest);
+                return BadRequest();
             }
 
             var createdFieldAgent = _ctx.FieldAgents.Where(x => x.ApplicationUserId == createdUser.Id).FirstOrDefault();
@@ -124,17 +124,13 @@ namespace Groundforce.Services.API.Controllers
                 _ctx.Remove(createdUser);
                 _ctx.Remove(createdFieldAgent);
                 _ctx.SaveChanges();
-                return BadRequest(StatusCodes.Status400BadRequest);
+                return BadRequest();
             }
-
-            await _ctx.SaveChangesAsync();
-
-            return StatusCode(201);
         }
 
         //User Login
         [AllowAnonymous]
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDTO model)
         {
             if (ModelState.IsValid)
@@ -154,25 +150,21 @@ namespace Groundforce.Services.API.Controllers
                 if (result.Succeeded)
                 {
                     var getToken = GetTokenHelperClass.GetToken(user, _config);
-
                     return Ok(getToken);
                 }
-                else
-                {
-                    return Unauthorized("Invalid creadentials");
-                }
+                
+				ModelState.AddModelError("", "Invalid creadentials");
+				return Unauthorized();
+					
             }
-            else
-            {
-                return BadRequest(model);
-            }
-
+            
+            return BadRequest(model);
         }
 
-        //reset pin
+        //change pin
         [HttpPatch]
-        [Route("resetPin")]
-        public async Task<IActionResult> resetPin([FromBody] ResetUserPwdDTO userToUpdate)
+        [Route("changePin")]
+        public async Task<IActionResult> ChangePin([FromBody] ResetUserPwdDTO userToUpdate)
         {
             if (ModelState.IsValid)
             {

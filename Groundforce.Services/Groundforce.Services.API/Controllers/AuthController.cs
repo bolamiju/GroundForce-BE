@@ -19,8 +19,8 @@ namespace Groundforce.Services.API.Controllers
         {
             _config = configuration;
         }
-
-        // POST: api/<AuthController>/verification
+		
+		// verify OTP
         [HttpPost("verification")]
         public async Task<IActionResult> Verification([FromBody] SendOTPDTOs model)
         {
@@ -36,7 +36,6 @@ namespace Groundforce.Services.API.Controllers
         }
 
         //confirm OTP
-        // api/v1/confirmation
         [HttpPost("confirmation")]
         public async Task<IActionResult> Confirmation([FromBody] ConfirmationDTO model)
         {
