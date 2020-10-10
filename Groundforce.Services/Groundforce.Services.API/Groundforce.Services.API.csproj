@@ -22,9 +22,5 @@
     <ProjectReference Include="..\Groundforce.Services.DTOs\Groundforce.Services.DTOs.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
 
 </Project>
