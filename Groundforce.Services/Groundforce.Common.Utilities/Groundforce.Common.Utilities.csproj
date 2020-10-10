@@ -8,9 +8,5 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.8" />
     <PackageReference Include="Twilio" Version="5.47.2" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Groundforce.Services.Models\Groundforce.Services.Models.csproj" />
-  </ItemGroup>
-
+  
 </Project>
