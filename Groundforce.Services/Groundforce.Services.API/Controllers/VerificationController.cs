@@ -46,9 +46,25 @@ namespace Groundforce.Services.API.Controllers
             }
 
         }
+        [HttpPost("confirmation")]
+        public async Task<IActionResult> ConfirmToken(ConfirmOtpDto model)
+        {
+            if (!ModelState.IsValid) return BadRequest();
 
+            try
+            {   // Calls the confirmOtp method in the twilloService class
+                var response = await _service.ConfirmOtp(model.PhoneNumber, model.VerifyCode);
 
+                if (response == "approved")
+                {
+                    return Ok(response);
+                }
+                return BadRequest(response);
+            }
+            catch (TwilioException e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
-
-
 }
