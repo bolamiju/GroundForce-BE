@@ -24,7 +24,6 @@ namespace Groundforce.Services.Models
 
         [Required]
         public string Latitude { get; set; }
-
         public BankAccount BankAccounts { get; set; }
         public ICollection<AssignedAddresses> AssignedAddresses { get; set; }
         public ICollection<PointAllocated> PointsAllocated { get; set; }

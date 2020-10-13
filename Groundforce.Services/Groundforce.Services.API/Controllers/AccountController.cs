@@ -1,236 +1,194 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Groundforce.Common.Utilities.Util;
-using Groundforce.Services.API.DTOs;
-using Groundforce.Services.Data;
-using Groundforce.Services.DTOs;
-using Groundforce.Services.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Groundforce.Services.Data;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using Microsoft.AspNetCore.Identity;
+using Groundforce.Services.Models;
+using Groundforce.Services.DTOs;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Authorization;
+using Groundforce.Common.Utilities;
 
 namespace Groundforce.Services.API.Controllers
 {
+    [Route("api/v1/[controller]")]
     [ApiController]
-    [Route("api/v1")]
     public class AccountController : ControllerBase
     {
-        private readonly ILogger<AccountController> _logger;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        // private fields
         private readonly IConfiguration _config;
-        private readonly AuthRepo _AuthRepo;
-        private readonly AppDbContext _dbContext;
-        private readonly IWebHostEnvironment _hostEnvironment;
+        private readonly ILogger<AccountController> _logger;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly AppDbContext _ctx;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public AccountController(ILogger<AccountController> logger,
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
-            IConfiguration config,
-            AppDbContext dbContext,
-            IWebHostEnvironment hostEnvironment
-            )
+        public AccountController(IConfiguration configuration, ILogger<AccountController> logger, SignInManager<ApplicationUser> signInManager,
+            UserManager<ApplicationUser> userManager, AppDbContext ctx, IWebHostEnvironment webHostEnvironment)
         {
+            _config = configuration;
             _logger = logger;
-            _userManager = userManager;
             _signInManager = signInManager;
-            _config = config;
-            _AuthRepo = new AuthRepo(_config);
-            _dbContext = dbContext;
-            _hostEnvironment = hostEnvironment;
+            _ctx = ctx;
+            _userManager = userManager;
+            _webHostEnvironment = webHostEnvironment;
         }
 
-        /// <summary>
-        /// Register new user
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [HttpPost("SignUp")]
-        public async Task<IActionResult> SignUp([FromBody] UserToRegister model)
+        // register user
+        [HttpPost("signup")]
+        public async Task<IActionResult> SignUp(UserToRegisterDTO model)
         {
-            if (ModelState.IsValid)
+            var userToAdd = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
+
+            if (userToAdd != null)
+                return BadRequest("Email already exist");
+
+            //create new applicationUser
+            var user = new ApplicationUser
             {
-                var userToAdd = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
+                UserName = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                Email = model.Email,
+                DOB = model.DOB,
+                LGA = model.LGA,
+                PlaceOfBirth = model.PlaceOfBirth,
+                State = model.State,
+                CreatedAt = DateTime.Now,
+                Gender = model.Gender,
+                HomeAddress = model.HomeAddress,
+            };
 
-                if (userToAdd != null)
+            var result = await _userManager.CreateAsync(user, model.PIN);
+
+            if (!result.Succeeded)
+            {
+                foreach (var err in result.Errors)
                 {
-                    return BadRequest("Email already exist");
+                    ModelState.AddModelError("", err.Description);
                 }
-
-                var user = new ApplicationUser()
-                {
-                    UserName = model.Email,
-                    LastName = model.LastName,
-                    FirstName = model.FirstName,
-                    Email = model.Email,
-                    DOB = model.DateOfBirth.ToLongDateString(),
-                    HomeAddress = model.Address,
-                    Gender = model.Gender,
-                    PhoneNumber = model.PhoneNumber,
-                    PlaceOfBirth = model.PlaceOfBirth,
-                    LGA = model.LGA,
-                    State = model.State
-                };
-
-                var result = await _userManager.CreateAsync(user, model.PIN);
-
-                if (!result.Succeeded)
-                {
-                    //var msg = "";
-                    foreach (var err in result.Errors)
-                    {
-                        //msg += err.Description + " ";
-                        ModelState.AddModelError("", err.Description);
-                    }
-
-                    return BadRequest(result.Errors);
-                }
-
-                //assign role
-                await _userManager.AddToRoleAsync(user, "Agent");
-
-                var savedUser = await _userManager.FindByEmailAsync(model.Email);
-
-                // Creating new field agent
-                try
-                {
-                    var newAgent = new FieldAgent()
-                    {
-                        ApplicationUserId = savedUser.Id,
-                        ApplicationUser = savedUser,
-                        Longitude = model.Longitude,
-                        Latitude = model.Latitude,
-                        Religion = model.Religion,
-                        AdditionalPhoneNumber = model.AdditionalPhoneNumber
-                    };
-
-                    await _dbContext.FieldAgents.AddAsync(newAgent);
-                    await _dbContext.SaveChangesAsync();
-                }
-                catch (Exception e)
-                {
-                    await _userManager.DeleteAsync(savedUser);
-
-                    return BadRequest(e.Message);
-                }
-
-                var savedAgent = _dbContext.FieldAgents.FirstOrDefault(agent => agent.ApplicationUserId == savedUser.Id);
-
-                // Creating new bank account
-                try
-                {
-                    if (savedAgent != null)
-                    {
-                        var newBankAccount = new BankAccount()
-                        {
-                            FieldAgentId = savedAgent.FieldAgentId,
-                            AccountNumber = model.AccountNumber,
-                            BankName = model.BankName,
-                            FieldAgent = savedAgent
-                        };
-
-                        await _dbContext.BankAccounts.AddRangeAsync(newBankAccount);
-                        await _dbContext.SaveChangesAsync();
-                    }
-                }
-                catch (Exception e)
-                {
-                    await _userManager.DeleteAsync(savedUser);
-                    if (savedAgent != null) _dbContext.FieldAgents.Remove(savedAgent);
-                    await _dbContext.SaveChangesAsync();
-
-                    return BadRequest(e.Message);
-                }
-
-                return Ok(result);
+                return BadRequest("Failed to create user!");
             }
-            return BadRequest(ModelState);
+
+            await _userManager.AddToRoleAsync(user, "Agent");
+
+            var createdUser = await _userManager.FindByEmailAsync(model.Email);
+
+            if (createdUser == null) return BadRequest();
+
+            //create new field agent
+            var agent = new FieldAgent
+            {
+                ApplicationUserId = createdUser.Id,
+                Latitude = model.Latitude,
+                Longitude = model.Longitude,
+                Religion = model.Religion,
+                AdditionalPhoneNumber = model.AdditionalPhoneNumber
+            };
+
+            try
+            {
+                await _ctx.FieldAgents.AddAsync(agent);
+                _ctx.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                _ctx.Remove(createdUser);
+                _ctx.SaveChanges();
+                _logger.LogError(e.Message);
+                return BadRequest("Failed to add additional details");
+            }
+
+            var createdFieldAgent = _ctx.FieldAgents.Where(x => x.ApplicationUserId == createdUser.Id).FirstOrDefault();
+
+            if (createdFieldAgent == null) return BadRequest();
+
+            var bank = new BankAccount
+            {
+                FieldAgentId = createdFieldAgent.FieldAgentId,
+                BankName = model.BankName,
+                AccountNumber = model.AccountNumber
+            };
+
+            try
+            {
+                await _ctx.BankAccounts.AddAsync(bank);
+                _ctx.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                _ctx.Remove(createdUser);
+                _ctx.Remove(createdFieldAgent);
+                _ctx.SaveChanges();
+                _logger.LogError(e.Message);
+                return BadRequest("Failed to add bank details");
+            }
+
+            return Ok();
         }
 
+        //User Login
         [AllowAnonymous]
-        [HttpPost("Login")]
-        public async Task<IActionResult> Login([FromBody] LoginUsers model)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginDTO model)
         {
             if (ModelState.IsValid)
             {
+
+                //get user by email
                 var user = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
 
+                //Check if user exist
                 if (user == null)
                 {
-                    return BadRequest();
+                    return BadRequest("Account does not exist");
                 }
 
-                var result = await _signInManager.PasswordSignInAsync(user, model.Pin, false, false);
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Pin, false, false);
 
                 if (result.Succeeded)
                 {
-                    var token = _AuthRepo.GetToken(user.Id, user.LastName);
-
-                    return Ok(token);
+                    var getToken = GetTokenHelperClass.GetToken(user, _config);
+                    return Ok(getToken);
                 }
-                else
-                {
-                    return Unauthorized("Invalid credentials");
-                }
+                
+				ModelState.AddModelError("", "Invalid creadentials");
+				return Unauthorized(ModelState);
+					
             }
-            return BadRequest();
+            
+            return BadRequest(model);
         }
 
-        /// <summary>
-        /// This Method helps a user to change or reset their pin
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [HttpPatch("resetpin")]
-        public async Task<IActionResult> Resetpin([FromBody] ResetPinDto model)
+        //change pin
+        [HttpPatch]
+        [Route("changePin")]
+        public async Task<IActionResult> ChangePin([FromBody] ResetUserPwdDTO userToUpdate)
         {
-            // check to see if passed in model is not null
             if (ModelState.IsValid)
             {
-                // Use the use id passed in the model to get the user from the database
-                var user = await _userManager.FindByIdAsync(model.Id);
+                var user = await _userManager.FindByIdAsync(userToUpdate.UserId);
 
-                // If the user is found, do the following:
-                if (user != null)
+                if (user == null) return NotFound();
+
+                var updatePwd = await _userManager.ChangePasswordAsync(user, userToUpdate.CurrentPwd, userToUpdate.NewPwd);
+
+                if (updatePwd.Succeeded) return Ok();
+
+                foreach (var error in updatePwd.Errors)
                 {
-                    // use the user, current pin and new pin to change the pin of the user
-                    var result = await _userManager.ChangePasswordAsync(user, model.CurrentPin, model.NewPin);
-
-                    // If the password is successfully changed:
-                    if (result.Succeeded)
-                    {
-                        // return an OK result
-                        return Ok();
-                    }
-                    // If the password is not successfully changed
-                    else
-                    {
-                        // return Bad Result
-                        return BadRequest();
-                    }
+                    ModelState.AddModelError("", $"{error.Code} - {error.Description}");
                 }
-                // If the User is  not found
-                else
-                {
-                    // return Bad Request
-                    return BadRequest();
-                }
+            }
 
-            }
-            // if the model state is not valid
-            else
-            {
-                // return Bad Request
-                return BadRequest();
-            }
+            return BadRequest(ModelState);
         }
     }
 }
