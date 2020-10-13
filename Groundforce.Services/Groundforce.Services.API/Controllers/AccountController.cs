@@ -74,7 +74,7 @@ namespace Groundforce.Services.API.Controllers
                 {
                     ModelState.AddModelError("", err.Description);
                 }
-                return BadRequest();
+                return BadRequest("Failed to create user!");
             }
 
             await _userManager.AddToRoleAsync(user, "Agent");
