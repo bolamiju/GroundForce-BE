@@ -43,6 +43,7 @@ namespace Groundforce.Services.API
                 option.Password.RequireNonAlphanumeric = false;
                 option.Password.RequireUppercase = false;
 
+
             }
             ).AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
