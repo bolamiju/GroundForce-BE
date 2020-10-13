@@ -26,7 +26,7 @@ namespace Groundforce.Common.Utilities
             };
 
             //Create jwt secret key
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSection("AppSettings:Token").Value));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSection("Jwt:SigningKey").Value));
 
             //Generate signin creadentials
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);

@@ -18,7 +18,7 @@ using Groundforce.Common.Utilities;
 
 namespace Groundforce.Services.API.Controllers
 {
-    [Route("api/v1")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
     {
@@ -96,12 +96,14 @@ namespace Groundforce.Services.API.Controllers
             try
             {
                 await _ctx.FieldAgents.AddAsync(agent);
+                _ctx.SaveChanges();
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 _ctx.Remove(createdUser);
                 _ctx.SaveChanges();
-                return BadRequest();
+                _logger.LogError(e.Message);
+                return BadRequest("Failed to add additional details");
             }
 
             var createdFieldAgent = _ctx.FieldAgents.Where(x => x.ApplicationUserId == createdUser.Id).FirstOrDefault();
@@ -118,14 +120,18 @@ namespace Groundforce.Services.API.Controllers
             try
             {
                 await _ctx.BankAccounts.AddAsync(bank);
+                _ctx.SaveChanges();
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 _ctx.Remove(createdUser);
                 _ctx.Remove(createdFieldAgent);
                 _ctx.SaveChanges();
-                return BadRequest();
+                _logger.LogError(e.Message);
+                return BadRequest("Failed to add bank details");
             }
+
+            return Ok();
         }
 
         //User Login
@@ -154,7 +160,7 @@ namespace Groundforce.Services.API.Controllers
                 }
                 
 				ModelState.AddModelError("", "Invalid creadentials");
-				return Unauthorized();
+				return Unauthorized(ModelState);
 					
             }
             
@@ -182,7 +188,7 @@ namespace Groundforce.Services.API.Controllers
                 }
             }
 
-            return BadRequest();
+            return BadRequest(ModelState);
         }
     }
 }

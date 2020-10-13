@@ -7,12 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
     <PackageReference Include="Twilio" Version="5.47.2" />
   </ItemGroup>
 
@@ -20,10 +22,7 @@
     <ProjectReference Include="..\Groundforce.Common.Utilities\Groundforce.Common.Utilities.csproj" />
     <ProjectReference Include="..\Groundforce.Services.Data\Groundforce.Services.Data.csproj" />
     <ProjectReference Include="..\Groundforce.Services.DTOs\Groundforce.Services.DTOs.csproj" />
-<<<<<<< HEAD
-=======
     <Folder Include="Controllers\" />
->>>>>>> gf-teamC
   </ItemGroup>
 
 

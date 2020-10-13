@@ -5,10 +5,11 @@ using Groundforce.Common.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Twilio.Exceptions;
 
 namespace Groundforce.Services.API.Controllers
 {
-    [Route("api/v1")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
@@ -24,30 +25,30 @@ namespace Groundforce.Services.API.Controllers
         [HttpPost("verification")]
         public async Task<IActionResult> Verification([FromBody] SendOTPDTOs model)
         {
-            CreateTwilioService.Init(_config);
-            var status = await CreateTwilioService.SendOTP(model.PhoneNumber);
-
-            if (status == Enum.GetName(typeof(TwilioStatus), TwilioStatus.pending))
+            try
             {
+                CreateTwilioService.Init(_config);
+                await CreateTwilioService.SendOTP(model.PhoneNumber);
                 return Ok();
             }
-
-            return BadRequest();
+            catch(TwilioException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         //confirm OTP
         [HttpPost("confirmation")]
         public async Task<IActionResult> Confirmation([FromBody] ConfirmationDTO model)
         {
-            string response = await CreateTwilioService.ConfirmOTP(model.PhoneNumber, model.VerifyCode);
-
-            if (response.Equals("approved"))
+            try
             {
+                await CreateTwilioService.ConfirmOTP(model.PhoneNumber, model.VerifyCode);
                 return Ok();
             }
-            else
+            catch (TwilioException e)
             {
-                return BadRequest(response);
+                return BadRequest(e.Message);
             }
         }
 
