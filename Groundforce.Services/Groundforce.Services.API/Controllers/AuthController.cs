@@ -20,8 +20,8 @@ namespace Groundforce.Services.API.Controllers
         {
             _config = configuration;
         }
-		
-		// verify OTP
+
+        // verify OTP
         [HttpPost("verification")]
         public async Task<IActionResult> Verification([FromBody] SendOTPDTOs model)
         {
@@ -31,7 +31,7 @@ namespace Groundforce.Services.API.Controllers
                 await CreateTwilioService.SendOTP(model.PhoneNumber);
                 return Ok();
             }
-            catch(TwilioException e)
+            catch (TwilioException e)
             {
                 return BadRequest(e.Message);
             }
