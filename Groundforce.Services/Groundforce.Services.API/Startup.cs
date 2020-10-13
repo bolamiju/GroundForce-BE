@@ -14,17 +14,10 @@ using Microsoft.Extensions.Logging;
 using Groundforce.Services.Data;
 using Microsoft.AspNetCore.Identity;
 using Groundforce.Services.Models;
-<<<<<<< HEAD
-using System.Net;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
-using Groundforce.Common.Utilities.Enums;
-=======
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
->>>>>>> develop
 
 namespace Groundforce.Services.API
 {
@@ -111,31 +104,10 @@ namespace Groundforce.Services.API
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDbContext ctx,
             RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
+
             if (env.IsDevelopment())
             {
-                app.UseExceptionHandler(errorApp =>
-                {
-                    errorApp.Run(async context =>
-                    {
-                        context.Response.StatusCode = 500;
-                        context.Response.ContentType = "application/json; charset=utf-8";
-                        await context.Response.WriteAsync(((int)Status.InternalServerError).ToString());
-                    });
-                });
-                app.UseHsts();
-            }
-            else
-            {
-                app.UseExceptionHandler(errorApp =>
-                {
-                    errorApp.Run(async context =>
-                    {
-                        context.Response.StatusCode = 500;
-                        context.Response.ContentType = "application/json; charset=utf-8";
-                        await context.Response.WriteAsync(((int)Status.InternalServerError).ToString());
-                    });
-                });
-                app.UseHsts();
+                app.UseDeveloperExceptionPage();
             }
 
             //app.UseHttpsRedirection();
