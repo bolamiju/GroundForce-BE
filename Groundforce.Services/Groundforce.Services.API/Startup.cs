@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Groundforce.Common.Utilities;
 
 namespace Groundforce.Services.API
 {
@@ -46,6 +47,10 @@ namespace Groundforce.Services.API
             }
             ).AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
+
+            //register cloudinary
+            services.AddScoped<IPhotoServices, PhotoServices>();
+            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
