@@ -26,37 +26,22 @@ namespace Groundforce.Common.Utilities
 
         public static async Task<string> SendOTP(string phoneNumber)
         {
-            try
-            {
-                var verificationResource = await VerificationResource.CreateAsync(
-                   to: phoneNumber,
-                   channel: "sms",
-                   pathServiceSid: ServiceSid
-               );
-
-                return verificationResource.Status;
-            }
-            catch (TwilioException e)
-            {
-                return e.Message;
-            }
+            var verificationResource = await VerificationResource.CreateAsync(
+                to: phoneNumber,
+                channel: "sms",
+                pathServiceSid: ServiceSid
+            );
+            return verificationResource.Status;                       
         }
 
         public static async Task<string> ConfirmOTP(string phoneNumber, string verifyCode)
         {
-            try
-            {
-                VerificationCheckResource verificationCheck = await VerificationCheckResource.CreateAsync(
-                            to: phoneNumber,
-                            code: verifyCode,
-                            pathServiceSid: ServiceSid
-                            );
-                return verificationCheck.Status;
-            }
-            catch (TwilioException e)
-            {
-                return e.Message;
-            }
+            VerificationCheckResource verificationCheck = await VerificationCheckResource.CreateAsync(
+                        to: phoneNumber,
+                        code: verifyCode,
+                        pathServiceSid: ServiceSid
+                        );
+            return verificationCheck.Status;
         }
     }
 }

@@ -4,10 +4,10 @@ using System.Text;
 
 namespace Groundforce.Services.DTOs
 {
-    public class VerifiedUserDTO
+    public class ResetUserPwdDTO
     {
         public string UserId { get; set; }
-        public string currentPin { get; set; }
-        public string newPin { get; set; }
+        public string CurrentPwd { get; set; }
+        public string NewPwd { get; set; }
     }
 }
