@@ -31,7 +31,7 @@ namespace Groundforce.Common.Utilities
                 channel: "sms",
                 pathServiceSid: ServiceSid
             );
-            return verificationResource.Status;                       
+            return verificationResource.Status;
         }
 
         public static async Task<string> ConfirmOTP(string phoneNumber, string verifyCode)

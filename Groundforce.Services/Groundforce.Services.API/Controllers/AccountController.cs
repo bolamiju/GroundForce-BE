@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Groundforce.Services.Data;
@@ -15,6 +17,7 @@ using Groundforce.Services.DTOs;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Authorization;
 using Groundforce.Common.Utilities;
+using Microsoft.Extensions.Options;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -24,14 +27,18 @@ namespace Groundforce.Services.API.Controllers
     {
         // private fields
         private readonly IConfiguration _config;
+
         private readonly ILogger<AccountController> _logger;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly AppDbContext _ctx;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IPhotoService _photoService;
 
-        public AccountController(IConfiguration configuration, ILogger<AccountController> logger, SignInManager<ApplicationUser> signInManager,
-            UserManager<ApplicationUser> userManager, AppDbContext ctx, IWebHostEnvironment webHostEnvironment)
+        public AccountController(IConfiguration configuration, ILogger<AccountController> logger,
+            SignInManager<ApplicationUser> signInManager,
+            UserManager<ApplicationUser> userManager, AppDbContext ctx, IWebHostEnvironment webHostEnvironment,
+             IPhotoService photoService)
         {
             _config = configuration;
             _logger = logger;
@@ -39,6 +46,7 @@ namespace Groundforce.Services.API.Controllers
             _ctx = ctx;
             _userManager = userManager;
             _webHostEnvironment = webHostEnvironment;
+            _photoService = photoService;
         }
 
         // register user
@@ -74,6 +82,7 @@ namespace Groundforce.Services.API.Controllers
                 {
                     ModelState.AddModelError("", err.Description);
                 }
+
                 return BadRequest("Failed to create user!");
             }
 
@@ -141,7 +150,6 @@ namespace Groundforce.Services.API.Controllers
         {
             if (ModelState.IsValid)
             {
-
                 //get user by email
                 var user = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
 
@@ -158,12 +166,11 @@ namespace Groundforce.Services.API.Controllers
                     var getToken = GetTokenHelperClass.GetToken(user, _config);
                     return Ok(getToken);
                 }
-                
-				ModelState.AddModelError("", "Invalid creadentials");
-				return Unauthorized(ModelState);
-					
+
+                ModelState.AddModelError("", "Invalid creadentials");
+                return Unauthorized(ModelState);
             }
-            
+
             return BadRequest(model);
         }
 
@@ -178,7 +185,8 @@ namespace Groundforce.Services.API.Controllers
 
                 if (user == null) return NotFound();
 
-                var updatePwd = await _userManager.ChangePasswordAsync(user, userToUpdate.CurrentPwd, userToUpdate.NewPwd);
+                var updatePwd =
+                    await _userManager.ChangePasswordAsync(user, userToUpdate.CurrentPwd, userToUpdate.NewPwd);
 
                 if (updatePwd.Succeeded) return Ok();
 
@@ -186,6 +194,44 @@ namespace Groundforce.Services.API.Controllers
                 {
                     ModelState.AddModelError("", $"{error.Code} - {error.Description}");
                 }
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        [HttpPatch("{userId}/picture")]
+        public async Task<IActionResult> UploadPicture([FromForm] PhotoForCreation photoFile, string userId)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByIdAsync(userId);  // 1.
+                if (user == null)
+                {
+                    return BadRequest("User not found");
+                }
+
+                var file = photoFile.PhotoFile;                            // 2.
+                var uploadResult = new ImageUploadResult();                // 3.
+
+                if (file.Length > 0)                                        // 4.
+                {
+                    try
+                    {
+                        uploadResult = _photoService.Upload(file);  //  5.
+                    }
+                    catch (Exception e)
+                    {
+                        return BadRequest(e.Message);
+                    }
+
+                    user.AvatarUrl = uploadResult.Url.ToString();
+                    user.PublicId = uploadResult.PublicId;
+                    await _userManager.UpdateAsync(user);
+
+                    return Ok("Photo uploaded");
+                }
+
+                return BadRequest("No File Found");
             }
 
             return BadRequest(ModelState);
