@@ -122,10 +122,11 @@ namespace Groundforce.Services.API.Controllers
 
             try
             {
+                // number must be added to the request be for sign up
                 await _ctx.BankAccounts.AddAsync(bank);
                 // change phonenumber status to verified
                 var requestModel = _ctx.Request.Where(x => x.PhoneNumber == model.PhoneNumber).FirstOrDefault();
-                requestModel.IsVerified = true;
+               requestModel.IsVerified = true;
                 _ctx.Request.Update(requestModel);
 
                 _ctx.SaveChanges();
