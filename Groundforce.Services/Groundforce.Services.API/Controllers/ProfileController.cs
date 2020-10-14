@@ -91,11 +91,11 @@ namespace Groundforce.Services.API.Controllers
             userProfile.FirstName = user.FirstName;
             userProfile.LastName = user.LastName;
             userProfile.Address = user.HomeAddress;
-            userProfile.DateOfBirth = user.DOB;
+            userProfile.DOB = user.DOB;
             userProfile.Email = user.Email;
             userProfile.Gender = user.Gender;
             userProfile.Religion = agent.Religion;
-            userProfile.PhoneNumber2 = agent.AdditionalPhoneNumber;
+            userProfile.AdditionalPhoneNumber = agent.AdditionalPhoneNumber;
             userProfile.BankName = bankDetail.BankName;
             userProfile.AccountNumber = bankDetail.AccountNumber;
 
