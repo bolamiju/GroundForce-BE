@@ -18,6 +18,7 @@ using Groundforce.Common.Utilities;
 
 namespace Groundforce.Services.API.Controllers
 {
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -42,6 +43,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
         // register user
+        [AllowAnonymous]
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp(UserToRegisterDTO model)
         {
@@ -187,6 +189,34 @@ namespace Groundforce.Services.API.Controllers
                 var updatePwd = await _userManager.ChangePasswordAsync(user, userToUpdate.CurrentPwd, userToUpdate.NewPwd);
 
                 if (updatePwd.Succeeded) return Ok();
+
+                foreach (var error in updatePwd.Errors)
+                {
+                    ModelState.AddModelError("", $"{error.Code} - {error.Description}");
+                }
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        //Forgot pin
+        [AllowAnonymous]
+        [HttpPatch]
+        [Route("forgotPin")]
+        public async Task<IActionResult> ForgotPin([FromBody] ForgotUserPwdDTO userToUpdate)
+        {
+            if (ModelState.IsValid)
+            {
+                ApplicationUser user = await _userManager.Users.SingleAsync(applicationUser =>
+                    applicationUser.PhoneNumber == userToUpdate.phoneNumber);
+
+                if (user == null) return NotFound();
+
+                string Token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+                IdentityResult updatePwd = await _userManager.ResetPasswordAsync(user, Token, userToUpdate.newPin);
+
+                if (updatePwd.Succeeded) return Ok("Password Change Successful");
 
                 foreach (var error in updatePwd.Errors)
                 {
