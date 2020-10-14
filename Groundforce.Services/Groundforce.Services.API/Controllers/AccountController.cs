@@ -190,44 +190,6 @@ namespace Groundforce.Services.API.Controllers
 
             return BadRequest(ModelState);
         }
-        // Gets the profile of a particular field agent by userID.
-        [HttpGet]
-        [Route("profile")]
-        public async Task<IActionResult> GetProfile(string userId)
-        {
-            if (string.IsNullOrWhiteSpace(userId)) return BadRequest();
-
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user == null)
-            {
-                return NotFound("User not found");
-            }
-
-            // Returns the field agent by userId
-            var agent = await _ctx.FieldAgents.FirstOrDefaultAsync(a => a.ApplicationUserId == userId);
-
-            //  Returns the bank account of that particular field agent using the fieldAgentID
-            var bank = await _ctx.BankAccounts.FirstOrDefaultAsync(a => a.FieldAgentId == agent.FieldAgentId);
-
-            var profile = new UserProfileDTO
-            {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                DOB = user.DOB,
-                Gender = user.Gender,
-                Religion = agent.Religion,
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                SecondPhoneNumber = agent.AdditionalPhoneNumber,
-                Address = user.HomeAddress,
-                BankName = bank.BankName,
-                AccountNumber = bank.AccountNumber,
-                LGA = user.LGA
-            };
-             
-            return Ok(profile);
-        }
 
     }
 }
