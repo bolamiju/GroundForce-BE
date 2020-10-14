@@ -18,6 +18,7 @@ using Groundforce.Common.Utilities;
 
 namespace Groundforce.Services.API.Controllers
 {
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -42,6 +43,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
         // register user
+        [AllowAnonymous]
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp(UserToRegisterDTO model)
         {
