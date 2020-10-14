@@ -23,7 +23,6 @@
     <ProjectReference Include="..\Groundforce.Services.Core\Groundforce.Services.Core.csproj" />
     <ProjectReference Include="..\Groundforce.Services.Data\Groundforce.Services.Data.csproj" />
     <ProjectReference Include="..\Groundforce.Services.DTOs\Groundforce.Services.DTOs.csproj" />
-    <Folder Include="Controllers\" />
   </ItemGroup>
 
 
