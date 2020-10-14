@@ -107,7 +107,17 @@ namespace Groundforce.Services.API.Controllers
                     // update the user photo
                     user.AvatarUrl = uploadResult.Url.ToString();
                     user.PublicId = uploadResult.PublicId;
-                    await _userManager.UpdateAsync(user);
+                    var result = await _userManager.UpdateAsync(user);
+
+                    if (!result.Succeeded)
+                    {
+                        foreach (var err in result.Errors)
+                        {
+                            ModelState.AddModelError("", err.Description);
+                        }
+
+                        return BadRequest(ModelState);
+                    }
 
                     return Ok("Photo uploaded");
                 }
