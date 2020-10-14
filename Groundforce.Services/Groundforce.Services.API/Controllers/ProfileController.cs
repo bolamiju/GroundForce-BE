@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Groundforce.Services.API.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class ProfileController : ControllerBase
@@ -36,7 +36,7 @@ namespace Groundforce.Services.API.Controllers
 
         //updates profile picture
         [HttpPatch]
-        [Route("profile/{userId}/picture")]
+        [Route("{userId}/picture")]
         public async Task<IActionResult> UpdatePicture(string userId, IFormFile picture)
         {
             var userToUpdate = await _userManager.FindByIdAsync(userId);
