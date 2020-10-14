@@ -21,6 +21,7 @@ using Microsoft.Extensions.Options;
 
 namespace Groundforce.Services.API.Controllers
 {
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -33,12 +34,10 @@ namespace Groundforce.Services.API.Controllers
         private readonly AppDbContext _ctx;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly IPhotoService _photoService;
 
         public AccountController(IConfiguration configuration, ILogger<AccountController> logger,
             SignInManager<ApplicationUser> signInManager,
-            UserManager<ApplicationUser> userManager, AppDbContext ctx, IWebHostEnvironment webHostEnvironment,
-             IPhotoService photoService)
+            UserManager<ApplicationUser> userManager, AppDbContext ctx, IWebHostEnvironment webHostEnvironment)
         {
             _config = configuration;
             _logger = logger;
@@ -46,10 +45,10 @@ namespace Groundforce.Services.API.Controllers
             _ctx = ctx;
             _userManager = userManager;
             _webHostEnvironment = webHostEnvironment;
-            _photoService = photoService;
         }
 
         // register user
+        [AllowAnonymous]
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp(UserToRegisterDTO model)
         {
@@ -72,6 +71,7 @@ namespace Groundforce.Services.API.Controllers
                 CreatedAt = DateTime.Now,
                 Gender = model.Gender,
                 HomeAddress = model.HomeAddress,
+                PhoneNumber = model.PhoneNumber
             };
 
             var result = await _userManager.CreateAsync(user, model.PIN);
@@ -129,6 +129,11 @@ namespace Groundforce.Services.API.Controllers
             try
             {
                 await _ctx.BankAccounts.AddAsync(bank);
+                // change phonenumber status to verified
+                var requestModel = _ctx.Request.Where(x => x.PhoneNumber == model.PhoneNumber).FirstOrDefault();
+                requestModel.IsVerified = true;
+                _ctx.Request.Update(requestModel);
+
                 _ctx.SaveChanges();
             }
             catch (Exception e)
@@ -199,39 +204,29 @@ namespace Groundforce.Services.API.Controllers
             return BadRequest(ModelState);
         }
 
-        [HttpPatch("{userId}/picture")]
-        public async Task<IActionResult> UploadPicture([FromForm] PhotoForCreation photoFile, string userId)
+        //Forgot pin
+        [AllowAnonymous]
+        [HttpPatch]
+        [Route("forgotPin")]
+        public async Task<IActionResult> ForgotPin([FromBody] ForgotUserPwdDTO userToUpdate)
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByIdAsync(userId);  // 1.
-                if (user == null)
+                ApplicationUser user = await _userManager.Users.SingleAsync(applicationUser =>
+                    applicationUser.PhoneNumber == userToUpdate.phoneNumber);
+
+                if (user == null) return NotFound();
+
+                string Token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+                IdentityResult updatePwd = await _userManager.ResetPasswordAsync(user, Token, userToUpdate.newPin);
+
+                if (updatePwd.Succeeded) return Ok("Password Change Successful");
+
+                foreach (var error in updatePwd.Errors)
                 {
-                    return BadRequest("User not found");
+                    ModelState.AddModelError("", $"{error.Code} - {error.Description}");
                 }
-
-                var file = photoFile.PhotoFile;                            // 2.
-                var uploadResult = new ImageUploadResult();                // 3.
-
-                if (file.Length > 0)                                        // 4.
-                {
-                    try
-                    {
-                        uploadResult = _photoService.Upload(file);  //  5.
-                    }
-                    catch (Exception e)
-                    {
-                        return BadRequest(e.Message);
-                    }
-
-                    user.AvatarUrl = uploadResult.Url.ToString();
-                    user.PublicId = uploadResult.PublicId;
-                    await _userManager.UpdateAsync(user);
-
-                    return Ok("Photo uploaded");
-                }
-
-                return BadRequest("No File Found");
             }
 
             return BadRequest(ModelState);

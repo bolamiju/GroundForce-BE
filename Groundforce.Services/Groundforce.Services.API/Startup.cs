@@ -37,18 +37,17 @@ namespace Groundforce.Services.API
             services.AddControllers();
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbConnection")));
             services.AddIdentity<ApplicationUser, IdentityRole>(option =>
-            {
-                option.Password.RequireDigit = true;
-                option.Password.RequiredLength = 4;
-                option.Password.RequireLowercase = false;
-                option.Password.RequireNonAlphanumeric = false;
-                option.Password.RequireUppercase = false;
-            }
+                    {
+                        option.Password.RequireDigit = true;
+                        option.Password.RequiredLength = 4;
+                        option.Password.RequireLowercase = false;
+                        option.Password.RequireNonAlphanumeric = false;
+                        option.Password.RequireUppercase = false;
+                    }
             ).AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings")); // <--- added
-            services.AddScoped<IPhotoService, PhotoService>();
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>

@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace Groundforce.Common.Utilities
 {
-    public class PhotoService : IPhotoService
+    public class PhotoService
     {
         private Cloudinary _cloudinary;
 
@@ -28,6 +28,11 @@ namespace Groundforce.Common.Utilities
             _cloudinary = new Cloudinary(account);
         }
 
+        /// <summary>
+        /// A method that uploads the photo file to cloudinaary
+        /// </summary>
+        /// <param name="file">the file to upload</param>
+        /// <returns>The returned response</returns>
         public ImageUploadResult Upload(IFormFile file)
         {
             var uploadResult = new ImageUploadResult();
@@ -36,14 +41,16 @@ namespace Groundforce.Common.Utilities
             {
                 var uploadParams = new ImageUploadParams()
                 {
+                    // change file description
                     File = new FileDescription(file.Name, stream),
-                    Transformation = new Transformation()           //  *
+                    Transformation = new Transformation()
 
                         .Width(500).Height(500)
                         .Crop("fill")
                         .Gravity("face")
                 };
 
+                //upload the file
                 uploadResult = _cloudinary.Upload(uploadParams);
             }
 
