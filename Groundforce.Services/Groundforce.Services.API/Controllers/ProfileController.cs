@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -23,14 +24,13 @@ namespace Groundforce.Services.API.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly AppDbContext _ctx;
-        private readonly PhotoServices _cloudinaryServices;
-        public ProfileController(ILogger<AccountController> logger, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment,
-            PhotoServices cloudinaryServices, AppDbContext ctx)
+        private readonly IOptions<CloudinarySettings> _cloudinaryConfig;
+        public ProfileController(ILogger<AccountController> logger, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment, AppDbContext ctx, IOptions<CloudinarySettings> cloudinaryConfig)
         {
             _userManager = userManager;
             _webHostEnvironment = webHostEnvironment;
-            _cloudinaryServices = cloudinaryServices;
             _ctx = ctx;
+            _cloudinaryConfig = cloudinaryConfig;
         }
 
 
@@ -49,7 +49,8 @@ namespace Groundforce.Services.API.Controllers
             {
                 try
                 {
-                    userToUpdate.AvatarUrl = _cloudinaryServices.UploadAvatar(picture);
+                    var photoServices = new PhotoServices(_cloudinaryConfig);
+                    userToUpdate.AvatarUrl = photoServices.UploadAvatar(picture);
                     await _userManager.UpdateAsync(userToUpdate);
 
                     return Ok("Picture successfully uploaded");

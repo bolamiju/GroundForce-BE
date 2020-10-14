@@ -1,16 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Groundforce.Services.Data;
 using Microsoft.AspNetCore.Identity;
 using Groundforce.Services.Models;
@@ -18,7 +11,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
-using Groundforce.Common.Utilities;
 
 namespace Groundforce.Services.API
 {
@@ -49,7 +41,6 @@ namespace Groundforce.Services.API
             .AddDefaultTokenProviders();
 
             //register cloudinary
-            services.AddScoped<PhotoServices>();
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
 
             // Register the Swagger generator, defining 1 or more Swagger documents
