@@ -66,5 +66,43 @@ namespace Groundforce.Services.API.Controllers
             return BadRequest(ModelState);
         }
 
+        [HttpGet]
+        [Route("{userid}")]
+
+        public async Task<IActionResult> FetchUserDetails(string userid)
+        {
+
+            // get user with userId
+            var user = await _userManager.FindByIdAsync(userid);
+
+            // check if user is null
+            if (user == null)
+            {
+                return NotFound("Account does not exist");
+            }
+
+            // get agent  
+            var agent = await _ctx.FieldAgents.FirstOrDefaultAsync(x => x.ApplicationUserId == userid);
+            // agent accounts
+            var bankDetail = await _ctx.BankAccounts.FirstOrDefaultAsync(x => x.FieldAgentId == agent.FieldAgentId);
+
+            // user profile
+            var userProfile = new UserprofileDTO();
+            userProfile.FirstName = user.FirstName;
+            userProfile.LastName = user.LastName;
+            userProfile.Address = user.HomeAddress;
+            userProfile.DateOfBirth = user.DOB;
+            userProfile.Email = user.Email;
+            userProfile.Gender = user.Gender;
+            userProfile.Religion = agent.Religion;
+            userProfile.PhoneNumber2 = agent.AdditionalPhoneNumber;
+            userProfile.BankName = bankDetail.BankName;
+            userProfile.AccountNumber = bankDetail.AccountNumber;
+
+            // return profile 
+            return Ok(userProfile);
+
+        }
+
     }
 }
