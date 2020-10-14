@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Groundforce.Services.Data;
 using Groundforce.Services.DTOs;
 using Groundforce.Services.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Groundforce.Services.API.Controllers
 {
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class ProfileController : ControllerBase
