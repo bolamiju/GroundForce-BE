@@ -16,18 +16,20 @@ using Microsoft.Extensions.Logging;
 
 namespace Groundforce.Services.API.Controllers
 {
-    [Authorize]
+    [Authorize(Roles ="Agent")]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class ProfileController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly AppDbContext _ctx;
+        private readonly ILogger<ProfileController> _logger;
 
-        public ProfileController(UserManager<ApplicationUser> userManager, AppDbContext ctx)
+        public ProfileController(UserManager<ApplicationUser> userManager, AppDbContext ctx, ILogger<ProfileController>logger)
         {
             _userManager = userManager;
             _ctx = ctx;
+            _logger = logger;
         }
         // Gets the profile of a particular field agent by userID.
         [HttpGet]
@@ -87,24 +89,46 @@ namespace Groundforce.Services.API.Controllers
 
                 var result = await _userManager.UpdateAsync(user);
 
-                if (!result.Succeeded) return BadRequest("An Error Occured");
+                if (!result.Succeeded)
+                {
+                    foreach (var err in result.Errors)
+                    {
+                        ModelState.AddModelError("", err.Description);
+                    }
+                    return BadRequest("Failed to update user!");
+                }
 
+                int fieldAgentId;
                 try
                 {
                     //update field agent
                     var agent = await _ctx.FieldAgents.FirstOrDefaultAsync(x => x.ApplicationUserId == Id);
                     agent.AdditionalPhoneNumber = model.AdditionalPhoneNumber;
                     agent.Religion = model.Religion;
+                    fieldAgentId = agent.FieldAgentId;
                     _ctx.SaveChanges();
+                    
+                }
+                catch (Exception e)
+                {
+                    _ctx.SaveChanges();
+                    _logger.LogError(e.Message);
+                    return BadRequest("Failed to update additional details");
+                }
+
+                try
+                {
                     //update bank
-                    var bank = await _ctx.BankAccounts.FirstOrDefaultAsync(x => x.FieldAgentId == agent.FieldAgentId);
+                    var bank = await _ctx.BankAccounts.FirstOrDefaultAsync(x => x.FieldAgentId == fieldAgentId);
                     bank.BankName = model.BankName;
                     bank.AccountNumber = model.AccountNumber;
                     _ctx.SaveChanges();
                 }
-                catch (Exception e)
+                catch(Exception e)
                 {
-                    return BadRequest("An Error Occured");
+                    _ctx.SaveChanges();
+                    _logger.LogError(e.Message);
+                    return BadRequest("failed to update bank details");
                 }
 
                 return Ok("Success");
