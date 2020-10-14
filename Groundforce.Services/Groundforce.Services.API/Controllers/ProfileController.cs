@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Groundforce.Services.API.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class ProfileController : ControllerBase
@@ -59,15 +59,61 @@ namespace Groundforce.Services.API.Controllers
                 Gender = user.Gender,
                 Religion = agent.Religion,
                 Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                SecondPhoneNumber = agent.AdditionalPhoneNumber,
-                Address = user.HomeAddress,
+                AdditionalPhoneNumber = agent.AdditionalPhoneNumber,
+                ResidentialAddress = user.HomeAddress,
                 BankName = bank.BankName,
                 AccountNumber = bank.AccountNumber,
-                LGA = user.LGA
             };
 
             return Ok(profile);
+        }
+
+        //update profile controller
+        [HttpPut]
+        [Route("{Id}")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UserProfileDTO model, string Id)
+        {
+            var user = await _userManager.FindByIdAsync(Id);
+            if (user == null) return BadRequest("User Does Not Exist");
+
+
+            if (ModelState.IsValid)
+            {
+
+                //update application user
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.DOB = model.DOB;
+                user.Email = model.Email;
+                user.Gender = model.Gender;
+
+
+                var result = await _userManager.UpdateAsync(user);
+
+                if (!result.Succeeded) return BadRequest("An Error Occured");
+
+                try
+                {
+                    //update field agent
+                    var agent = await _ctx.FieldAgents.FirstOrDefaultAsync(x => x.ApplicationUserId == Id);
+                    agent.AdditionalPhoneNumber = model.AdditionalPhoneNumber;
+                    agent.Religion = model.Religion;
+                    _ctx.SaveChanges();
+                    //update bank
+                    var bank = await _ctx.BankAccounts.FirstOrDefaultAsync(x => x.FieldAgentId == agent.FieldAgentId);
+                    bank.BankName = model.BankName;
+                    bank.AccountNumber = model.AccountNumber;
+                    _ctx.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    return BadRequest("An Error Occured");
+                }
+
+                return Ok("Success");
+
+            }
+            return BadRequest(ModelState);
         }
 
     }
