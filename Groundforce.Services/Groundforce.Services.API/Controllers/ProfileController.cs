@@ -13,20 +13,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Groundforce.Services.Data;
-
-using Groundforce.Services.DTOs;
-using Groundforce.Services.Models;
-
 using Microsoft.AspNetCore.Hosting;
-
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-
-using Microsoft.Extensions.Logging;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -37,12 +26,9 @@ namespace Groundforce.Services.API.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly PhotoService _photoService;
-
         private IConfiguration _config;
-
         private SignInManager<ApplicationUser> _signInManager;
         private AppDbContext _ctx;
-
         private IWebHostEnvironment _webHostEnvironment;
 
         public ProfileController(ILogger<AccountController> logger, UserManager<ApplicationUser> userManager, IOptions<CloudinarySettings> cloudinaryConfig, IConfiguration configuration, SignInManager<ApplicationUser> signInManager, AppDbContext ctx, IWebHostEnvironment webHostEnvironment)
