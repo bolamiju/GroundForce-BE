@@ -79,7 +79,6 @@ namespace Groundforce.Services.API
                 });
             });
 
-
             services.AddAuthentication(option => {
                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;

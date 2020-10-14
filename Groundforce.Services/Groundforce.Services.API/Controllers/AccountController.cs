@@ -64,6 +64,7 @@ namespace Groundforce.Services.API.Controllers
                 CreatedAt = DateTime.Now,
                 Gender = model.Gender,
                 HomeAddress = model.HomeAddress,
+                PhoneNumber = model.PhoneNumber
             };
 
             var result = await _userManager.CreateAsync(user, model.PIN);
@@ -120,6 +121,11 @@ namespace Groundforce.Services.API.Controllers
             try
             {
                 await _ctx.BankAccounts.AddAsync(bank);
+                // change phonenumber status to verified
+                var requestModel = _ctx.Request.Where(x => x.PhoneNumber == model.PhoneNumber).FirstOrDefault();
+                requestModel.IsVerified = true;
+                _ctx.Request.Update(requestModel);
+
                 _ctx.SaveChanges();
             }
             catch (Exception e)
