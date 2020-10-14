@@ -30,18 +30,22 @@ namespace Groundforce.Common.Utilities
 
         public ImageUploadResult Upload(IFormFile file)
         {
-            using var stream = file.OpenReadStream();
-            var uploadParams = new ImageUploadParams()
+            var uploadResult = new ImageUploadResult();
+
+            using (var stream = file.OpenReadStream())
             {
-                File = new FileDescription(file.Name, stream),
-                Transformation = new Transformation()           //  *
+                var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(file.Name, stream),
+                    Transformation = new Transformation()           //  *
 
-                    .Width(500).Height(500)
-                    .Crop("fill")
-                    .Gravity("face")
-            };
+                        .Width(500).Height(500)
+                        .Crop("fill")
+                        .Gravity("face")
+                };
 
-            var uploadResult = _cloudinary.Upload(uploadParams);
+                uploadResult = _cloudinary.Upload(uploadParams);
+            }
 
             return uploadResult;
         }
