@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Groundforce.Services.Data;
 using Microsoft.AspNetCore.Hosting;
@@ -26,11 +25,9 @@ namespace Groundforce.Services.API.Controllers
         private readonly AppDbContext _ctx;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly IPhotoServices _cloudinaryServices;
 
         public AccountController(IConfiguration configuration, ILogger<AccountController> logger, SignInManager<ApplicationUser> signInManager,
-            UserManager<ApplicationUser> userManager, AppDbContext ctx, IWebHostEnvironment webHostEnvironment,
-            IPhotoServices cloudinaryServices)
+            UserManager<ApplicationUser> userManager, AppDbContext ctx, IWebHostEnvironment webHostEnvironment)
         {
             _config = configuration;
             _logger = logger;
@@ -38,7 +35,6 @@ namespace Groundforce.Services.API.Controllers
             _ctx = ctx;
             _userManager = userManager;
             _webHostEnvironment = webHostEnvironment;
-            _cloudinaryServices = cloudinaryServices;
         }
 
         // register user
@@ -189,34 +185,6 @@ namespace Groundforce.Services.API.Controllers
             }
 
             return BadRequest(ModelState);
-        }
-
-        //updates profile picture
-        [HttpPatch]
-        [Route("{userId}/picture")]
-        public async Task<IActionResult> UpdatePicture(string userId, IFormFile picture)
-        {
-            var userToUpdate = await _userManager.FindByIdAsync(userId);
-            if(userToUpdate == null)
-            {
-                return BadRequest("User does not exist");
-            }
-
-            if(picture != null && picture.Length > 0)
-            {
-                try
-                {
-                    userToUpdate.AvatarUrl = _cloudinaryServices.UploadAvatar(picture);
-                    await _userManager.UpdateAsync(userToUpdate);
-
-                    return Ok("Picture successfully uploaded");
-                }
-                catch (Exception)
-                {
-                    return BadRequest("Picture not successfully uploaded");
-                }
-            }
-            return BadRequest("Picture not uploaded");
         }
     }
 }
