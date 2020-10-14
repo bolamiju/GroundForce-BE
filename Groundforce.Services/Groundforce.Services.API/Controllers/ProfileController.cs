@@ -48,11 +48,19 @@ namespace Groundforce.Services.API.Controllers
                 {
                     //update field agent details
                     var agent = await _ctx.FieldAgents.FirstOrDefaultAsync(agent => agent.ApplicationUserId == Id);
+                    if (agent == null)
+                    {
+                        return BadRequest();
+                    }
                     agent.AdditionalPhoneNumber = model.AdditionalPhoneNumber;
                     agent.Religion = model.Religion;
                     _ctx.SaveChanges();
                     //update bank details
                     var bank = await _ctx.BankAccounts.FirstOrDefaultAsync(bank => bank.FieldAgentId == agent.FieldAgentId);
+                    if (bank == null)
+                    {
+                        return BadRequest();
+                    }
                     bank.BankName = model.BankName;
                     bank.AccountNumber = model.AccountNumber;
                     _ctx.SaveChanges();
