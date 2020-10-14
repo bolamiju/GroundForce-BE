@@ -48,9 +48,12 @@ namespace Groundforce.Services.Core
             //adds number to the database
             await _ctx.AddAsync(new Request()
             {
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber,
+                RequestAttempt = 1
             });
+
             await _ctx.SaveChangesAsync();
+
 
             return PhoneNumberStatus.ValidRequest;
         }

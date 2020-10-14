@@ -31,9 +31,17 @@ namespace Groundforce.Services.API.Controllers
         {
             //create instance of the phoneNumberService class
             var numberService = new PhoneNumberService(_ctx);
-            //call the phone number check method
-            var phoneNumberStatus = await numberService.PhoneNumberCheck(model.PhoneNumber);
-            
+            PhoneNumberStatus phoneNumberStatus;
+            try
+            {
+                //call the phone number check method
+                phoneNumberStatus = await numberService.PhoneNumberCheck(model.PhoneNumber);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
             if (phoneNumberStatus == PhoneNumberStatus.Blocked) return BadRequest("Number blocked");
             if (phoneNumberStatus == PhoneNumberStatus.InvalidRequest) return BadRequest();
             if (phoneNumberStatus == PhoneNumberStatus.Verified) return BadRequest("Number already registered");
