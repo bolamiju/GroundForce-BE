@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using Groundforce.Services.DTOs;
 using Groundforce.Common.Utilities;
+using Groundforce.Services.Core;
+using Groundforce.Services.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -15,16 +17,35 @@ namespace Groundforce.Services.API.Controllers
     {
         // private fields
         private readonly IConfiguration _config;
+        private readonly AppDbContext _ctx;
 
-        public AuthController(IConfiguration configuration)
+        public AuthController(IConfiguration configuration, AppDbContext ctx)
         {
             _config = configuration;
+            _ctx = ctx;
         }
 
         // verify OTP
         [HttpPost("verification")]
         public async Task<IActionResult> Verification([FromBody] SendOTPDTOs model)
         {
+            //create instance of the phoneNumberService class
+            var numberService = new PhoneNumberService(_ctx);
+            PhoneNumberStatus phoneNumberStatus;
+            try
+            {
+                //call the phone number check method
+                phoneNumberStatus = await numberService.PhoneNumberCheck(model.PhoneNumber);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            if (phoneNumberStatus == PhoneNumberStatus.Blocked) return BadRequest("Number blocked");
+            if (phoneNumberStatus == PhoneNumberStatus.InvalidRequest) return BadRequest();
+            if (phoneNumberStatus == PhoneNumberStatus.Verified) return BadRequest("Number already registered");
+
             try
             {
                 CreateTwilioService.Init(_config);
@@ -43,6 +64,7 @@ namespace Groundforce.Services.API.Controllers
         {
             try
             {
+                CreateTwilioService.Init(_config);
                 await CreateTwilioService.ConfirmOTP(model.PhoneNumber, model.VerifyCode);
                 return Ok();
             }

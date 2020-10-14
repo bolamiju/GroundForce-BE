@@ -59,6 +59,7 @@ namespace Groundforce.Services.API.Controllers
                 Email = model.Email,
                 DOB = model.DOB,
                 LGA = model.LGA,
+                PhoneNumber = model.PhoneNumber,
                 PlaceOfBirth = model.PlaceOfBirth,
                 State = model.State,
                 CreatedAt = DateTime.Now,
@@ -120,7 +121,12 @@ namespace Groundforce.Services.API.Controllers
             try
             {
                 await _ctx.BankAccounts.AddAsync(bank);
-                _ctx.SaveChanges();
+                //get the phone number of the successfully registered user 
+                var registeredUser = _ctx.Request.FirstOrDefault(item => item.PhoneNumber == model.PhoneNumber);
+                //set that the user is now verified
+                registeredUser.IsVerified = true;
+                _ctx.Request.Update(registeredUser);
+                await _ctx.SaveChangesAsync();
             }
             catch (Exception e)
             {
