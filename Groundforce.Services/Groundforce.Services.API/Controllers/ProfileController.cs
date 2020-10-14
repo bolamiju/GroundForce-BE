@@ -1,12 +1,9 @@
 
-﻿using Groundforce.Common.Utilities;
+using Groundforce.Common.Utilities;
 using Groundforce.Services.Models;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Groundforce.Services.Data;
 using Groundforce.Services.DTOs;
-using Groundforce.Services.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -14,10 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -42,7 +36,7 @@ namespace Groundforce.Services.API.Controllers
 
         //updates profile picture
         [HttpPatch]
-        [Route("{userId}/picture")]
+        [Route("profile/{userId}/picture")]
         public async Task<IActionResult> UpdatePicture(string userId, IFormFile picture)
         {
             var userToUpdate = await _userManager.FindByIdAsync(userId);

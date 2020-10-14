@@ -19,10 +19,6 @@ namespace Groundforce.Services.DTOs
         [Display(Name = "First name")]
         public string FirstName { get; set; }
 
-        //Phonenumber
-        [Required]
-        public string PhoneNumber { get; set; }
-
         //additional Phonenumber
         [Required]
         public string AdditionalPhoneNumber { get; set; }
@@ -92,6 +88,7 @@ namespace Groundforce.Services.DTOs
 
         //Photo
         public string photo { get; set; }
+        public string PhoneNumber { get; set; }
     }
 
     class ValidateDOBRangeAttribute : ValidationAttribute
