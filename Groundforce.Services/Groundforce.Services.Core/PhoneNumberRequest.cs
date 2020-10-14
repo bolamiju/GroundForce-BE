@@ -19,52 +19,44 @@ namespace Groundforce.Services.Core
 
         public static async Task<PhoneNumberStatus> CheckPhoneNumber(string phoneNumber, AppDbContext _ctx)
         {
-            try
-            {
-                // check for phone number in Request atble
-                var model = _ctx.Request.Where(x => x.PhoneNumber == phoneNumber).FirstOrDefault();
+            var model = _ctx.Request.Where(x => x.PhoneNumber == phoneNumber).FirstOrDefault();
 
-                // Check status of phone number
-                if (model != null)
+            // Check status of phone number
+            if (model != null)
+            {
+                if (model.IsVerified)
                 {
-                    if (model.IsVerified)
-                    {
-                        return PhoneNumberStatus.Verified;
-                    }
-                    else
-                    {
-                        if (model.RequestAttempt > 4)
-                        {
-                            model.IsBlocked = true;
-                            model.UpdatedAt = DateTime.Now;
-                            _ctx.Request.Update(model);
-                            await _ctx.SaveChangesAsync();
-                            return PhoneNumberStatus.Blocked;
-                        }
-                        else
-                        {
-                            model.RequestAttempt++;
-                            model.UpdatedAt = DateTime.Now;
-                            _ctx.Request.Update(model);
-                            await _ctx.SaveChangesAsync();
-                            return PhoneNumberStatus.ProcessRequest;
-                        }
-                    }
+                    return PhoneNumberStatus.Verified;
                 }
                 else
                 {
-                    await _ctx.Request.AddAsync(new Models.Request
+                    if (model.RequestAttempt > 4)
                     {
-                        PhoneNumber = phoneNumber
-                    });
-                    await _ctx.SaveChangesAsync();
-                    return PhoneNumberStatus.ProcessRequest;
+                        model.IsBlocked = true;
+                        model.UpdatedAt = DateTime.Now;
+                        _ctx.Request.Update(model);
+                        await _ctx.SaveChangesAsync();
+                        return PhoneNumberStatus.Blocked;
+                    }
+                    else
+                    {
+                        model.RequestAttempt++;
+                        model.UpdatedAt = DateTime.Now;
+                        _ctx.Request.Update(model);
+                        await _ctx.SaveChangesAsync();
+                        return PhoneNumberStatus.ProcessRequest;
+                    }
                 }
             }
-            catch (Exception)
+            else
             {
-                return PhoneNumberStatus.Error;
-            }            
+                await _ctx.Request.AddAsync(new Models.Request
+                {
+                    PhoneNumber = phoneNumber
+                });
+                await _ctx.SaveChangesAsync();
+                return PhoneNumberStatus.ProcessRequest;
+            }       
         }
     }
 }

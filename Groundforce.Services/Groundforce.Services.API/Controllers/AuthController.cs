@@ -31,11 +31,19 @@ namespace Groundforce.Services.API.Controllers
         public async Task<IActionResult> Verification([FromBody] SendOTPDTOs model)
         {
             // check if number in database
-            //var check = new PhoneNumberRequest(_ctx);
 
-            var numberStatus = await PhoneNumberRequest.CheckPhoneNumber(model.PhoneNumber, _ctx);
+            var numberStatus = new PhoneNumberStatus();
 
-            // Execution of response from database checks
+            try
+            {
+                numberStatus = await PhoneNumberRequest.CheckPhoneNumber(model.PhoneNumber, _ctx);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            // Execution of response from database checking
             if(numberStatus == PhoneNumberStatus.Verified)
             {
                 return BadRequest("Number already registered");
@@ -43,10 +51,6 @@ namespace Groundforce.Services.API.Controllers
             else if(numberStatus == PhoneNumberStatus.Blocked)
             {
                 return BadRequest("Contact Admin");
-            }
-            else if (numberStatus == PhoneNumberStatus.Error)
-            {
-                return BadRequest("Internal Server Error.");
             }
             else
             {

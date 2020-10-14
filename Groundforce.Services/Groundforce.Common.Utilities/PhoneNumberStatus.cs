@@ -11,7 +11,6 @@ namespace Groundforce.Common.Utilities
     {
         Verified,
         Blocked,
-        ProcessRequest,
-        Error
+        ProcessRequest
     }
 }
