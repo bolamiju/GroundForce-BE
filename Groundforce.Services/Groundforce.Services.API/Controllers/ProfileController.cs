@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Groundforce.Services.API.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class ProfileController : ControllerBase
@@ -23,9 +23,9 @@ namespace Groundforce.Services.API.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly AppDbContext _ctx;
-        private readonly IPhotoServices _cloudinaryServices;
+        private readonly PhotoServices _cloudinaryServices;
         public ProfileController(ILogger<AccountController> logger, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment,
-            IPhotoServices cloudinaryServices, AppDbContext ctx)
+            PhotoServices cloudinaryServices, AppDbContext ctx)
         {
             _userManager = userManager;
             _webHostEnvironment = webHostEnvironment;

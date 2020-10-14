@@ -49,7 +49,7 @@ namespace Groundforce.Services.API
             .AddDefaultTokenProviders();
 
             //register cloudinary
-            services.AddScoped<IPhotoServices, PhotoServices>();
+            services.AddScoped<PhotoServices>();
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
 
             // Register the Swagger generator, defining 1 or more Swagger documents
