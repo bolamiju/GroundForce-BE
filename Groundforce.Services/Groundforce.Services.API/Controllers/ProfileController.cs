@@ -30,39 +30,7 @@ namespace Groundforce.Services.API.Controllers
             _userManager = userManager;
             _ctx = ctx;
         }
-        ///Get profile controller
-        [HttpGet]
-        [Route("GetProfile")]
-        public async Task<IActionResult> GetProfile(string userId)
-        {
-            try
-            {
-                var user = await _userManager.FindByIdAsync(userId);
 
-                if (user == null) return BadRequest("User not Found");
-
-                var agent = await _ctx.FieldAgents.FirstOrDefaultAsync(x => x.ApplicationUserId == userId);
-                var bank = await _ctx.BankAccounts.FirstOrDefaultAsync(x => x.FieldAgentId == agent.FieldAgentId);
-                var profile = new updateProfileDTO
-                {
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = user.Email,
-                    DOB = user.DOB,
-                    BankName = bank.BankName,
-                    AccountNumber = bank.AccountNumber,
-                    AdditionalPhoneNumber = agent.AdditionalPhoneNumber,
-                    Gender = user.Gender,
-                    Religion = agent.Religion,
-                    ResidentialAddress = user.HomeAddress
-                };
-                return Ok(profile);
-            }
-            catch (Exception e)
-            {
-                return BadRequest("An Error Occured");
-            }
-        }
 
         //update profile controller
         [HttpPut]
