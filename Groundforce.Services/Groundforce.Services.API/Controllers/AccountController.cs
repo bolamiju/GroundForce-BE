@@ -125,7 +125,7 @@ namespace Groundforce.Services.API.Controllers
                 await _ctx.BankAccounts.AddAsync(bank);
                 // change phonenumber status to verified
                 var requestModel = _ctx.Request.Where(x => x.PhoneNumber == model.PhoneNumber).FirstOrDefault();
-                requestModel.IsVerified = true;
+               requestModel.IsVerified = true;
                 _ctx.Request.Update(requestModel);
 
                 _ctx.SaveChanges();
