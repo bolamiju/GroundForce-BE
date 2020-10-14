@@ -202,13 +202,13 @@ namespace Groundforce.Services.API.Controllers
             if (ModelState.IsValid)
             {
                 ApplicationUser user = await _userManager.Users.SingleAsync(applicationUser =>
-                    applicationUser.PhoneNumber == userToUpdate.PhoneNumber);
+                    applicationUser.PhoneNumber == userToUpdate.phoneNumber);
 
                 if (user == null) return NotFound();
 
                 string Token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-                IdentityResult updatePwd = await _userManager.ResetPasswordAsync(user, Token, userToUpdate.NewPin);
+                IdentityResult updatePwd = await _userManager.ResetPasswordAsync(user, Token, userToUpdate.newPin);
 
                 if (updatePwd.Succeeded) return Ok("Password Change Successful");
 
