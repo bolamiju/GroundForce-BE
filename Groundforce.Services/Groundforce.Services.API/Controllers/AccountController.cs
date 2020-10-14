@@ -194,8 +194,8 @@ namespace Groundforce.Services.API.Controllers
         }
 
         //Forgot pin
-        [HttpPatch]
         [AllowAnonymous]
+        [HttpPatch]
         [Route("forgotPin")]
         public async Task<IActionResult> ForgotPin([FromBody] ForgotUserPwdDTO userToUpdate)
         {
