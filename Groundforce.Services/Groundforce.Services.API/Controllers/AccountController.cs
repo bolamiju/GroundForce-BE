@@ -19,6 +19,7 @@ using Groundforce.Common.Utilities;
 namespace Groundforce.Services.API.Controllers
 {
     [Route("api/v1/[controller]")]
+    [Authorize]
     [ApiController]
     public class AccountController : ControllerBase
     {
@@ -42,6 +43,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
         // register user
+        [AllowAnonymous]
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp(UserToRegisterDTO model)
         {
@@ -192,7 +194,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
         [HttpPatch]
-        [Route("profile/pin")]
+        [Route("profile")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO details)
         {
             if (ModelState.IsValid)

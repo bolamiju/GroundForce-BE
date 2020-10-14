@@ -18,21 +18,16 @@ namespace Groundforce.Services.API.Controllers
     {
         // private fields
         private readonly IConfiguration _config;
-        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AuthController(IConfiguration configuration, UserManager<ApplicationUser> userManager)
+        public AuthController(IConfiguration configuration)
         {
             _config = configuration;
-            _userManager = userManager;
         }
 
         // verify OTP
         [HttpPost("verification")]
         public async Task<IActionResult> Verification([FromBody] SendOTPDTOs model)
         {
-            var user = _userManager.Users.SingleOrDefault(user => user.PhoneNumber == model.PhoneNumber);
-            if (user == null) return NotFound();
-
             try
             {
                 CreateTwilioService.Init(_config);
