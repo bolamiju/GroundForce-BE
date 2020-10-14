@@ -59,6 +59,7 @@ namespace Groundforce.Services.API.Controllers
                 Email = model.Email,
                 DOB = model.DOB,
                 LGA = model.LGA,
+                PhoneNumber = model.PhoneNumber,
                 PlaceOfBirth = model.PlaceOfBirth,
                 State = model.State,
                 CreatedAt = DateTime.Now,
@@ -120,7 +121,12 @@ namespace Groundforce.Services.API.Controllers
             try
             {
                 await _ctx.BankAccounts.AddAsync(bank);
-                _ctx.SaveChanges();
+                //get the phone number of the successfully registered user 
+                var registeredUser = _ctx.Request.FirstOrDefault(item => item.PhoneNumber == model.PhoneNumber);
+                //set that the user is now verified
+                registeredUser.IsVerified = true;
+                _ctx.Request.Update(registeredUser);
+                await _ctx.SaveChangesAsync();
             }
             catch (Exception e)
             {
@@ -152,19 +158,18 @@ namespace Groundforce.Services.API.Controllers
                 }
 
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Pin, false, false);
-                var userRole =await _userManager.GetRolesAsync(user);
-               
+
                 if (result.Succeeded)
                 {
-                    var getToken = GetTokenHelperClass.GetToken(user, _config, userRole[0]);
+                    var getToken = GetTokenHelperClass.GetToken(user, _config);
                     return Ok(getToken);
                 }
-                
-				ModelState.AddModelError("", "Invalid creadentials");
-				return Unauthorized(ModelState);
-					
+
+                ModelState.AddModelError("", "Invalid creadentials");
+                return Unauthorized(ModelState);
+
             }
-            
+
             return BadRequest(model);
         }
 
@@ -192,6 +197,5 @@ namespace Groundforce.Services.API.Controllers
             return BadRequest(ModelState);
         }
 
-     
     }
 }
