@@ -164,12 +164,12 @@ namespace Groundforce.Services.API.Controllers
                     var getToken = GetTokenHelperClass.GetToken(user, _config);
                     return Ok(getToken);
                 }
-                
-				ModelState.AddModelError("", "Invalid creadentials");
-				return Unauthorized(ModelState);
-					
+
+                ModelState.AddModelError("", "Invalid creadentials");
+                return Unauthorized(ModelState);
+
             }
-            
+
             return BadRequest(model);
         }
 
@@ -196,5 +196,6 @@ namespace Groundforce.Services.API.Controllers
 
             return BadRequest(ModelState);
         }
+
     }
 }
