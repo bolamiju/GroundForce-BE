@@ -26,7 +26,6 @@ namespace Groundforce.Services.API.Controllers
 
         public ProfileController(UserManager<ApplicationUser> userManager, AppDbContext ctx)
         {
-        
             _userManager = userManager;
             _ctx = ctx;
         }
