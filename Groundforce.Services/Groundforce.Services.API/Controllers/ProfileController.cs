@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Groundforce.Services.API.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class ProfileController : ControllerBase
@@ -73,13 +73,10 @@ namespace Groundforce.Services.API.Controllers
         [Route("{Id}")]
         public async Task<IActionResult> UpdateProfile([FromBody] UserProfileDTO model, string Id)
         {
-            var user = await _userManager.FindByIdAsync(Id);
-            if (user == null) return BadRequest("User Does Not Exist");
-
-
             if (ModelState.IsValid)
             {
-
+                var user = await _userManager.FindByIdAsync(Id);
+                if (user == null) return BadRequest("User Does Not Exist");
                 //update application user
                 user.FirstName = model.FirstName;
                 user.LastName = model.LastName;
