@@ -193,5 +193,29 @@ namespace Groundforce.Services.API.Controllers
             return BadRequest(ModelState);
         }
 
+        // forgot password route
+        [HttpPatch]
+        [Route("profile")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO details)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = _userManager.Users.SingleOrDefault(e => e.PhoneNumber == details.PhoneNumber);
+                if (user == null) return NotFound();
+                //generate token needed to reset password
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+                var setNewPassword = await _userManager.ResetPasswordAsync(user, token, details.Pin);
+                if (setNewPassword.Succeeded) return Ok("Password successfully updated");
+
+                // if passwordset is unsuccessful add errors to model error
+                foreach (var error in setNewPassword.Errors)
+                {
+                    ModelState.AddModelError("Error", error.Description);
+                }
+            }
+            return BadRequest();
+        }
+
     }
 }

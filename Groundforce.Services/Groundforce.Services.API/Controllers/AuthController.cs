@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Twilio.Exceptions;
+using Microsoft.AspNetCore.Identity;
+using Groundforce.Services.Models;
+using System.Linq;
 
 namespace Groundforce.Services.API.Controllers
 {
