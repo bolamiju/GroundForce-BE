@@ -86,7 +86,8 @@ namespace Groundforce.Services.API
                 option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 
-            }).AddJwtBearer(options => {
+            })
+                .AddJwtBearer(options => {
                 options.SaveToken = true;
                 options.RequireHttpsMetadata = true;
                 options.TokenValidationParameters = new TokenValidationParameters()
