@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Groundforce.Services.Data;
@@ -15,6 +17,7 @@ using Groundforce.Services.DTOs;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Authorization;
 using Groundforce.Common.Utilities;
+using Microsoft.Extensions.Options;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -25,13 +28,15 @@ namespace Groundforce.Services.API.Controllers
     {
         // private fields
         private readonly IConfiguration _config;
+
         private readonly ILogger<AccountController> _logger;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly AppDbContext _ctx;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public AccountController(IConfiguration configuration, ILogger<AccountController> logger, SignInManager<ApplicationUser> signInManager,
+        public AccountController(IConfiguration configuration, ILogger<AccountController> logger,
+            SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager, AppDbContext ctx, IWebHostEnvironment webHostEnvironment)
         {
             _config = configuration;
@@ -77,6 +82,7 @@ namespace Groundforce.Services.API.Controllers
                 {
                     ModelState.AddModelError("", err.Description);
                 }
+
                 return BadRequest("Failed to create user!");
             }
 
@@ -150,7 +156,6 @@ namespace Groundforce.Services.API.Controllers
         {
             if (ModelState.IsValid)
             {
-
                 //get user by email
                 var user = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
 
@@ -167,12 +172,11 @@ namespace Groundforce.Services.API.Controllers
                     var getToken = GetTokenHelperClass.GetToken(user, _config);
                     return Ok(getToken);
                 }
-                
-				ModelState.AddModelError("", "Invalid creadentials");
-				return Unauthorized(ModelState);
-					
+
+                ModelState.AddModelError("", "Invalid creadentials");
+                return Unauthorized(ModelState);
             }
-            
+
             return BadRequest(model);
         }
 
@@ -187,7 +191,8 @@ namespace Groundforce.Services.API.Controllers
 
                 if (user == null) return NotFound();
 
-                var updatePwd = await _userManager.ChangePasswordAsync(user, userToUpdate.CurrentPwd, userToUpdate.NewPwd);
+                var updatePwd =
+                    await _userManager.ChangePasswordAsync(user, userToUpdate.CurrentPwd, userToUpdate.NewPwd);
 
                 if (updatePwd.Succeeded) return Ok();
 

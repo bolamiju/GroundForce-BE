@@ -17,6 +17,7 @@ using Groundforce.Services.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Groundforce.Common.Utilities;
 using Microsoft.OpenApi.Models;
 
 namespace Groundforce.Services.API
@@ -43,8 +44,10 @@ namespace Groundforce.Services.API
                         option.Password.RequireNonAlphanumeric = false;
                         option.Password.RequireUppercase = false;
                     }
-                ).AddEntityFrameworkStores<AppDbContext>()
-                .AddDefaultTokenProviders();
+            ).AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
+
+            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings")); // <--- added
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
@@ -73,17 +76,17 @@ namespace Groundforce.Services.API
                                 }
                             },
                             new string[] {}
-
                     }
                 });
             });
 
-            services.AddAuthentication(option => {
+            services.AddAuthentication(option =>
+            {
                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-
-            }).AddJwtBearer(options => {
+            }).AddJwtBearer(options =>
+            {
                 options.SaveToken = true;
                 options.RequireHttpsMetadata = true;
                 options.TokenValidationParameters = new TokenValidationParameters()
@@ -95,14 +98,12 @@ namespace Groundforce.Services.API
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:SigningKey"]))
                 };
             });
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDbContext ctx,
             RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

@@ -34,9 +34,9 @@ namespace Groundforce.Services.Data
             {
                 var listOfUsers = new List<ApplicationUser>
                 {
-                    new ApplicationUser{ UserName="randomuser1@sample.com", 
-                        Email = "randomuser1@sample.com", 
-                        LastName="RandomUser", 
+                    new ApplicationUser{ UserName="randomuser1@sample.com",
+                        Email = "randomuser1@sample.com",
+                        LastName="RandomUser",
                         FirstName="James" ,
                         Gender="Male",
                         DOB="1/1/1999",
@@ -45,7 +45,7 @@ namespace Groundforce.Services.Data
                         LGA = "Rururu",
                         HomeAddress ="10, wayside"
                     },
-                    new ApplicationUser{ UserName="randomuser2@sample.com", 
+                    new ApplicationUser{ UserName="randomuser2@sample.com",
                         Email = "randomuser2@sample.com", LastName="RandomUser", FirstName="John",
                         Gender="Male",
                         DOB="1/1/1999",

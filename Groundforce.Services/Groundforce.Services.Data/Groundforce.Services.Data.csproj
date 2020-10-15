@@ -29,6 +29,8 @@
     <Compile Remove="Migrations\20201007235852_InitialMigration.Designer.cs" />
     <Compile Remove="Migrations\20201008000019_InitialMigration.cs" />
     <Compile Remove="Migrations\20201008000019_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201014124848_udpdateRequest.cs" />
+    <Compile Remove="Migrations\20201014124848_udpdateRequest.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,6 +40,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup>
