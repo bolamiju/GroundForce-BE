@@ -19,7 +19,6 @@ using Groundforce.Common.Utilities;
 namespace Groundforce.Services.API.Controllers
 {
     [Route("api/v1/[controller]")]
-    [Authorize]
     [ApiController]
     public class AccountController : ControllerBase
     {
@@ -43,7 +42,6 @@ namespace Groundforce.Services.API.Controllers
         }
 
         // register user
-        [AllowAnonymous]
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp(UserToRegisterDTO model)
         {
@@ -61,6 +59,7 @@ namespace Groundforce.Services.API.Controllers
                 Email = model.Email,
                 DOB = model.DOB,
                 LGA = model.LGA,
+                PhoneNumber = model.PhoneNumber,
                 PlaceOfBirth = model.PlaceOfBirth,
                 State = model.State,
                 CreatedAt = DateTime.Now,
@@ -122,7 +121,12 @@ namespace Groundforce.Services.API.Controllers
             try
             {
                 await _ctx.BankAccounts.AddAsync(bank);
-                _ctx.SaveChanges();
+                //get the phone number of the successfully registered user 
+                var registeredUser = _ctx.Request.FirstOrDefault(item => item.PhoneNumber == model.PhoneNumber);
+                //set that the user is now verified
+                registeredUser.IsVerified = true;
+                _ctx.Request.Update(registeredUser);
+                await _ctx.SaveChangesAsync();
             }
             catch (Exception e)
             {
@@ -160,12 +164,12 @@ namespace Groundforce.Services.API.Controllers
                     var getToken = GetTokenHelperClass.GetToken(user, _config);
                     return Ok(getToken);
                 }
-                
-				ModelState.AddModelError("", "Invalid creadentials");
-				return Unauthorized(ModelState);
-					
+
+                ModelState.AddModelError("", "Invalid creadentials");
+                return Unauthorized(ModelState);
+
             }
-            
+
             return BadRequest(model);
         }
 
@@ -193,6 +197,7 @@ namespace Groundforce.Services.API.Controllers
             return BadRequest(ModelState);
         }
 
+        // forgot password route
         [HttpPatch]
         [Route("profile")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO details)
@@ -215,5 +220,6 @@ namespace Groundforce.Services.API.Controllers
             }
             return BadRequest();
         }
+
     }
 }
