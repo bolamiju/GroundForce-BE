@@ -16,7 +16,7 @@ using Microsoft.Extensions.Options;
 
 namespace Groundforce.Services.API.Controllers
 {
-    [Authorize]
+    [Authorize(Roles ="Agent")]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class ProfileController : ControllerBase
@@ -24,13 +24,15 @@ namespace Groundforce.Services.API.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly AppDbContext _ctx;
+        private readonly ILogger<ProfileController> _logger;
         private readonly IOptions<CloudinarySettings> _cloudinaryConfig;
-        public ProfileController(ILogger<AccountController> logger, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment, AppDbContext ctx, IOptions<CloudinarySettings> cloudinaryConfig)
+        public ProfileController(ILogger<ProfileController> logger, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment, AppDbContext ctx, IOptions<CloudinarySettings> cloudinaryConfig)
         {
             _userManager = userManager;
             _webHostEnvironment = webHostEnvironment;
             _ctx = ctx;
             _cloudinaryConfig = cloudinaryConfig;
+            _logger = logger;
         }
 
 
@@ -93,15 +95,80 @@ namespace Groundforce.Services.API.Controllers
                 Gender = user.Gender,
                 Religion = agent.Religion,
                 Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                SecondPhoneNumber = agent.AdditionalPhoneNumber,
-                Address = user.HomeAddress,
+                AdditionalPhoneNumber = agent.AdditionalPhoneNumber,
+                ResidentialAddress = user.HomeAddress,
                 BankName = bank.BankName,
                 AccountNumber = bank.AccountNumber,
-                LGA = user.LGA
             };
 
             return Ok(profile);
+        }
+
+        //update profile controller
+        [HttpPut]
+        [Route("{Id}")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UserProfileDTO model, string Id)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByIdAsync(Id);
+                if (user == null) return BadRequest("User Does Not Exist");
+                //update application user
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.DOB = model.DOB;
+                user.Email = model.Email;
+                user.Gender = model.Gender;
+
+
+                var result = await _userManager.UpdateAsync(user);
+
+                if (!result.Succeeded)
+                {
+                    foreach (var err in result.Errors)
+                    {
+                        ModelState.AddModelError("", err.Description);
+                    }
+                    return BadRequest("Failed to update user!");
+                }
+
+                int fieldAgentId;
+                try
+                {
+                    //update field agent
+                    var agent = await _ctx.FieldAgents.FirstOrDefaultAsync(x => x.ApplicationUserId == Id);
+                    agent.AdditionalPhoneNumber = model.AdditionalPhoneNumber;
+                    agent.Religion = model.Religion;
+                    fieldAgentId = agent.FieldAgentId;
+                    _ctx.SaveChanges();
+                    
+                }
+                catch (Exception e)
+                {
+                    _ctx.SaveChanges();
+                    _logger.LogError(e.Message);
+                    return BadRequest("Failed to update additional details");
+                }
+
+                try
+                {
+                    //update bank
+                    var bank = await _ctx.BankAccounts.FirstOrDefaultAsync(x => x.FieldAgentId == fieldAgentId);
+                    bank.BankName = model.BankName;
+                    bank.AccountNumber = model.AccountNumber;
+                    _ctx.SaveChanges();
+                }
+                catch(Exception e)
+                {
+                    _ctx.SaveChanges();
+                    _logger.LogError(e.Message);
+                    return BadRequest("failed to update bank details");
+                }
+
+                return Ok("Success");
+
+            }
+            return BadRequest(ModelState);
         }
 
     }

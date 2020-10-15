@@ -1,4 +1,5 @@
 ﻿using Groundforce.Services.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -12,7 +13,7 @@ namespace Groundforce.Common.Utilities
     public static class GetTokenHelperClass
     {
 
-        public static string GetToken(ApplicationUser _user, IConfiguration _config)
+        public static string GetToken(ApplicationUser _user, IConfiguration _config, string userRole)
         {
             //get application user model
             var user = _user;
@@ -22,7 +23,8 @@ namespace Groundforce.Common.Utilities
             {
                  new Claim(ClaimTypes.NameIdentifier, user.Id),
                  new Claim (ClaimTypes.Name, user.FirstName),
-                 new Claim(ClaimTypes.Email, user.Email)
+                 new Claim(ClaimTypes.Email, user.Email),
+                 new Claim(ClaimTypes.Role, userRole)
             };
 
             //Create jwt secret key
