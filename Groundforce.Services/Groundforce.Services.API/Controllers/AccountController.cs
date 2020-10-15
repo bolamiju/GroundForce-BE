@@ -158,10 +158,10 @@ namespace Groundforce.Services.API.Controllers
                 }
 
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Pin, false, false);
-
+                var userRole = await _userManager.GetRolesAsync(user);
                 if (result.Succeeded)
                 {
-                    var getToken = GetTokenHelperClass.GetToken(user, _config);
+                    var getToken = GetTokenHelperClass.GetToken(user, _config, userRole[0]);
                     return Ok(getToken);
                 }
 
