@@ -36,16 +36,15 @@ namespace Groundforce.Services.API
             services.AddControllers();
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbConnection")));
             services.AddIdentity<ApplicationUser, IdentityRole>(option =>
-            {
-                option.Password.RequireDigit = true;
-                option.Password.RequiredLength = 4;
-                option.Password.RequireLowercase = false;
-                option.Password.RequireNonAlphanumeric = false;
-                option.Password.RequireUppercase = false;
-
-            }
-            ).AddEntityFrameworkStores<AppDbContext>()
-            .AddDefaultTokenProviders();
+                    {
+                        option.Password.RequireDigit = true;
+                        option.Password.RequiredLength = 4;
+                        option.Password.RequireLowercase = false;
+                        option.Password.RequireNonAlphanumeric = false;
+                        option.Password.RequireUppercase = false;
+                    }
+                ).AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
@@ -79,7 +78,6 @@ namespace Groundforce.Services.API
                 });
             });
 
-
             services.AddAuthentication(option => {
                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -104,6 +102,7 @@ namespace Groundforce.Services.API
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDbContext ctx,
             RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Groundforce.Services.Data;
 using Microsoft.AspNetCore.Hosting;
@@ -12,12 +10,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Identity;
 using Groundforce.Services.Models;
 using Groundforce.Services.DTOs;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Authorization;
 using Groundforce.Common.Utilities;
 
 namespace Groundforce.Services.API.Controllers
 {
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -42,6 +40,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
         // register user
+        [AllowAnonymous]
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp(UserToRegisterDTO model)
         {
@@ -64,6 +63,7 @@ namespace Groundforce.Services.API.Controllers
                 CreatedAt = DateTime.Now,
                 Gender = model.Gender,
                 HomeAddress = model.HomeAddress,
+                PhoneNumber = model.PhoneNumber
             };
 
             var result = await _userManager.CreateAsync(user, model.PIN);
@@ -120,6 +120,11 @@ namespace Groundforce.Services.API.Controllers
             try
             {
                 await _ctx.BankAccounts.AddAsync(bank);
+                // change phonenumber status to verified
+                var requestModel = _ctx.Request.Where(x => x.PhoneNumber == model.PhoneNumber).FirstOrDefault();
+                requestModel.IsVerified = true;
+                _ctx.Request.Update(requestModel);
+
                 _ctx.SaveChanges();
             }
             catch (Exception e)
@@ -181,6 +186,34 @@ namespace Groundforce.Services.API.Controllers
                 var updatePwd = await _userManager.ChangePasswordAsync(user, userToUpdate.CurrentPwd, userToUpdate.NewPwd);
 
                 if (updatePwd.Succeeded) return Ok();
+
+                foreach (var error in updatePwd.Errors)
+                {
+                    ModelState.AddModelError("", $"{error.Code} - {error.Description}");
+                }
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        //Forgot pin
+        [AllowAnonymous]
+        [HttpPatch]
+        [Route("forgotPin")]
+        public async Task<IActionResult> ForgotPin([FromBody] ForgotUserPwdDTO userToUpdate)
+        {
+            if (ModelState.IsValid)
+            {
+                ApplicationUser user = await _userManager.Users.SingleAsync(applicationUser =>
+                    applicationUser.PhoneNumber == userToUpdate.phoneNumber);
+
+                if (user == null) return NotFound();
+
+                string Token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+                IdentityResult updatePwd = await _userManager.ResetPasswordAsync(user, Token, userToUpdate.newPin);
+
+                if (updatePwd.Succeeded) return Ok("Password Change Successful");
 
                 foreach (var error in updatePwd.Errors)
                 {
