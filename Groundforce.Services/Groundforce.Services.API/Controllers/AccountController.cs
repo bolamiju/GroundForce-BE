@@ -159,7 +159,7 @@ namespace Groundforce.Services.API.Controllers
                     return Ok(getToken);
                 }
                 
-				ModelState.AddModelError("", "Invalid creadentials");
+				ModelState.AddModelError("", "Invalid credentials");
 				return Unauthorized(ModelState);
 					
             }
