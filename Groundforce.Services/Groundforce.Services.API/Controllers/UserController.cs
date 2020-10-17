@@ -4,8 +4,6 @@ using Groundforce.Services.Models;
 using System.Threading.Tasks;
 using Groundforce.Services.Data;
 using Groundforce.Services.DTOs;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -65,7 +63,7 @@ namespace Groundforce.Services.API.Controllers
             return BadRequest("Picture not uploaded");
         }
 
-        // Gets the profile of a particular field agent by userID.
+        // Gets user by Id.
         [HttpGet]
         [Route("{Id}")]
         public async Task<IActionResult> Get(string Id)
@@ -91,6 +89,7 @@ namespace Groundforce.Services.API.Controllers
 
             var profile = new UserToReturnDTO
             {
+                Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 DOB = user.DOB,
@@ -98,27 +97,26 @@ namespace Groundforce.Services.API.Controllers
                 Religion = agent.Religion,
                 Email = user.Email,
                 AdditionalPhoneNumber = agent.AdditionalPhoneNumber,
-                ResidentialAddress = user.HomeAddress,
+                HomeAddress = user.HomeAddress,
                 BankName = bank.BankName,
                 AccountNumber = bank.AccountNumber,
-                AvartaUrl = user.AvatarUrl,
+                AvatarUrl = user.AvatarUrl,
                 PublicId = user.PublicId
             };
 
             return Ok(profile);
         }
 
-        //update profile controller
+        // edit field agent
         [HttpPut]
         [Route("{Id}")]
-        public async Task<IActionResult> EditUser([FromBody] UserToReturnDTO model, string Id)
+        public async Task<IActionResult> EditUser([FromBody] UserToEditDTO model, string Id)
         {
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByIdAsync(Id);
                 if (user == null) return BadRequest("User Does Not Exist");
                 //update application user
-                user.DOB = model.DOB;
                 user.Email = model.Email;
                 user.UserName = model.Email;
                 user.Gender = model.Gender;
@@ -172,7 +170,7 @@ namespace Groundforce.Services.API.Controllers
 
                 var updatePwd = await _userManager.ChangePasswordAsync(user, userToUpdate.CurrentPwd, userToUpdate.NewPwd);
 
-                if (updatePwd.Succeeded) return Ok();
+                if (updatePwd.Succeeded) return Ok("Password Changed!");
 
                 foreach (var error in updatePwd.Errors)
                 {

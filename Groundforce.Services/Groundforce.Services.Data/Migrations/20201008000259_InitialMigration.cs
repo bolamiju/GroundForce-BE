@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Groundforce.Services.Data.Migrations
 {
-    public partial class initial : Migration
+    public partial class InitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -66,8 +66,7 @@ namespace Groundforce.Services.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     PhoneNumber = table.Column<string>(nullable: false),
                     IsVerified = table.Column<bool>(nullable: false),
-                    IsBlocked = table.Column<bool>(nullable: false),
-                    RequestAttempt = table.Column<int>(nullable: false),
+                    RequestFailedCount = table.Column<int>(nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false),
                     UpdatedAt = table.Column<DateTime>(nullable: false)
                 },
@@ -227,8 +226,6 @@ namespace Groundforce.Services.Data.Migrations
                     FieldAgentId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ApplicationUserId = table.Column<string>(nullable: true),
-                    AdditionalPhoneNumber = table.Column<string>(nullable: true),
-                    Religion = table.Column<string>(nullable: true),
                     Longitude = table.Column<string>(nullable: false),
                     Latitude = table.Column<string>(nullable: false)
                 },
@@ -294,7 +291,7 @@ namespace Groundforce.Services.Data.Migrations
                     BankId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BankName = table.Column<string>(nullable: false),
-                    AccountNumber = table.Column<string>(nullable: false),
+                    AccountNumber = table.Column<int>(nullable: false),
                     IsActive = table.Column<bool>(nullable: false),
                     FieldAgentId = table.Column<int>(nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false),
