@@ -27,7 +27,11 @@ namespace Groundforce.Services.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            
+            // db connection string
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbConnection")));
+            
+            // Identity service
             services.AddIdentity<ApplicationUser, IdentityRole>(option =>
             {
                 option.Password.RequireDigit = true;
@@ -76,7 +80,7 @@ namespace Groundforce.Services.API
                 });
             });
 
-
+            // JWT token service
             services.AddAuthentication(option => {
                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;

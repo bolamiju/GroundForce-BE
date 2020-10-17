@@ -11,12 +11,12 @@ using System.Threading.Tasks;
 
 namespace Groundforce.Common.Utilities
 {
-    public class PhotoServices
+    public class ManagePhoto
     {
         private readonly IOptions<CloudinarySettings> _cloudinaryConfig;
         private Cloudinary _cloudinary;
 
-        public PhotoServices(IOptions<CloudinarySettings> cloudinaryConfig)
+        public ManagePhoto(IOptions<CloudinarySettings> cloudinaryConfig)
         {
             _cloudinaryConfig = cloudinaryConfig;
             Account account = new Account(
@@ -32,29 +32,25 @@ namespace Groundforce.Common.Utilities
         /// </summary>
         /// <param name="avarta"></param>
         /// <returns>url of the picture</returns>
-        public string UploadAvatar(IFormFile avarta)
+        public ImageUploadResult UploadAvatar(IFormFile avarta)
         {
             var uploadResult = new ImageUploadResult();
-            string avartaUrl = null;
 
-            if (avarta.Length > 0)
+            using (var stream = avarta.OpenReadStream())
             {
-                using (var stream = avarta.OpenReadStream())
+                var uploadParams = new ImageUploadParams()
                 {
-                    var uploadParams = new ImageUploadParams()
-                    {
-                        File = new FileDescription(avarta.Name, stream),
-                        Transformation = new Transformation()
-                                            .Width(500)
-                                            .Height(500)
-                                            .Crop("fill")
-                                            .Gravity("face")
-                    };
-                        uploadResult = _cloudinary.Upload(uploadParams);
-                    avartaUrl = uploadResult.Url.ToString();
-                }
+                    File = new FileDescription(avarta.Name, stream),
+                    Transformation = new Transformation()
+                                        .Width(500)
+                                        .Height(500)
+                                        .Crop("fill")
+                                        .Gravity("face")
+                };
+                uploadResult = _cloudinary.Upload(uploadParams);
             }
-            return avartaUrl;
+            
+            return uploadResult;
         }
     }
 }

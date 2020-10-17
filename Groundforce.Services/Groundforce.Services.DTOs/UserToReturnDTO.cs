@@ -2,7 +2,7 @@
 
 namespace Groundforce.Services.DTOs
 {
-    public class UserProfileDTO
+    public class UserToReturnDTO
     {
         //lastname
         [Required]
@@ -52,6 +52,8 @@ namespace Groundforce.Services.DTOs
         [Required]
         [Display(Name = "Account number")]
         public string AccountNumber { get; set; }
+        public string AvartaUrl { get; set; }
+        public string PublicId { get; set; }
 
 
     }

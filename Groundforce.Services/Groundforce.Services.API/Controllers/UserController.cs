@@ -16,32 +16,30 @@ using Microsoft.Extensions.Options;
 
 namespace Groundforce.Services.API.Controllers
 {
-    [Authorize(Roles ="Agent")]
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class ProfileController : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly AppDbContext _ctx;
-        private readonly ILogger<ProfileController> _logger;
+        private readonly ILogger<UserController> _logger;
         private readonly IOptions<CloudinarySettings> _cloudinaryConfig;
-        public ProfileController(ILogger<ProfileController> logger, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment, AppDbContext ctx, IOptions<CloudinarySettings> cloudinaryConfig)
+        public UserController(ILogger<UserController> logger, UserManager<ApplicationUser> userManager, 
+            AppDbContext ctx, IOptions<CloudinarySettings> cloudinaryConfig)
         {
             _userManager = userManager;
-            _webHostEnvironment = webHostEnvironment;
             _ctx = ctx;
             _cloudinaryConfig = cloudinaryConfig;
             _logger = logger;
         }
 
 
-        //updates profile picture
+        //updates user picture
         [HttpPatch]
-        [Route("{userId}/picture")]
-        public async Task<IActionResult> UpdatePicture(string userId, IFormFile picture)
+        [Route("{Id}/picture")]
+        public async Task<IActionResult> UpdatePicture(string Id, [FromForm]IFormFile picture)
         {
-            var userToUpdate = await _userManager.FindByIdAsync(userId);
+            var userToUpdate = await _userManager.FindByIdAsync(Id);
             if (userToUpdate == null)
             {
                 return BadRequest("User does not exist");
@@ -51,8 +49,10 @@ namespace Groundforce.Services.API.Controllers
             {
                 try
                 {
-                    var photoServices = new PhotoServices(_cloudinaryConfig);
-                    userToUpdate.AvatarUrl = photoServices.UploadAvatar(picture);
+                    var managePhoto = new ManagePhoto(_cloudinaryConfig);
+                    var uplResult = managePhoto.UploadAvatar(picture);
+                    userToUpdate.AvatarUrl = uplResult.Url.ToString();
+                    userToUpdate.PublicId = uplResult.PublicId;
                     await _userManager.UpdateAsync(userToUpdate);
 
                     return Ok("Picture successfully uploaded");
@@ -67,12 +67,12 @@ namespace Groundforce.Services.API.Controllers
 
         // Gets the profile of a particular field agent by userID.
         [HttpGet]
-        [Route("{userId}")]
-        public async Task<IActionResult> GetProfile(string userId)
+        [Route("{Id}")]
+        public async Task<IActionResult> Get(string Id)
         {
-            if (string.IsNullOrWhiteSpace(userId)) return BadRequest();
+            if (string.IsNullOrWhiteSpace(Id)) return BadRequest();
 
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(Id);
 
 
             if (user == null)
@@ -82,12 +82,14 @@ namespace Groundforce.Services.API.Controllers
             }
 
             // Returns the field agent by userId
-            var agent = await _ctx.FieldAgents.FirstOrDefaultAsync(a => a.ApplicationUserId == userId);
+            var agent = await _ctx.FieldAgents.FirstOrDefaultAsync(a => a.ApplicationUserId == Id);
+            if (agent == null) return NotFound("User's extended details not found");
 
             //  Returns the bank account of that particular field agent using the fieldAgentID
             var bank = await _ctx.BankAccounts.FirstOrDefaultAsync(a => a.FieldAgentId == agent.FieldAgentId);
+            if (bank == null) return NotFound("User's bank details not found");
 
-            var profile = new UserProfileDTO
+            var profile = new UserToReturnDTO
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
@@ -99,6 +101,8 @@ namespace Groundforce.Services.API.Controllers
                 ResidentialAddress = user.HomeAddress,
                 BankName = bank.BankName,
                 AccountNumber = bank.AccountNumber,
+                AvartaUrl = user.AvatarUrl,
+                PublicId = user.PublicId
             };
 
             return Ok(profile);
@@ -107,17 +111,16 @@ namespace Groundforce.Services.API.Controllers
         //update profile controller
         [HttpPut]
         [Route("{Id}")]
-        public async Task<IActionResult> UpdateProfile([FromBody] UserProfileDTO model, string Id)
+        public async Task<IActionResult> EditUser([FromBody] UserToReturnDTO model, string Id)
         {
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByIdAsync(Id);
                 if (user == null) return BadRequest("User Does Not Exist");
                 //update application user
-                user.FirstName = model.FirstName;
-                user.LastName = model.LastName;
                 user.DOB = model.DOB;
                 user.Email = model.Email;
+                user.UserName = model.Email;
                 user.Gender = model.Gender;
 
 
@@ -150,24 +153,33 @@ namespace Groundforce.Services.API.Controllers
                     return BadRequest("Failed to update additional details");
                 }
 
-                try
-                {
-                    //update bank
-                    var bank = await _ctx.BankAccounts.FirstOrDefaultAsync(x => x.FieldAgentId == fieldAgentId);
-                    bank.BankName = model.BankName;
-                    bank.AccountNumber = model.AccountNumber;
-                    _ctx.SaveChanges();
-                }
-                catch(Exception e)
-                {
-                    _ctx.SaveChanges();
-                    _logger.LogError(e.Message);
-                    return BadRequest("failed to update bank details");
-                }
-
                 return Ok("Success");
 
             }
+            return BadRequest(ModelState);
+        }
+
+
+        //change pin
+        [HttpPatch("{Id}/ChangePassword")]
+        public async Task<IActionResult> ChangePassword(string Id, [FromBody] ResetUserPwdDTO userToUpdate)
+        {
+            var user = await _userManager.FindByIdAsync(Id);
+            if (user == null) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+
+                var updatePwd = await _userManager.ChangePasswordAsync(user, userToUpdate.CurrentPwd, userToUpdate.NewPwd);
+
+                if (updatePwd.Succeeded) return Ok();
+
+                foreach (var error in updatePwd.Errors)
+                {
+                    ModelState.AddModelError("", $"{error.Code} - {error.Description}");
+                }
+            }
+
             return BadRequest(ModelState);
         }
 

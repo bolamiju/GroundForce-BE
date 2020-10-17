@@ -9,17 +9,17 @@ using Groundforce.Services.Models;
 
 namespace Groundforce.Services.Core
 {
-    public class PhoneNumberService
+    public class PhoneNumberResource
     {
         //DbContext class
         private readonly AppDbContext _ctx;
 
-        public PhoneNumberService(AppDbContext ctx)
+        public PhoneNumberResource(AppDbContext ctx)
         {
             _ctx = ctx;
         }
         //method to verify the phone number before sending OTP
-        public async Task<PhoneNumberStatus> PhoneNumberCheck(string phoneNumber)
+        public async Task<PhoneNumberStatus> CheckPhoneNumber(string phoneNumber)
         {
             if (string.IsNullOrEmpty(phoneNumber)) return PhoneNumberStatus.InvalidRequest; 
             //get the number from the database
