@@ -36,6 +36,7 @@ namespace Groundforce.Services.Models
         public string HomeAddress { get; set; }
         public bool IsVerified { get; set; } = false;
         public string AvatarUrl { get; set; }
+        public string PublicId { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 

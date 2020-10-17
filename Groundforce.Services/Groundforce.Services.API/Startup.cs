@@ -1,16 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Groundforce.Services.Data;
 using Microsoft.AspNetCore.Identity;
 using Groundforce.Services.Models;
@@ -34,7 +27,11 @@ namespace Groundforce.Services.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            
+            // db connection string
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbConnection")));
+            
+            // Identity service
             services.AddIdentity<ApplicationUser, IdentityRole>(option =>
             {
                 option.Password.RequireDigit = true;
@@ -43,9 +40,13 @@ namespace Groundforce.Services.API
                 option.Password.RequireNonAlphanumeric = false;
                 option.Password.RequireUppercase = false;
 
+
             }
             ).AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
+
+            //register cloudinary
+            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
@@ -79,13 +80,14 @@ namespace Groundforce.Services.API
                 });
             });
 
-
+            // JWT token service
             services.AddAuthentication(option => {
                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 
-            }).AddJwtBearer(options => {
+            })
+                .AddJwtBearer(options => {
                 options.SaveToken = true;
                 options.RequireHttpsMetadata = true;
                 options.TokenValidationParameters = new TokenValidationParameters()

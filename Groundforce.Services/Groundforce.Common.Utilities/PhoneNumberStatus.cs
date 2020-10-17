@@ -4,9 +4,11 @@ using System.Text;
 
 namespace Groundforce.Common.Utilities
 {
-    public enum TwilioStatus
+    public enum PhoneNumberStatus
     {
-        pending, 
-        approved
+        Verified,
+        ValidRequest,
+        Blocked,
+        InvalidRequest
     }
 }
