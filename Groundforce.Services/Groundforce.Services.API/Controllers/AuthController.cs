@@ -11,6 +11,7 @@ using Twilio.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Groundforce.Services.Models;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -63,7 +64,7 @@ namespace Groundforce.Services.API.Controllers
             {
                 CreateTwilioService.Init(_config);
                 await CreateTwilioService.SendOTP(model.PhoneNumber);
-                return Ok();
+                return Ok("OTP sent!");
             }
             catch (TwilioException e)
             {
@@ -80,7 +81,7 @@ namespace Groundforce.Services.API.Controllers
             {
                 CreateTwilioService.Init(_config);
                 await CreateTwilioService.ConfirmOTP(model.PhoneNumber, model.VerifyCode);
-                return Ok();
+                return Ok("OTP confirmed!");
             }
             catch (TwilioException e)
             {
@@ -95,9 +96,12 @@ namespace Groundforce.Services.API.Controllers
         public async Task<IActionResult> SignUp(UserToRegisterDTO model)
         {
             var userToAdd = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
-
             if (userToAdd != null)
                 return BadRequest("Email already exist");
+
+            var phoneNumberIsInRequestTable = await _ctx.Request.AnyAsync(x => x.PhoneNumber == model.PhoneNumber);
+            if (!phoneNumberIsInRequestTable)
+                return BadRequest("Phone number has not gone through verification process");
 
             //create new applicationUser
             string defaultPix = "~/images/avarta.jpg";
@@ -139,7 +143,7 @@ namespace Groundforce.Services.API.Controllers
             var agent = new FieldAgent
             {
                 ApplicationUserId = createdUser.Id,
-                Latitude = model.Latitude,
+                Latitude = model.Latitude,    
                 Longitude = model.Longitude,
                 Religion = model.Religion,
                 AdditionalPhoneNumber = model.AdditionalPhoneNumber
