@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Groundforce.Services.Data;
@@ -15,22 +17,26 @@ using Groundforce.Services.DTOs;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Authorization;
 using Groundforce.Common.Utilities;
+using Microsoft.Extensions.Options;
 
 namespace Groundforce.Services.API.Controllers
 {
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
     {
         // private fields
         private readonly IConfiguration _config;
+
         private readonly ILogger<AccountController> _logger;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly AppDbContext _ctx;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public AccountController(IConfiguration configuration, ILogger<AccountController> logger, SignInManager<ApplicationUser> signInManager,
+        public AccountController(IConfiguration configuration, ILogger<AccountController> logger,
+            SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager, AppDbContext ctx, IWebHostEnvironment webHostEnvironment)
         {
             _config = configuration;
@@ -42,6 +48,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
         // register user
+        [AllowAnonymous]
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp(UserToRegisterDTO model)
         {
@@ -64,6 +71,7 @@ namespace Groundforce.Services.API.Controllers
                 CreatedAt = DateTime.Now,
                 Gender = model.Gender,
                 HomeAddress = model.HomeAddress,
+                PhoneNumber = model.PhoneNumber
             };
 
             var result = await _userManager.CreateAsync(user, model.PIN);
@@ -74,6 +82,7 @@ namespace Groundforce.Services.API.Controllers
                 {
                     ModelState.AddModelError("", err.Description);
                 }
+
                 return BadRequest("Failed to create user!");
             }
 
@@ -119,7 +128,13 @@ namespace Groundforce.Services.API.Controllers
 
             try
             {
+                // number must be added to the request be for sign up
                 await _ctx.BankAccounts.AddAsync(bank);
+                // change phonenumber status to verified
+                var requestModel = _ctx.Request.Where(x => x.PhoneNumber == model.PhoneNumber).FirstOrDefault();
+               requestModel.IsVerified = true;
+                _ctx.Request.Update(requestModel);
+
                 _ctx.SaveChanges();
             }
             catch (Exception e)
@@ -141,7 +156,6 @@ namespace Groundforce.Services.API.Controllers
         {
             if (ModelState.IsValid)
             {
-
                 //get user by email
                 var user = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
 
@@ -158,12 +172,11 @@ namespace Groundforce.Services.API.Controllers
                     var getToken = GetTokenHelperClass.GetToken(user, _config);
                     return Ok(getToken);
                 }
-                
-				ModelState.AddModelError("", "Invalid creadentials");
-				return Unauthorized(ModelState);
-					
+
+                ModelState.AddModelError("", "Invalid creadentials");
+                return Unauthorized(ModelState);
             }
-            
+
             return BadRequest(model);
         }
 
@@ -178,9 +191,38 @@ namespace Groundforce.Services.API.Controllers
 
                 if (user == null) return NotFound();
 
-                var updatePwd = await _userManager.ChangePasswordAsync(user, userToUpdate.CurrentPwd, userToUpdate.NewPwd);
+                var updatePwd =
+                    await _userManager.ChangePasswordAsync(user, userToUpdate.CurrentPwd, userToUpdate.NewPwd);
 
                 if (updatePwd.Succeeded) return Ok();
+
+                foreach (var error in updatePwd.Errors)
+                {
+                    ModelState.AddModelError("", $"{error.Code} - {error.Description}");
+                }
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        //Forgot pin
+        [AllowAnonymous]
+        [HttpPatch]
+        [Route("forgotPin")]
+        public async Task<IActionResult> ForgotPin([FromBody] ForgotUserPwdDTO userToUpdate)
+        {
+            if (ModelState.IsValid)
+            {
+                ApplicationUser user = await _userManager.Users.SingleAsync(applicationUser =>
+                    applicationUser.PhoneNumber == userToUpdate.phoneNumber);
+
+                if (user == null) return NotFound();
+
+                string Token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+                IdentityResult updatePwd = await _userManager.ResetPasswordAsync(user, Token, userToUpdate.newPin);
+
+                if (updatePwd.Succeeded) return Ok("Password Change Successful");
 
                 foreach (var error in updatePwd.Errors)
                 {
