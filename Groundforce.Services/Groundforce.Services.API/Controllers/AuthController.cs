@@ -139,7 +139,7 @@ namespace Groundforce.Services.API.Controllers
             var agent = new FieldAgent
             {
                 ApplicationUserId = createdUser.Id,
-                Latitude = model.Latitude,    
+                Latitude = model.Latitude,
                 Longitude = model.Longitude,
                 Religion = model.Religion,
                 AdditionalPhoneNumber = model.AdditionalPhoneNumber

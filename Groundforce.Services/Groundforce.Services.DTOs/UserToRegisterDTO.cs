@@ -85,7 +85,6 @@ namespace Groundforce.Services.DTOs
         [MinLength(4)]
         [DataType(DataType.Password)]
         public string PIN { get; set; }
-
         public string PhoneNumber { get; set; }
     }
 

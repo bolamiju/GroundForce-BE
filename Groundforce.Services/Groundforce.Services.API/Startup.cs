@@ -45,6 +45,7 @@ namespace Groundforce.Services.API
             ).AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
+
             //register cloudinary
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
 
