@@ -18,6 +18,7 @@ namespace Groundforce.Services.DTOs
         [MaxLength(50, ErrorMessage = "First name must not be more than 50 characters")]
         [Display(Name = "First name")]
         public string FirstName { get; set; }
+        public string PhoneNumber { get; set; }
 
         //additional Phonenumber
         [Required]
@@ -86,7 +87,6 @@ namespace Groundforce.Services.DTOs
         [DataType(DataType.Password)]
         public string PIN { get; set; }
 
-        public string PhoneNumber { get; set; }
     }
 
     class ValidateDOBRangeAttribute : ValidationAttribute
