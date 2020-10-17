@@ -21,6 +21,10 @@ namespace Groundforce.Services.DTOs
 
         //additional Phonenumber
         [Required]
+        public string PhoneNumber { get; set; }
+
+        //additional Phonenumber
+        [Required]
         public string AdditionalPhoneNumber { get; set; }
 
         //gender
@@ -85,8 +89,6 @@ namespace Groundforce.Services.DTOs
         [MinLength(4)]
         [DataType(DataType.Password)]
         public string PIN { get; set; }
-
-        public string PhoneNumber { get; set; }
     }
 
     class ValidateDOBRangeAttribute : ValidationAttribute

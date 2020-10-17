@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Groundforce.Services.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20201008102957_UpdateChanges")]
-    partial class UpdateChanges
+    [Migration("20201014113702_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -334,7 +334,6 @@ namespace Groundforce.Services.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Religion")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("FieldAgentId");
@@ -415,6 +414,9 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsBlocked")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsVerified")
                         .HasColumnType("bit");
 
@@ -422,7 +424,7 @@ namespace Groundforce.Services.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RequestFailedCount")
+                    b.Property<int>("RequestAttempt")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")

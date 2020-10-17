@@ -44,6 +44,7 @@ namespace Groundforce.Services.API
             }
             ).AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
+            
 
             //register cloudinary
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
@@ -80,7 +81,7 @@ namespace Groundforce.Services.API
                 });
             });
 
-            // JWT token service
+            // JWT token serviceb920fd155f6c75412fb40871950828af2c9f07b7
             services.AddAuthentication(option => {
                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -106,6 +107,7 @@ namespace Groundforce.Services.API
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDbContext ctx,
             RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

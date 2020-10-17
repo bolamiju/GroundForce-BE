@@ -335,7 +335,6 @@ namespace Groundforce.Services.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Religion")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("FieldAgentId");
