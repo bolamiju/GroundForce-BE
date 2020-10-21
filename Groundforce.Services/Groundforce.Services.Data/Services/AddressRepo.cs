@@ -15,17 +15,18 @@ namespace Groundforce.Services.Data.Services
         {
             _ctx = context;
         }
-        public async Task<Address> UpdateAddress(int id, UpdateAddressDTO model)
+
+        // Method to update the address of a mission
+        public async Task<bool> UpdateAddress(Address model)
         {
-            var address = await _ctx.Addresses.FirstOrDefaultAsync(x => x.AddressId == id);
-            if (address == null) return null;
-
-            address.AddressName = model.AddressName;
-            address.UpdatedAt = DateTime.Now;
-
-            _ctx.Addresses.Update(address);
-            await _ctx.SaveChangesAsync();
-            return address;
+            /*
+             * Update the address table with the model provided from the controller
+             * Save changes to the database and return a bool value if it was successful or not
+            */
+            _ctx.Addresses.Update(model);
+            var result = await _ctx.SaveChangesAsync();
+            if (result > 0) return true;
+            return false;
         }
     }
 }

@@ -8,6 +8,6 @@ namespace Groundforce.Services.Data.Services
 {
     public interface IAddressRepo
     {
-        Task<Address> UpdateAddress(int id, UpdateAddressDTO model);
+        Task<bool> UpdateAddress(Address model);
     }
 }
