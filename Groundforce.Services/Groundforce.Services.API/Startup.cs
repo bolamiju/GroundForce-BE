@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Groundforce.Services.Core.Repositories;
+using Groundforce.Services.Core.Interfaces;
 
 namespace Groundforce.Services.API
 {
@@ -99,6 +101,8 @@ namespace Groundforce.Services.API
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:SigningKey"]))
                 };
             });
+
+            services.AddScoped<IMission, MissionRepository>();
 
         }
 
