@@ -11,8 +11,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+<<<<<<< HEAD
 using Groundforce.Services.Core.Repositories;
 using Groundforce.Services.Core.Interfaces;
+=======
+using Groundforce.Services.Data.Services;
+>>>>>>> 2b2d2de9828549f65efb49be0c73a519838db8b2
 
 namespace Groundforce.Services.API
 {
@@ -28,8 +32,12 @@ namespace Groundforce.Services.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-            
+            services.AddControllers()
+                    .AddNewtonsoftJson(options =>
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+            services.AddScoped<IAddressRepo, AddressRepo>();
+
             // db connection string
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbConnection")));
             
@@ -95,8 +103,8 @@ namespace Groundforce.Services.API
                 options.TokenValidationParameters = new TokenValidationParameters()
                 {
                     ValidateIssuerSigningKey = true,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
                     ValidIssuer = Configuration["Jwt:Site"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:SigningKey"]))
                 };
