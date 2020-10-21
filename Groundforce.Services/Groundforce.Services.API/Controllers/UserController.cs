@@ -35,6 +35,7 @@ namespace Groundforce.Services.API.Controllers
         //updates user picture
         [HttpPatch]
         [Route("{Id}/picture")]
+        [Authorize(Roles = "Agent")]
         public async Task<IActionResult> UpdatePicture(string Id, [FromForm]IFormFile picture)
         {
             var userToUpdate = await _userManager.FindByIdAsync(Id);

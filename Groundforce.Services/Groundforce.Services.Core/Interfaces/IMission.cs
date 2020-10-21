@@ -10,6 +10,6 @@ namespace Groundforce.Services.Core.Interfaces
     {
 
 
-        public Task<IEnumerable<AssignedAddresses>> FetchAllOngoingTask(string userId);
+        public Task<IEnumerable<AssignedAddresses>> FetchAllOngoingTask(string userId, int page, int page_size);
     }
 }
