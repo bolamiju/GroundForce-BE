@@ -35,7 +35,7 @@ namespace Groundforce.Services.API.Controllers
         public async Task<IActionResult> UpdateMission(int id, [FromBody] UpdateAddressDTO model)
         {
             // Check if the id in the request is less than zero
-            if (id < 0) return BadRequest("Invalid Credentials");
+            if (id < 1) return BadRequest("Invalid Credentials");
 
             try
             {
