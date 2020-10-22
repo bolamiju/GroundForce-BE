@@ -66,15 +66,15 @@ namespace Groundforce.Services.API.Controllers
                     * else return a BadRequest response
                 */
                 updatedAddress = await _addressRepo.UpdateAddress(address);
-                return Ok();
             }
             catch (Exception e)
             {
                 // Error to be returned, if an error is thrown from this operation
-                _logger.LogError(e.Message);
+                _logger.LogError(e.Message);            
+                return BadRequest("Failed to update mission");
             }
             
-            return BadRequest("Failed to update mission");
+            return Ok("Mission updated");
         }
     }
 }
