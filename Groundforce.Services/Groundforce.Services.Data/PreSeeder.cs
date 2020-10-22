@@ -51,24 +51,18 @@ namespace Groundforce.Services.Data
                         HomeAddress ="10, wayside"
                     }
                 };
-                int counter = 0;
+                
                 foreach (var user in listOfUsers)
                 {
                     var result = await userManager.CreateAsync(user, "1234");
                     if (result.Succeeded)
                     {
-                        if (counter == 0)
-                        {
-                            await userManager.AddToRoleAsync(user, "Super Admin");
-                        }
-                        else
-                        {
-                            await userManager.AddToRoleAsync(user, "Admin");
-                            ctx.Admins.Add(new Admin { ApplicationUserId = user.Id });
-                            ctx.SaveChanges();
-                        }
+                        await userManager.AddToRoleAsync(user, "Admin");
+
+                        ctx.Admins.Add(new Admin { ApplicationUserId = user.Id });
+                        ctx.SaveChanges();
+                        
                     }
-                    counter++;
                 }
             }
         }

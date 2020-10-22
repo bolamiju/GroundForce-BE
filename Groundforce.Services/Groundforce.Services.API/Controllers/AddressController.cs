@@ -5,6 +5,7 @@ using Groundforce.Services.Data.Services;
 using Groundforce.Services.DTOs;
 using Groundforce.Services.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.EntityFrameworkCore;
@@ -21,11 +22,13 @@ namespace Groundforce.Services.API.Controllers
     {
         private readonly ILogger<AddressController> _logger;
         private readonly IAddressRepo _addressRepo;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AddressController(ILogger<AddressController> logger, IAddressRepo addressRepo)
+        public AddressController(ILogger<AddressController> logger, IAddressRepo addressRepo, UserManager<ApplicationUser> userManager)
         {
             _logger = logger;
             _addressRepo = addressRepo;
+            _userManager = userManager;
         }
 
         // PUT api/v1/<AddressController>/5
@@ -76,6 +79,50 @@ namespace Groundforce.Services.API.Controllers
             
             return Ok("Mission updated");
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<IActionResult> AddAddress([FromBody] NewAddressDTO addressToAdd)
+        {
+            if (ModelState.IsValid)
+            {
+                var agent = await _userManager.GetUserAsync(User);
+
+                if (agent == null) return NotFound("User not found");
+
+                Address updateAddress;
+                var newAddress = new Address
+                {
+                    ApplicationUserId = agent.Id,
+                    AddressName = addressToAdd.AddressName
+                };
+
+                try
+                {
+                    updateAddress = await _addressRepo.AddAddress(newAddress);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    return BadRequest("Failed to add the address. Try again");
+                }
+
+                var fetchAddressId = await _addressRepo.GetAddressById(updateAddress.AddressId);
+
+                if (fetchAddressId != null)
+                {
+                    var addressToReturn = new ReturnedAddressDTO
+                    {
+                        AddressId = fetchAddressId.AddressId,
+                        AddressName = fetchAddressId.AddressName,
+                        ApplicationUserId = fetchAddressId.ApplicationUserId,
+                        CreatedAt = fetchAddressId.CreatedAt
+                    };
+
+                    return Ok(addressToReturn);
+                }
+            }
+            return BadRequest(ModelState);
+        }
     }
 }
-

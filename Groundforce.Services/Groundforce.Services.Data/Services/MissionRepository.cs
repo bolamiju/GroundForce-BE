@@ -1,5 +1,4 @@
-﻿using Groundforce.Services.Core.Interfaces;
-using Groundforce.Services.Data;
+﻿using Groundforce.Services.Data;
 using Groundforce.Services.DTOs;
 using Groundforce.Services.Models;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Groundforce.Services.Core.Repositories
+namespace Groundforce.Services.Data.Services
 {
    public  class MissionRepository : IMission 
     {

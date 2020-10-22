@@ -17,6 +17,14 @@ namespace Groundforce.Services.Data.Services
             _ctx = context;
         }
 
+        public async Task<Address> AddAddress(Address newAddress)
+        {
+            await _ctx.Addresses.AddAsync(newAddress);
+            await _ctx.SaveChangesAsync();
+
+            return newAddress;
+        }
+
         public async Task<Address> GetAddressById(int Id)
         {
             // return a single address by Id
