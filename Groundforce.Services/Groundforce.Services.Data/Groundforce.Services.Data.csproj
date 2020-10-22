@@ -41,6 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Groundforce.Services.DTOs\Groundforce.Services.DTOs.csproj" />
     <ProjectReference Include="..\Groundforce.Services.Models\Groundforce.Services.Models.csproj" />
   </ItemGroup>
 
