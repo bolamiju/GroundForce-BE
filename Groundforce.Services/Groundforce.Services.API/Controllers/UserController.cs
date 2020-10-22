@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Groundforce.Services.API.Controllers
 {

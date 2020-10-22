@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Groundforce.Common.Utilities;
 using Groundforce.Services.Core.Interfaces;
 using Groundforce.Services.Data;
 using Groundforce.Services.DTOs;
@@ -32,7 +33,7 @@ namespace Groundforce.Services.API.Controllers
 
 
         [HttpGet("{userId}/ongoing/{page}")]
-        [Authorize(Roles = "Agent")]
+      [Authorize(Roles = "Agent")]
         public async Task<IActionResult> FetchAllOngoingMission(string userId, int page)
         {
 
@@ -71,11 +72,12 @@ namespace Groundforce.Services.API.Controllers
             }
 
 
+            var paginationDetail = new PaginationClass();
+           
+
             // new dto that contains pagination details 
             var pageMission = new MissionPaginatedDTO();
-            pageMission.TotalPages = missions.Count().ToString();
-            pageMission.Per_page = per_page.ToString();
-            pageMission.Page = page.ToString();
+            pageMission.Pagination = paginationDetail.Paginate(page, per_page, _mission.TotalMissionAssigned);
             pageMission.Data = missions;
 
             return Ok(pageMission);

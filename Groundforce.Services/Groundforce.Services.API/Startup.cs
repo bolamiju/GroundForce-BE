@@ -11,12 +11,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
-<<<<<<< HEAD
 using Groundforce.Services.Core.Repositories;
 using Groundforce.Services.Core.Interfaces;
-=======
 using Groundforce.Services.Data.Services;
->>>>>>> 2b2d2de9828549f65efb49be0c73a519838db8b2
+
 
 namespace Groundforce.Services.API
 {

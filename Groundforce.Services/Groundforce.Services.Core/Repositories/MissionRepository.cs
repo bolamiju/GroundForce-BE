@@ -1,5 +1,6 @@
 ﻿using Groundforce.Services.Core.Interfaces;
 using Groundforce.Services.Data;
+using Groundforce.Services.DTOs;
 using Groundforce.Services.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -13,6 +14,7 @@ namespace Groundforce.Services.Core.Repositories
    public  class MissionRepository : IMission 
     {
         private AppDbContext _ctx;
+        public int TotalMissionAssigned  { get; set; }
 
         public MissionRepository(AppDbContext ctx)
         {
@@ -29,21 +31,36 @@ namespace Groundforce.Services.Core.Repositories
             var fieldAgent = await _ctx.FieldAgents.Where(x => x.ApplicationUserId == userId).FirstOrDefaultAsync();
             var allAddress = _ctx.AssignedAddresses.Where(c => c.FieldAgentId == fieldAgent.FieldAgentId && c.IsAccepted && !c.IsVerified).Include(a => a.Address).ToList();
 
-
-            // total pages 
-            var totalPages = (int)Math.Ceiling(decimal.Divide(allAddress.Count(), per_page));
-
-            // check if greater than totalpages 
-            page = page > totalPages ? totalPages : page;
-            //check if less than  0
-            page = page < 0 ? 1 : page;
-            //  paginated datas
-            var pageData = allAddress.Skip((page - 1) * per_page).Take(per_page);
-
+            await CountRecordsMissionAsync(userId);
 
             return allAddress;
 
 
+        }
+
+        public async Task<IEnumerable<AssignedAddresses>> PaginatedOngoingTask(string userId, int page, int per_size)
+        {
+            var per_page = per_size;
+
+            // get all address 
+            var fieldAgent = await _ctx.FieldAgents.Where(x => x.ApplicationUserId == userId).FirstOrDefaultAsync();
+            var allAddress = _ctx.AssignedAddresses.Where(c => c.FieldAgentId == fieldAgent.FieldAgentId && c.IsAccepted && !c.IsVerified).Include(a => a.Address).ToList();
+
+            await CountRecordsMissionAsync(userId);
+            page = page > TotalMissionAssigned ? TotalMissionAssigned : page;
+            page = page < 0 ? 1 : page;
+            var pageData = allAddress.Skip((page - 1) * per_page).Take(per_page);
+
+            return pageData;
+        }
+
+
+        public async Task CountRecordsMissionAsync(string userId)
+        {
+            var fieldAgent = await _ctx.FieldAgents.Where(x => x.ApplicationUserId == userId).FirstOrDefaultAsync();
+            var allAddress = _ctx.AssignedAddresses.Where(c => c.FieldAgentId == fieldAgent.FieldAgentId && c.IsAccepted && !c.IsVerified).ToList();
+
+          TotalMissionAssigned =  allAddress.Count();
         }
 
     }
