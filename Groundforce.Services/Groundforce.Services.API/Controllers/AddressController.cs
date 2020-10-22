@@ -80,7 +80,7 @@ namespace Groundforce.Services.API.Controllers
             return Ok("Mission updated");
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddAddress([FromBody] NewAddressDTO addressToAdd)
         {
