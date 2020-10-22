@@ -104,6 +104,7 @@ namespace Groundforce.Services.API.Controllers
                 catch (Exception ex)
                 {
                     _logger.LogError(ex.Message);
+                    _logger.LogError(ex.InnerException.Message);
                     return BadRequest("Failed to add the address. Try again");
                 }
 

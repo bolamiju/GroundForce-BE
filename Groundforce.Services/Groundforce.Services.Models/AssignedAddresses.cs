@@ -17,6 +17,7 @@ namespace Groundforce.Services.Models
         public string BusStop { get; set; }
         public string BuildingColor { get; set; }
         public bool IsVerified { get; set; } = false;
+        public bool Accepted { get; set; }
 
 
         //Foriegn Keys

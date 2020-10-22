@@ -1,9 +1,7 @@
-﻿using Groundforce.Services.DTOs;
-using Groundforce.Services.Models;
+﻿using Groundforce.Services.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Groundforce.Services.Data.Services
@@ -41,6 +39,23 @@ namespace Groundforce.Services.Data.Services
             _ctx.Addresses.Update(model);
             var result = await _ctx.SaveChangesAsync();
             if (result > 0) return true;
+            return false;
+        }
+
+        public async Task<bool> UpdateAcceptedStatus(int id, bool accept)
+        {
+            var assignedAddress = _ctx.AssignedAddresses.SingleOrDefault(add => add.Id == id);
+            assignedAddress.Accepted = accept;
+            assignedAddress.UpdatedAt = DateTime.Now;
+
+            //patch the 'Accepted' column of the assignedAddress table
+            _ctx.AssignedAddresses.Update(assignedAddress);
+
+            var result = await _ctx.SaveChangesAsync();
+
+            // if the number of row affected is greater or equal to 1, that record was successfully patched. Else, there was an error
+            if (result >= 1) return true;
+
             return false;
         }
     }
