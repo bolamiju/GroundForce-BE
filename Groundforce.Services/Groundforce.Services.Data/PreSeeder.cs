@@ -56,23 +56,17 @@ namespace Groundforce.Services.Data
                     }
                 };
 
-                int counter = 0;
                 foreach (var user in listOfUsers)
                 {
                     var result = await userManager.CreateAsync(user, "1234");
 
                     if (result.Succeeded)
                     {
-                        if (counter == 0)
-                        {
-                            await userManager.AddToRoleAsync(user, "Super Admin");
-                        }
-                        else
-                        {
-                            await userManager.AddToRoleAsync(user, "Admin");
-                        }
+                        await userManager.AddToRoleAsync(user, "Admin");
+
+                        ctx.Admins.Add(new Admin { ApplicationUserId = user.Id });
+                        ctx.SaveChanges();
                     }
-                    counter++;
                 }
             }
         }
