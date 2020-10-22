@@ -10,10 +10,17 @@ namespace Groundforce.Services.Data.Services
 {
     public class AddressRepo : IAddressRepo
     {
+        // Injection of the DbContext in the Repositiory class
         private readonly AppDbContext _ctx;
         public AddressRepo(AppDbContext context)
         {
             _ctx = context;
+        }
+
+        public async Task<Address> GetAddressById(int Id)
+        {
+            // return a single address by Id
+            return await _ctx.Addresses.FirstOrDefaultAsync(x => x.AddressId == Id);
         }
 
         // Method to update the address of a mission

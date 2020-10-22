@@ -9,5 +9,6 @@ namespace Groundforce.Services.Data.Services
     public interface IAddressRepo
     {
         Task<bool> UpdateAddress(Address model);
+        Task<Address> GetAddressById(int Id);
     }
 }
