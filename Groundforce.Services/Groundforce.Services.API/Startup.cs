@@ -30,7 +30,7 @@ namespace Groundforce.Services.API
             
             // db connection string
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbConnection")));
-            
+
             // Identity service
             services.AddIdentity<ApplicationUser, IdentityRole>(option =>
             {
@@ -44,6 +44,7 @@ namespace Groundforce.Services.API
             }
             ).AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
+
 
             //register cloudinary
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
@@ -86,8 +87,7 @@ namespace Groundforce.Services.API
                 option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 
-            })
-                .AddJwtBearer(options => {
+            }).AddJwtBearer(options => {
                 options.SaveToken = true;
                 options.RequireHttpsMetadata = true;
                 options.TokenValidationParameters = new TokenValidationParameters()
