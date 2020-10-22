@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Groundforce.Common.Utilities;
 using Groundforce.Services.Data;
@@ -8,7 +7,6 @@ using Groundforce.Services.Data.Services;
 using Groundforce.Services.DTOs;
 using Groundforce.Services.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Groundforce.Services.DTOs
+﻿namespace Groundforce.Services.DTOs
 {
     public class AssignedAddressUpdateDTO
     {
