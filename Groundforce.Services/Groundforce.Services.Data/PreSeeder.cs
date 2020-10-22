@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace Groundforce.Services.Data
 {
     public static class PreSeeder
@@ -13,7 +12,6 @@ namespace Groundforce.Services.Data
         public static async Task Seeder(AppDbContext ctx, RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
             ctx.Database.EnsureCreated();
-
             if (!roleManager.Roles.Any())
             {
                 var listOfRoles = new List<IdentityRole>
@@ -23,20 +21,18 @@ namespace Groundforce.Services.Data
                     new IdentityRole("Client"),
                     new IdentityRole("Agent")
                 };
-
                 foreach (var role in listOfRoles)
                 {
                     await roleManager.CreateAsync(role);
                 }
             }
-
             if (!userManager.Users.Any())
             {
                 var listOfUsers = new List<ApplicationUser>
                 {
-                    new ApplicationUser{ UserName="randomuser1@sample.com", 
-                        Email = "randomuser1@sample.com", 
-                        LastName="RandomUser", 
+                    new ApplicationUser{ UserName="randomuser1@sample.com",
+                        Email = "randomuser1@sample.com",
+                        LastName="RandomUser",
                         FirstName="James" ,
                         Gender="Male",
                         DOB="1/1/1999",
@@ -45,7 +41,7 @@ namespace Groundforce.Services.Data
                         LGA = "Rururu",
                         HomeAddress ="10, wayside"
                     },
-                    new ApplicationUser{ UserName="randomuser2@sample.com", 
+                    new ApplicationUser{ UserName="randomuser2@sample.com",
                         Email = "randomuser2@sample.com", LastName="RandomUser", FirstName="John",
                         Gender="Male",
                         DOB="1/1/1999",
@@ -55,17 +51,17 @@ namespace Groundforce.Services.Data
                         HomeAddress ="10, wayside"
                     }
                 };
-
+                
                 foreach (var user in listOfUsers)
                 {
                     var result = await userManager.CreateAsync(user, "1234");
-
                     if (result.Succeeded)
                     {
                         await userManager.AddToRoleAsync(user, "Admin");
 
                         ctx.Admins.Add(new Admin { ApplicationUserId = user.Id });
                         ctx.SaveChanges();
+                        
                     }
                 }
             }

@@ -11,7 +11,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+
 using Groundforce.Services.Data.Services;
+
 
 namespace Groundforce.Services.API
 {
@@ -32,6 +34,7 @@ namespace Groundforce.Services.API
                     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             services.AddScoped<IAddressRepo, AddressRepo>();
+            services.AddScoped<IMission, MissionRepository>();
 
             // db connection string
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbConnection")));
