@@ -33,11 +33,12 @@ namespace Groundforce.Services.API
                     .AddNewtonsoftJson(options =>
                     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
-            services.AddScoped<IAddressRepo, AddressRepo>();
-            services.AddScoped<IMission, MissionRepository>();
 
             // db connection string
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbConnection")));
+
+            services.AddScoped<IAddressRepo, AddressRepo>();
+            services.AddScoped<IMission, MissionRepository>();
 
             // Identity service
             services.AddIdentity<ApplicationUser, IdentityRole>(option =>

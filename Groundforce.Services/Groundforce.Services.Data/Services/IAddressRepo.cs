@@ -1,9 +1,6 @@
-﻿using Groundforce.Services.DTOs;
-using Groundforce.Services.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Groundforce.Services.Models;
 using System.Threading.Tasks;
+
 namespace Groundforce.Services.Data.Services
 {
     public interface IAddressRepo
@@ -11,5 +8,6 @@ namespace Groundforce.Services.Data.Services
         Task<bool> UpdateAddress(Address model);
         Task<Address> GetAddressById(int Id);
         Task<Address> AddAddress(Address newAddress);
+        Task<bool> UpdateAcceptedStatus(int id, bool change);
     }
 }

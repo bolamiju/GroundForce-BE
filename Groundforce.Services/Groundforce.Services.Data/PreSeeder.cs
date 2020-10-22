@@ -61,7 +61,6 @@ namespace Groundforce.Services.Data
 
                         ctx.Admins.Add(new Admin { ApplicationUserId = user.Id });
                         ctx.SaveChanges();
-                        
                     }
                 }
             }

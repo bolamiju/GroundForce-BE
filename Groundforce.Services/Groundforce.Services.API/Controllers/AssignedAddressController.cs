@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Groundforce.Common.Utilities;
 using Groundforce.Services.Data;
@@ -8,32 +7,30 @@ using Groundforce.Services.Data.Services;
 using Groundforce.Services.DTOs;
 using Groundforce.Services.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Groundforce.Services.API.Controllers
 {
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [Route("api/[controller]")]
-    [ApiController]
     public class AssignedAddressController : ControllerBase
     {
-
-
         private AppDbContext _ctx;
         private readonly IMission _mission;
+        private readonly IAddressRepo _addressRepo;
+        private readonly ILogger<AssignedAddressController> _logger;
 
-        public AssignedAddressController(AppDbContext ctx, IMission mission)
+        public AssignedAddressController(AppDbContext ctx, IMission mission, IAddressRepo addressRepo, ILogger<AssignedAddressController> logger)
         {
             _ctx = ctx;
             _mission = mission;
+            _addressRepo = addressRepo;
+            _logger = logger;
         }
 
-
-
-
-
         [HttpGet("{userId}/ongoing/{page}")]
-      [Authorize(Roles = "Agent")]
+        [Authorize(Roles = "Agent")]
         public async Task<IActionResult> FetchAllOngoingMission(string userId, int page)
         {
 
@@ -73,7 +70,6 @@ namespace Groundforce.Services.API.Controllers
 
 
             var paginationDetail = new PaginationClass();
-           
 
             // new dto that contains pagination details 
             var pageMission = new MissionPaginatedDTO();
@@ -81,9 +77,30 @@ namespace Groundforce.Services.API.Controllers
             pageMission.Data = missions;
 
             return Ok(pageMission);
-
-
         }
 
+
+        [Authorize(Roles = "Agent, Admin")]
+        [HttpPatch("{id}/accepted")]
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] AssignedAddressUpdateDTO columnUpdate)
+        {
+            if (id < 1) return BadRequest("invalid parameter name");
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var updateAddress = await _addressRepo.UpdateAcceptedStatus(id, columnUpdate.Accepted);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    return BadRequest("Could not update the address");
+                }
+
+                return Ok("Status Updated");
+            }
+            return BadRequest(ModelState);
+        }
     }
 }

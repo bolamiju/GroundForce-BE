@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Groundforce.Services.Models
 {
@@ -17,6 +14,7 @@ namespace Groundforce.Services.Models
         public string BusStop { get; set; }
         public string BuildingColor { get; set; }
         public bool IsVerified { get; set; } = false;
+        public bool Accepted { get; set; }
 
 
         //Foriegn Keys

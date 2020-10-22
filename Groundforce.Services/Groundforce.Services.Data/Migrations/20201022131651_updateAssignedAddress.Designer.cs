@@ -4,14 +4,16 @@ using Groundforce.Services.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Groundforce.Services.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201022131651_updateAssignedAddress")]
+    partial class updateAssignedAddress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -228,9 +230,6 @@ namespace Groundforce.Services.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AddressId")
-                        .IsUnique();
 
                     b.HasIndex("AdminId");
 
@@ -624,6 +623,12 @@ namespace Groundforce.Services.Data.Migrations
 
             modelBuilder.Entity("Groundforce.Services.Models.Address", b =>
                 {
+                    b.HasOne("Groundforce.Services.Models.AssignedAddresses", "AssignedAddresses")
+                        .WithOne("Address")
+                        .HasForeignKey("Groundforce.Services.Models.Address", "AddressId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.HasOne("Groundforce.Services.Models.ApplicationUser", "ApplicationUser")
                         .WithMany("Addresses")
                         .HasForeignKey("ApplicationUserId");
@@ -638,12 +643,6 @@ namespace Groundforce.Services.Data.Migrations
 
             modelBuilder.Entity("Groundforce.Services.Models.AssignedAddresses", b =>
                 {
-                    b.HasOne("Groundforce.Services.Models.Address", "Address")
-                        .WithOne("AssignedAddresses")
-                        .HasForeignKey("Groundforce.Services.Models.AssignedAddresses", "AddressId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("Groundforce.Services.Models.Admin", "Admin")
                         .WithMany("AssignedAddresses")
                         .HasForeignKey("AdminId")

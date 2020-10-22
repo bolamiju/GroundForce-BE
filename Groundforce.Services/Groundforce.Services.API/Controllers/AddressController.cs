@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Groundforce.Services.Data;
 using Groundforce.Services.Data.Services;
 using Groundforce.Services.DTOs;
 using Groundforce.Services.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Server.HttpSys;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -104,6 +101,7 @@ namespace Groundforce.Services.API.Controllers
                 catch (Exception ex)
                 {
                     _logger.LogError(ex.Message);
+                    _logger.LogError(ex.InnerException.Message);
                     return BadRequest("Failed to add the address. Try again");
                 }
 

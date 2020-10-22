@@ -29,6 +29,16 @@
     <Compile Remove="Migrations\20201007235852_InitialMigration.Designer.cs" />
     <Compile Remove="Migrations\20201008000019_InitialMigration.cs" />
     <Compile Remove="Migrations\20201008000019_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201022160242_FKFixMigration.cs" />
+    <Compile Remove="Migrations\20201022160242_FKFixMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201022160438_FKFixMigration.cs" />
+    <Compile Remove="Migrations\20201022160438_FKFixMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201022161943_FKFixMigration.cs" />
+    <Compile Remove="Migrations\20201022161943_FKFixMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201022162154_FKFixMigration.cs" />
+    <Compile Remove="Migrations\20201022162154_FKFixMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201022162410_FKFixMigration.cs" />
+    <Compile Remove="Migrations\20201022162410_FKFixMigration.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
