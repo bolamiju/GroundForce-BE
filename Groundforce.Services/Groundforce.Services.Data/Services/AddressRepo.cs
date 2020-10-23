@@ -58,5 +58,11 @@ namespace Groundforce.Services.Data.Services
 
             return false;
         }
+
+        public async Task<Address> GetAddress(int id)
+        {
+            var address = await _ctx.Addresses.FirstOrDefaultAsync(address => address.AddressId == id);
+            return address;
+        }
     }
 }

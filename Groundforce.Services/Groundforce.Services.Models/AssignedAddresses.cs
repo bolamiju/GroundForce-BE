@@ -15,6 +15,10 @@ namespace Groundforce.Services.Models
         public string BuildingColor { get; set; }
         public bool IsVerified { get; set; } = false;
         public bool Accepted { get; set; }
+        public bool AddressExists { get; set; }
+        public string TypeOfStructure { get; set; }
+        public string Longitude { get; set; }
+        public string Latitude { get; set; }
 
 
         //Foriegn Keys
@@ -23,7 +27,6 @@ namespace Groundforce.Services.Models
         public int AddressId { get; set; }
         public Address Address { get; set; }
 
-        [Required]
         [Display(Name = "Building Type Id")]
         public int BuildingTypeId { get; set; }
         public BuildingType BuildingType { get; set; }

@@ -9,5 +9,6 @@ namespace Groundforce.Services.Data.Services
         Task<Address> GetAddressById(int Id);
         Task<Address> AddAddress(Address newAddress);
         Task<bool> UpdateAcceptedStatus(int id, bool change);
+        Task<Address> GetAddress(int id);
     }
 }

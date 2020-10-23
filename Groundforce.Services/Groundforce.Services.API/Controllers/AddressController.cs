@@ -20,12 +20,14 @@ namespace Groundforce.Services.API.Controllers
         private readonly ILogger<AddressController> _logger;
         private readonly IAddressRepo _addressRepo;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IAgentRepository _agentRepo;
 
-        public AddressController(ILogger<AddressController> logger, IAddressRepo addressRepo, UserManager<ApplicationUser> userManager)
+        public AddressController(ILogger<AddressController> logger, IAddressRepo addressRepo, UserManager<ApplicationUser> userManager, IAgentRepository agentRepo)
         {
             _logger = logger;
             _addressRepo = addressRepo;
             _userManager = userManager;
+            _agentRepo = agentRepo;
         }
 
         // PUT api/v1/<AddressController>/5
@@ -121,6 +123,23 @@ namespace Groundforce.Services.API.Controllers
                 }
             }
             return BadRequest(ModelState);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin, Client")]
+        [Route("{id:int}")]
+        public async Task<IActionResult> GetAddress(int id)
+        {
+            try
+            {
+                var agent = await _agentRepo.GetAgentById(id);
+                var address = await _addressRepo.GetAddress(id);
+                return Ok(address);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
     }
 }
