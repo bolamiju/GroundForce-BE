@@ -8,19 +8,19 @@ using System.Text;
 
 namespace Groundforce.Common.Utilities
 {
-     public class PaginationClass
+     public static class PaginationUtil
     {
 
 
-       public PaginationDTO Paginate(int page , int per_page , int total_page)
+       public static PaginationDTO Paginate(int page , int per_page, int total)
         {
-
+            int total_page = total % per_page == 0  ? total / per_page  : total / per_page + 1;
             var result = new PaginationDTO()
             {
-                TotalPages = total_page,
+                Page = page,
                 PerPage = per_page,
-                Page = page
-
+                Total = total,
+                TotalPages = total_page
             };
             return result;
         }

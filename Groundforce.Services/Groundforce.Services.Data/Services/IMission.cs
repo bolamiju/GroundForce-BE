@@ -8,14 +8,14 @@ namespace Groundforce.Services.Data.Services
 {
     public interface IMission
     {
-        public int TotalMissionAssigned { get; set; }
+        public int NumberOfOngoingTask { get; set; }
+        public int NumberOfOngoingTaskByAgent { get; set; }
 
-        public Task<IEnumerable<AssignedAddresses>> FetchAllOngoingTask(string userId, int page, int page_size);
+        public Task<IEnumerable<AssignedAddresses>> FetchAllOngoingTask(string userId);
 
-        public  Task CountRecordsMissionAsync(string userId);
+        public  Task<IEnumerable<AssignedAddresses>> AllOngoingTaskPaginated(string userId, int page, int per_size);
 
-        public  Task<IEnumerable<AssignedAddresses>> PaginatedOngoingTask(string userId, int page, int per_size);
-
-        List<AssignedAddresses> FetchMissions(int userId);
+        List<AssignedAddresses> GetAllMissionsByAgent(int userId);
+        List<AssignedAddresses> GetAllMissionsByAgentPaginated(int userId, int page, int per_page);
     }
 }

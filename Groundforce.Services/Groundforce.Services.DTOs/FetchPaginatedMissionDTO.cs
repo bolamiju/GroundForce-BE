@@ -5,8 +5,9 @@ using System.Text;
 
 namespace Groundforce.Services.DTOs
 {
-    public class FetchPaginatedMissionDTO : PaginationDTO
+    public class FetchPaginatedMissionDTO
     {
-        public List<AssignedAddresses> AssignedAddresses { get; set; }
+        public PaginationDTO PaginationItems { get; set; }
+        public List<AssignedAddresses> Data { get; set; }
     }
 }

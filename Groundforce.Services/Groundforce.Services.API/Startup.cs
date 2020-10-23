@@ -39,6 +39,7 @@ namespace Groundforce.Services.API
 
             services.AddScoped<IAddressRepo, AddressRepo>();
             services.AddScoped<IMission, MissionRepository>();
+            services.AddScoped<IAgentRepository, AgentRepository>();
 
             // Identity service
             services.AddIdentity<ApplicationUser, IdentityRole>(option =>

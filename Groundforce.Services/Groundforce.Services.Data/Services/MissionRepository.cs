@@ -13,63 +13,45 @@ namespace Groundforce.Services.Data.Services
    public  class MissionRepository : IMission 
     {
         private AppDbContext _ctx;
-        public int TotalMissionAssigned  { get; set; }
+        public int NumberOfOngoingTask  { get; set; }
+        public int NumberOfOngoingTaskByAgent  { get; set; }
 
         public MissionRepository(AppDbContext ctx)
         {
             _ctx = ctx;
         }
 
-
-
-        public async Task<IEnumerable<AssignedAddresses>> FetchAllOngoingTask(string userId, int page, int per_size)
+        public async Task<IEnumerable<AssignedAddresses>> FetchAllOngoingTask(string userId)
         {
-            var per_page = per_size;
-
             // get all address 
             var fieldAgent = await _ctx.FieldAgents.Where(x => x.ApplicationUserId == userId).FirstOrDefaultAsync();
             var allAddress = _ctx.AssignedAddresses.Where(c => c.FieldAgentId == fieldAgent.FieldAgentId && c.IsAccepted && !c.IsVerified).Include(a => a.Address).ToList();
 
-            await CountRecordsMissionAsync(userId);
-
+            NumberOfOngoingTask = allAddress.Count;
             return allAddress;
-
-
         }
 
-        public async Task<IEnumerable<AssignedAddresses>> PaginatedOngoingTask(string userId, int page, int per_size)
+        public async Task<IEnumerable<AssignedAddresses>> AllOngoingTaskPaginated(string userId, int page, int per_size)
         {
             var per_page = per_size;
 
             // get all address 
             var fieldAgent = await _ctx.FieldAgents.Where(x => x.ApplicationUserId == userId).FirstOrDefaultAsync();
-            var allAddress = _ctx.AssignedAddresses.Where(c => c.FieldAgentId == fieldAgent.FieldAgentId && c.IsAccepted && !c.IsVerified).Include(a => a.Address).ToList();
-
-            await CountRecordsMissionAsync(userId);
-            page = page > TotalMissionAssigned ? TotalMissionAssigned : page;
-            page = page < 0 ? 1 : page;
-            var pageData = allAddress.Skip((page - 1) * per_page).Take(per_page);
-
-            return pageData;
+            var allAddress = _ctx.AssignedAddresses.Where(c => c.FieldAgentId == fieldAgent.FieldAgentId && c.IsAccepted && !c.IsVerified).Include(a => a.Address).Skip((page - 1) * per_page).Take(per_page).ToList();
+            await FetchAllOngoingTask(userId);
+            return allAddress;
         }
 
-
-        public async Task CountRecordsMissionAsync(string userId)
+        public List<AssignedAddresses> GetAllMissionsByAgent(int userId)
         {
-            var fieldAgent = await _ctx.FieldAgents.Where(x => x.ApplicationUserId == userId).FirstOrDefaultAsync();
-            var allAddress = _ctx.AssignedAddresses.Where(c => c.FieldAgentId == fieldAgent.FieldAgentId && c.IsAccepted && !c.IsVerified).ToList();
-
-          TotalMissionAssigned =  allAddress.Count();
-        }
-
-        public List<AssignedAddresses> FetchMissions(int userId)
-        {
-            var agent = _ctx.FieldAgents.FirstOrDefault(agent => agent.FieldAgentId == userId);
-            if (agent == null)
-            {
-                return null;
-            }
             var addressesAssignedToUser = _ctx.AssignedAddresses.Where(agent => agent.FieldAgentId == userId).ToList();
+            NumberOfOngoingTaskByAgent = addressesAssignedToUser.Count;
+            return addressesAssignedToUser;
+        }
+        public List<AssignedAddresses> GetAllMissionsByAgentPaginated(int userId, int page, int per_page)
+        {
+            var addressesAssignedToUser = _ctx.AssignedAddresses.Where(agent => agent.FieldAgentId == userId).Skip((page - 1) * per_page).Take(per_page).ToList();
+           GetAllMissionsByAgent(userId);
             return addressesAssignedToUser;
         }
 
