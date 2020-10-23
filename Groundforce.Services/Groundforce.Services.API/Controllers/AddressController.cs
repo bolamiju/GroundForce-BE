@@ -125,11 +125,11 @@ namespace Groundforce.Services.API.Controllers
 
         [HttpGet]
         [Route("{id:int}")]
-        public IActionResult GetAddress(int id)
+        public async Task<IActionResult> GetAddress(int id)
         {
             try
             {
-                var address = _addressRepo.GetAddress(id);
+                var address = await  _addressRepo.GetAddress(id);
                 if (address == null)
                 {
                     return BadRequest("Address does not exist");
