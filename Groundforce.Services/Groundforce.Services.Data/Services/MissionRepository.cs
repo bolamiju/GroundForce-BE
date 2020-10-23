@@ -62,5 +62,16 @@ namespace Groundforce.Services.Data.Services
           TotalMissionAssigned =  allAddress.Count();
         }
 
+        public List<AssignedAddresses> FetchMissions(int userId)
+        {
+            var agent = _ctx.FieldAgents.FirstOrDefault(agent => agent.FieldAgentId == userId);
+            if (agent == null)
+            {
+                return null;
+            }
+            var addressesAssignedToUser = _ctx.AssignedAddresses.Where(agent => agent.FieldAgentId == userId).ToList();
+            return addressesAssignedToUser;
+        }
+
     }
 }

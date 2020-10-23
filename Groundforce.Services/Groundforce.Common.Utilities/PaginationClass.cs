@@ -17,7 +17,7 @@ namespace Groundforce.Common.Utilities
 
             var result = new PaginationDTO()
             {
-                TotalPage = total_page,
+                TotalPages = total_page,
                 PerPage = per_page,
                 Page = page
 

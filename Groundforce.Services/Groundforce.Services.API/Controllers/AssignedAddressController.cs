@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Groundforce.Common.Utilities;
 using Groundforce.Services.Data;
@@ -101,6 +102,49 @@ namespace Groundforce.Services.API.Controllers
                 return Ok("Status Updated");
             }
             return BadRequest(ModelState);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Agent")]
+        [Route("{userId:int}/reports/{pageNumber:int}")]
+        public IActionResult FetchMission(int userId, int pageNumber)
+        {
+            FetchPaginatedMissionDTO missionsToReturn;
+            List<AssignedAddresses> missions;
+            try
+            {
+                missions = _mission.FetchMissions(userId);
+                if (missions == null)
+                {
+                    return BadRequest("Agent does not exist");
+                }
+
+                pageNumber = pageNumber > 0 ? pageNumber : 1;
+                var itemsPerPage = 10;
+                var totalMissions = missions.Count;
+                var totalPages = totalMissions % itemsPerPage == 0
+                                            ? totalMissions / itemsPerPage
+                                            : totalMissions / itemsPerPage + 1;
+
+                var numberOfMissionsToSkip = (pageNumber - 1) * itemsPerPage;
+
+                //assigns properties for the return value
+                missionsToReturn = new FetchPaginatedMissionDTO
+                {
+                    Page = pageNumber,
+                    PerPage = itemsPerPage,
+                    Total = totalMissions,
+                    TotalPages = totalPages,
+                    AssignedAddresses = missions
+                                        .Skip(numberOfMissionsToSkip)
+                                        .Take(itemsPerPage).ToList()
+                };
+            }
+            catch (Exception)
+            {
+                return BadRequest("Unable to fetch data");
+            }
+            return Ok(missionsToReturn);
         }
     }
 }

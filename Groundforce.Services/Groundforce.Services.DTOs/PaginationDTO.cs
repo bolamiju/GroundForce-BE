@@ -6,10 +6,9 @@ namespace Groundforce.Services.DTOs
 {
     public class PaginationDTO
     {
-
-        public int PerPage { get; set; }
         public int Page { get; set; }
-
-        public int TotalPage { get; set; }
+        public int PerPage { get; set; }
+        public int Total { get; set; }
+        public int TotalPages { get; set; }
     }
 }

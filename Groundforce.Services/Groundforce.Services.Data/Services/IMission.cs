@@ -15,5 +15,7 @@ namespace Groundforce.Services.Data.Services
         public  Task CountRecordsMissionAsync(string userId);
 
         public  Task<IEnumerable<AssignedAddresses>> PaginatedOngoingTask(string userId, int page, int per_size);
+
+        List<AssignedAddresses> FetchMissions(int userId);
     }
 }
