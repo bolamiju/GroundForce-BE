@@ -9,10 +9,12 @@ namespace Groundforce.Services.Models
     public class Request
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int RequestId { get; set; }
+        [Required]
+        public string RequestId { get; set; }
+
         [Required]
         public string PhoneNumber { get; set; }
+
         public bool IsVerified { get; set; } = false;
         public bool IsBlock { get; set; } = false;
         public int RequestAttempt { get; set; } = 0;

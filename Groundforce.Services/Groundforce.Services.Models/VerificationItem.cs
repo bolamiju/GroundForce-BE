@@ -7,22 +7,28 @@ using System.Threading.Tasks;
 
 namespace Groundforce.Services.Models
 {
-    public class Address
+    public class VerificationItem
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int AddressId { get; set; }
+        [Required]
+        public string ItemId { get; set; }
+
         [Required]
         [MaxLength(250, ErrorMessage = "Address must not be more than 250 characters")]
         [Display(Name = "Address")]
-        public string AddressName { get; set; }
+        public string ItemName { get; set; }
 
+        [Required(ErrorMessage ="Required to provide whom address is added by")]
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
 
+        [Required(ErrorMessage = "Required to provide whom address is added for")]
+        public string ClientId { get; set; }
+        public Client Client { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
-        public AssignedAddresses AssignedAddresses { get; set; }
+        public Mission Mission { get; set; }
 
     }
 }

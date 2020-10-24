@@ -4,16 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Groundforce.Services.Data;
 using Microsoft.AspNetCore.Identity;
 using Groundforce.Services.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
-
-using Groundforce.Services.Data.Services;
-
+using Groundforce.Services.Data;
 
 namespace Groundforce.Services.API
 {
@@ -37,8 +34,10 @@ namespace Groundforce.Services.API
             // db connection string
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbConnection")));
 
-            services.AddScoped<IAddressRepo, AddressRepo>();
-            services.AddScoped<IMission, MissionRepository>();
+            //services.AddScoped<IAddressRepo, AddressRepo>();
+            //services.AddScoped<IMission, MissionRepository>();
+            //services.AddScoped<IAgentRepository, AgentRepository>();
+            //services.AddScoped<IAdminRepository, AdminRepository>();
 
             // Identity service
             services.AddIdentity<ApplicationUser, IdentityRole>(option =>

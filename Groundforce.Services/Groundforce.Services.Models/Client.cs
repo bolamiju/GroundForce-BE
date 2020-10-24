@@ -9,8 +9,8 @@ namespace Groundforce.Services.Models
     public class Client
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ClientId { get; set; }
+        [Required]
+        public string ClientId { get; set; }
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
 

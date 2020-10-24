@@ -2,12 +2,7 @@
 using CloudinaryDotNet.Actions;
 using Groundforce.Services.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Groundforce.Common.Utilities
 {

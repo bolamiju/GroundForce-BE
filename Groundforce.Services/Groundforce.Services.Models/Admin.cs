@@ -9,13 +9,14 @@ namespace Groundforce.Services.Models
     public class Admin
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int AdminId { get; set; }
+        [Required]
+        public string AdminId { get; set; }
+
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
 
         public ICollection<BuildingType> BuildingTypes { get; set; }
-        public ICollection<AssignedAddresses> AssignedAddresses { get; set; }
+        public ICollection<Mission> Missions { get; set; }
         public ICollection<Point> Points { get; set; }
         public ICollection<PointAllocated> PointsAllocated { get; set; }
         public ICollection<Transaction> Transactions { get; set; }

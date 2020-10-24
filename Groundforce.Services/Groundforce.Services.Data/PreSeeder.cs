@@ -16,7 +16,6 @@ namespace Groundforce.Services.Data
             {
                 var listOfRoles = new List<IdentityRole>
                 {
-                    new IdentityRole("Super Admin"),
                     new IdentityRole("Admin"),
                     new IdentityRole("Client"),
                     new IdentityRole("Agent")
@@ -35,6 +34,7 @@ namespace Groundforce.Services.Data
                         LastName="RandomUser",
                         FirstName="James" ,
                         Gender="Male",
+                        PhoneNumber = "09876543211",
                         DOB="1/1/1999",
                         PlaceOfBirth= "Minna",
                         State = "Jos",
@@ -42,8 +42,10 @@ namespace Groundforce.Services.Data
                         HomeAddress ="10, wayside"
                     },
                     new ApplicationUser{ UserName="randomuser2@sample.com",
-                        Email = "randomuser2@sample.com", LastName="RandomUser", FirstName="John",
+                        Email = "randomuser2@sample.com", 
+                        LastName="RandomUser", FirstName="John",
                         Gender="Male",
+                        PhoneNumber = "09876543211",
                         DOB="1/1/1999",
                         PlaceOfBirth= "Minna",
                         State = "Jos",
@@ -58,8 +60,18 @@ namespace Groundforce.Services.Data
                     if (result.Succeeded)
                     {
                         await userManager.AddToRoleAsync(user, "Admin");
-
-                        ctx.Admins.Add(new Admin { ApplicationUserId = user.Id });
+                        var adminId = Guid.NewGuid().ToString();
+                        var requestId = Guid.NewGuid().ToString();
+                        ctx.Admins.Add(new Admin { AdminId = adminId, ApplicationUserId = user.Id });
+                        ctx.Request.Add(new Request 
+                                { 
+                                    RequestId = requestId,
+                                    PhoneNumber = user.PhoneNumber, 
+                                    IsVerified = true, 
+                                    RequestAttempt = 1,
+                                    CreatedAt = DateTime.Now, 
+                                    UpdatedAt = DateTime.Now 
+                                });
                         ctx.SaveChanges();
                     }
                 }

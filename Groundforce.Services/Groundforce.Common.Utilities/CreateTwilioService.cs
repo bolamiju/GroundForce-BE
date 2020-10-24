@@ -1,10 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Twilio;
-using Twilio.Exceptions;
 using Twilio.Rest.Verify.V2.Service;
 
 namespace Groundforce.Common.Utilities
