@@ -7,9 +7,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Groundforce.Common.Utilities
+namespace Groundforce.Common.Utilities.Helpers
 {
-    public static class GetTokenHelperClass
+    public static class JwtTokenConfig
     {
 
         public static string GetToken(ApplicationUser _user, IConfiguration _config, IList<string> userRoles)

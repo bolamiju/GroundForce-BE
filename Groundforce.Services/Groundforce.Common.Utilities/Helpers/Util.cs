@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Groundforce.Common.Utilities
+namespace Groundforce.Common.Utilities.Helpers
 {
-     public static class PaginationUtil
+     public static class Util
     {
        //public static PaginationDTO Paginate(int page , int per_page, int total)
        // {

@@ -4,7 +4,7 @@ using Groundforce.Services.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
-namespace Groundforce.Common.Utilities
+namespace Groundforce.Common.Utilities.Helpers
 {
     public class ManagePhoto
     {

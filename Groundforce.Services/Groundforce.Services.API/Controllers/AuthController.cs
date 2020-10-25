@@ -10,6 +10,7 @@ using Twilio.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Groundforce.Services.Models;
 using Groundforce.Services.DTOs;
+using Groundforce.Services.Data.Services;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -20,6 +21,7 @@ namespace Groundforce.Services.API.Controllers
         // private fields
         private readonly IConfiguration _config;
         private readonly AppDbContext _ctx;
+        private readonly IRequestRepository _requestRepository;
         private readonly ILogger<AuthController> _logger;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -27,12 +29,14 @@ namespace Groundforce.Services.API.Controllers
 
         public AuthController(IConfiguration configuration, ILogger<AuthController> logger,
                                  SignInManager<ApplicationUser> signInManager,
-                                 UserManager<ApplicationUser> userManager, AppDbContext ctx)
+                                 UserManager<ApplicationUser> userManager, AppDbContext ctx,
+                                 IRequestRepository requestRepository)
         {
             _config = configuration;
             _logger = logger;
             _signInManager = signInManager;
             _ctx = ctx;
+            _requestRepository = requestRepository;
             _userManager = userManager;
         }
 
@@ -44,9 +48,18 @@ namespace Groundforce.Services.API.Controllers
             try
             {
                 //create instance of the phoneNumberService class
-                var phoneNumberResource = new PhoneNumberResource(_ctx);
-                //call the phone number check method
-                phoneNumberStatus = await phoneNumberResource.CheckPhoneNumber(model.PhoneNumber);
+                var updateRequestStatus = new UpdateRequestStatus(_ctx);
+                
+                // check for valid GUID
+                var result = true;
+                string requestId = "";
+                while (result)
+                {
+                    requestId = Guid.NewGuid().ToString();
+                    result = await _requestRepository.IdIsExist(requestId);
+                }
+
+                phoneNumberStatus = await updateRequestStatus.CheckPhoneNumber(model.PhoneNumber, requestId);
             }
             catch (Exception e)
             {
