@@ -70,7 +70,7 @@ namespace Groundforce.Services.Data
                     {
                         RequestId = requestId,
                         PhoneNumber = user.PhoneNumber,
-                        IsVerified = true,
+                        IsConfirmed = true,
                         RequestAttempt = 1,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now

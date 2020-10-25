@@ -5,6 +5,8 @@ namespace Groundforce.Services.Data.Services
 {
     public interface IRequestRepository
     {
-        Task<bool> IdIsExist(string Id);
+        Task<Request> GetRequestById(string Id);
+        Task<Request> GetRequestByPhone(string Number);
+        Task<bool> UpdateRequest(Request model);
     }
 }

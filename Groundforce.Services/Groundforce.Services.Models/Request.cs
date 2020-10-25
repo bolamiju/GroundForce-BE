@@ -15,7 +15,7 @@ namespace Groundforce.Services.Models
         [Required]
         public string PhoneNumber { get; set; }
 
-        public bool IsVerified { get; set; } = false;
+        public bool IsConfirmed { get; set; } = false;
         public bool IsBlock { get; set; } = false;
         public int RequestAttempt { get; set; } = 0;
         public DateTime CreatedAt { get; set; } = DateTime.Now;

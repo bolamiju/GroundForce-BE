@@ -35,10 +35,11 @@ namespace Groundforce.Services.API
             // db connection string
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbConnection")));
             
-            services.AddScoped<IRequestRepository, RequestRepository>();
+            services.AddScoped<IRequestRepository, RequestRepository>(); 
             //services.AddScoped<IAddressRepo, AddressRepo>();
             //services.AddScoped<IMission, MissionRepository>();
-            //services.AddScoped<IAgentRepository, AgentRepository>();
+            services.AddScoped<IAgentRepository, AgentRepository>();
+            services.AddScoped<IBankRepository, BankRepository>();
             //services.AddScoped<IAdminRepository, AdminRepository>();
 
             // Identity service

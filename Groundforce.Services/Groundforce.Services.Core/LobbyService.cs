@@ -7,12 +7,12 @@ using Groundforce.Services.Models;
 
 namespace Groundforce.Services.Core
 {
-    public class UpdateRequestStatus
+    public class LobbyService
     {
         //DbContext class
         private readonly AppDbContext _ctx;
 
-        public UpdateRequestStatus(AppDbContext ctx)
+        public LobbyService(AppDbContext ctx)
         {
             _ctx = ctx;
         }
@@ -25,7 +25,7 @@ namespace Groundforce.Services.Core
 
             if (model != null)
             {
-                if (model.IsVerified)
+                if (model.IsConfirmed)
                 {
                     return PhoneNumberStatus.Verified;
                 }

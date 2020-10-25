@@ -15,9 +15,20 @@ namespace Groundforce.Services.Data.Services
             _ctx = context;
         }
 
-        public async Task<bool> IdIsExist(string Id)
+        public async Task<Request> GetRequestById(string Id)
         {
-            return await _ctx.Request.AnyAsync(x => x.RequestId == Id);
+            return await _ctx.Request.FirstOrDefaultAsync(x => x.RequestId == Id);
+        }
+
+        public async Task<Request> GetRequestByPhone(string Number)
+        {
+            return await _ctx.Request.FirstOrDefaultAsync(item => item.PhoneNumber == Number); 
+        }
+
+        public async Task<bool> UpdateRequest(Request model)
+        {
+            _ctx.Request.Update(model);
+            return await _ctx.SaveChangesAsync() > 0;
         }
     }
 }
