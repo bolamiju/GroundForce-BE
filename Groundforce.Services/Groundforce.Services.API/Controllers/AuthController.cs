@@ -217,9 +217,7 @@ namespace Groundforce.Services.API.Controllers
                     var getToken = JwtTokenConfig.GetToken(user, _config, userRoles);
                     return Ok(getToken);
                 }
-
-                ModelState.AddModelError("", "Invalid creadentials");
-                return Unauthorized(ModelState);
+                return Unauthorized("Invalid creadentials");
 
             }
 
