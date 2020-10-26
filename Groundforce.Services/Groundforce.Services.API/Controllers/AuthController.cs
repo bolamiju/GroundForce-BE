@@ -192,7 +192,7 @@ namespace Groundforce.Services.API.Controllers
             }
             else { return BadRequest("Field agent not created"); }
 
-            return Ok("Sign-up was successful!");
+            return RedirectToAction("Get", "User", new { Id = createdUser.Id });
         }
 
         //User Login
