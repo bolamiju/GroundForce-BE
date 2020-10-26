@@ -16,6 +16,7 @@ using Groundforce.Services.Data.Services;
 
 namespace Groundforce.Services.API.Controllers
 {
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class UserController : ControllerBase

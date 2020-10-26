@@ -35,8 +35,8 @@ namespace Groundforce.Services.API
             // db connection string
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbConnection")));
             
-            services.AddScoped<IRequestRepository, RequestRepository>(); 
-            //services.AddScoped<IAddressRepo, AddressRepo>();
+            services.AddScoped<IRequestRepository, RequestRepository>();
+            services.AddScoped<IVerificationItemRepository, VerificationItemRepository>();
             //services.AddScoped<IMission, MissionRepository>();
             services.AddScoped<IAgentRepository, AgentRepository>();
             services.AddScoped<IBankRepository, BankRepository>();
@@ -50,8 +50,6 @@ namespace Groundforce.Services.API
                 option.Password.RequireLowercase = false;
                 option.Password.RequireNonAlphanumeric = false;
                 option.Password.RequireUppercase = false;
-
-
             }
             ).AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
@@ -87,7 +85,6 @@ namespace Groundforce.Services.API
                                 }
                             },
                             new string[] {}
-
                     }
                 });
             });

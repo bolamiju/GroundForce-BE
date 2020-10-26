@@ -22,10 +22,6 @@ namespace Groundforce.Services.Models
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
 
-        [Required(ErrorMessage = "Required to provide whom address is added for")]
-        public string ClientId { get; set; }
-        public Client Client { get; set; }
-
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
         public Mission Mission { get; set; }
