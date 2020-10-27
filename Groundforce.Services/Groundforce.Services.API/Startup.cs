@@ -54,6 +54,7 @@ namespace Groundforce.Services.API
             ).AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
+            services.AddCors();
 
             //register cloudinary
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
@@ -125,6 +126,8 @@ namespace Groundforce.Services.API
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Groundforce Api V1");
             });
+
+            app.UseCors(x => x.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
             app.UseRouting();
 
