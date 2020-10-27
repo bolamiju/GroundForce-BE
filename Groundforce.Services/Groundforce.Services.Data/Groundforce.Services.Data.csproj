@@ -5,30 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20201007213206_InitialMigration.cs" />
-    <Compile Remove="Migrations\20201007213206_InitialMigration.Designer.cs" />
-    <Compile Remove="Migrations\20201007214644_InitialMigration.cs" />
-    <Compile Remove="Migrations\20201007214644_InitialMigration.Designer.cs" />
-    <Compile Remove="Migrations\20201007215820_InitialMigration.cs" />
-    <Compile Remove="Migrations\20201007215820_InitialMigration.Designer.cs" />
-    <Compile Remove="Migrations\20201007215958_InitialMigration.cs" />
-    <Compile Remove="Migrations\20201007215958_InitialMigration.Designer.cs" />
-    <Compile Remove="Migrations\20201007222416_InitialMigration.cs" />
-    <Compile Remove="Migrations\20201007222416_InitialMigration.Designer.cs" />
-    <Compile Remove="Migrations\20201007223212_InitialMigration.cs" />
-    <Compile Remove="Migrations\20201007223212_InitialMigration.Designer.cs" />
-    <Compile Remove="Migrations\20201007224134_InitialMigration.cs" />
-    <Compile Remove="Migrations\20201007224134_InitialMigration.Designer.cs" />
-    <Compile Remove="Migrations\20201007224341_InitialMigration.cs" />
-    <Compile Remove="Migrations\20201007224341_InitialMigration.Designer.cs" />
-    <Compile Remove="Migrations\20201007224525_InitialMigration.cs" />
-    <Compile Remove="Migrations\20201007224525_InitialMigration.Designer.cs" />
-    <Compile Remove="Migrations\20201007233433_InitialMigration.cs" />
-    <Compile Remove="Migrations\20201007233433_InitialMigration.Designer.cs" />
-    <Compile Remove="Migrations\20201007235852_InitialMigration.cs" />
-    <Compile Remove="Migrations\20201007235852_InitialMigration.Designer.cs" />
-    <Compile Remove="Migrations\20201008000019_InitialMigration.cs" />
-    <Compile Remove="Migrations\20201008000019_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201024180307_CompleteRefactorMigration.cs" />
+    <Compile Remove="Migrations\20201024180307_CompleteRefactorMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201024181751_CompleteRefactorMigration.cs" />
+    <Compile Remove="Migrations\20201024181751_CompleteRefactorMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201024182331_CompleteRefactorMigration.cs" />
+    <Compile Remove="Migrations\20201024182331_CompleteRefactorMigration.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Groundforce.Services.DTOs\Groundforce.Services.DTOs.csproj" />
     <ProjectReference Include="..\Groundforce.Services.Models\Groundforce.Services.Models.csproj" />
   </ItemGroup>
 

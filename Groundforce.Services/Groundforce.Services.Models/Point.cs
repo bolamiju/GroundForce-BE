@@ -10,16 +10,18 @@ namespace Groundforce.Services.Models
     public class Point
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int PointId { get; set; }
+        public string PointId { get; set; }
 
         [Required]
         [Display(Name = "Amount Attached")]
-        public int AmountAttached { get; set; }
+        [Column(TypeName = "decimal(18,4)")]
+        public decimal AmountAttached { get; set; }
+
         [Required]
         [Display(Name = "Admin Id")]
-        public int AdminId { get; set; }
+        public string AdminId { get; set; }
         public Admin Admin { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
         public ICollection<PointAllocated> PointsAllocated { get; set; }

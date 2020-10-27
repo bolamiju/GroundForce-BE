@@ -4,8 +4,8 @@ using System.Text;
 
 namespace Groundforce.Services.DTOs
 {
-    public class SendOTPDTOs
+    public class ItemDTO
     {
-        public string PhoneNumber { get; set; }
+        public string ItemName { get; set; }
     }
 }

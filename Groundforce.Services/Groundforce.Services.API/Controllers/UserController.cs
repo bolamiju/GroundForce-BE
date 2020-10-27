@@ -1,5 +1,5 @@
 
-using Groundforce.Common.Utilities;
+using Groundforce.Common.Utilities.Helpers;
 using Groundforce.Services.Models;
 using System.Threading.Tasks;
 using Groundforce.Services.Data;
@@ -11,9 +11,12 @@ using Microsoft.Extensions.Logging;
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authorization;
+using Groundforce.Services.Data.Services;
 
 namespace Groundforce.Services.API.Controllers
 {
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -22,12 +25,15 @@ namespace Groundforce.Services.API.Controllers
         private readonly AppDbContext _ctx;
         private readonly ILogger<UserController> _logger;
         private readonly IOptions<CloudinarySettings> _cloudinaryConfig;
+        private readonly IAgentRepository _agentRepository;
+
         public UserController(ILogger<UserController> logger, UserManager<ApplicationUser> userManager, 
-            AppDbContext ctx, IOptions<CloudinarySettings> cloudinaryConfig)
+            AppDbContext ctx, IOptions<CloudinarySettings> cloudinaryConfig, IAgentRepository agentRepository )
         {
             _userManager = userManager;
             _ctx = ctx;
             _cloudinaryConfig = cloudinaryConfig;
+            _agentRepository = agentRepository;
             _logger = logger;
         }
 
@@ -35,13 +41,16 @@ namespace Groundforce.Services.API.Controllers
         //updates user picture
         [HttpPatch]
         [Route("{Id}/picture")]
-        public async Task<IActionResult> UpdatePicture(string Id, [FromForm]IFormFile picture)
+        [Authorize(Roles = "Agent")]
+        public async Task<IActionResult> UpdatePicture(string Id, [FromForm] PhotoToUploadDTO Picture)
         {
             var userToUpdate = await _userManager.FindByIdAsync(Id);
             if (userToUpdate == null)
             {
                 return BadRequest("User does not exist");
             }
+
+            var picture = Picture.Photo;
 
             if (picture != null && picture.Length > 0)
             {
@@ -66,6 +75,7 @@ namespace Groundforce.Services.API.Controllers
         // Gets user by Id.
         [HttpGet]
         [Route("{Id}")]
+        [Authorize(Roles = "Agent, Admin")]
         public async Task<IActionResult> Get(string Id)
         {
             if (string.IsNullOrWhiteSpace(Id)) return BadRequest();
@@ -98,7 +108,7 @@ namespace Groundforce.Services.API.Controllers
                 Email = user.Email,
                 AdditionalPhoneNumber = agent.AdditionalPhoneNumber,
                 HomeAddress = user.HomeAddress,
-                BankName = bank.BankName,
+                BankName = bank.AccountName,
                 AccountNumber = bank.AccountNumber,
                 AvatarUrl = user.AvatarUrl,
                 PublicId = user.PublicId
@@ -110,6 +120,7 @@ namespace Groundforce.Services.API.Controllers
         // edit field agent
         [HttpPut]
         [Route("{Id}")]
+        [Authorize(Roles ="Agent")]
         public async Task<IActionResult> EditUser([FromBody] UserToEditDTO model, string Id)
         {
             if (ModelState.IsValid)
@@ -133,20 +144,17 @@ namespace Groundforce.Services.API.Controllers
                     return BadRequest("Failed to update user!");
                 }
 
-                int fieldAgentId;
+                string fieldAgentId;
                 try
                 {
                     //update field agent
-                    var agent = await _ctx.FieldAgents.FirstOrDefaultAsync(x => x.ApplicationUserId == Id);
+                    var agent = await _agentRepository.GetAgentById(Id);
                     agent.AdditionalPhoneNumber = model.AdditionalPhoneNumber;
                     agent.Religion = model.Religion;
                     fieldAgentId = agent.FieldAgentId;
-                    _ctx.SaveChanges();
-                    
                 }
                 catch (Exception e)
                 {
-                    _ctx.SaveChanges();
                     _logger.LogError(e.Message);
                     return BadRequest("Failed to update additional details");
                 }

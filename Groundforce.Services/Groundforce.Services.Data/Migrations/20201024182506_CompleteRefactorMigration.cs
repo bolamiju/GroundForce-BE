@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Groundforce.Services.Data.Migrations
 {
-    public partial class InitialMigration : Migration
+    public partial class CompleteRefactorMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -50,6 +50,7 @@ namespace Groundforce.Services.Data.Migrations
                     HomeAddress = table.Column<string>(nullable: false),
                     IsVerified = table.Column<bool>(nullable: false),
                     AvatarUrl = table.Column<string>(nullable: true),
+                    PublicId = table.Column<string>(nullable: true),
                     CreatedAt = table.Column<DateTime>(nullable: false),
                     UpdatedAt = table.Column<DateTime>(nullable: false)
                 },
@@ -62,11 +63,11 @@ namespace Groundforce.Services.Data.Migrations
                 name: "Request",
                 columns: table => new
                 {
-                    RequestId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RequestId = table.Column<string>(nullable: false),
                     PhoneNumber = table.Column<string>(nullable: false),
                     IsVerified = table.Column<bool>(nullable: false),
-                    RequestFailedCount = table.Column<int>(nullable: false),
+                    IsBlock = table.Column<bool>(nullable: false),
+                    RequestAttempt = table.Column<int>(nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false),
                     UpdatedAt = table.Column<DateTime>(nullable: false)
                 },
@@ -100,8 +101,7 @@ namespace Groundforce.Services.Data.Migrations
                 name: "Admins",
                 columns: table => new
                 {
-                    AdminId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AdminId = table.Column<string>(nullable: false),
                     ApplicationUserId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -204,8 +204,7 @@ namespace Groundforce.Services.Data.Migrations
                 name: "Clients",
                 columns: table => new
                 {
-                    ClientId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ClientId = table.Column<string>(nullable: false),
                     ApplicationUserId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -223,11 +222,12 @@ namespace Groundforce.Services.Data.Migrations
                 name: "FieldAgents",
                 columns: table => new
                 {
-                    FieldAgentId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FieldAgentId = table.Column<string>(nullable: false),
                     ApplicationUserId = table.Column<string>(nullable: true),
                     Longitude = table.Column<string>(nullable: false),
-                    Latitude = table.Column<string>(nullable: false)
+                    Latitude = table.Column<string>(nullable: false),
+                    Religion = table.Column<string>(nullable: false),
+                    AdditionalPhoneNumber = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -244,16 +244,15 @@ namespace Groundforce.Services.Data.Migrations
                 name: "BuildingTypes",
                 columns: table => new
                 {
-                    BuildingId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(nullable: false),
-                    AdminId = table.Column<int>(nullable: false),
+                    TypeId = table.Column<string>(nullable: false),
+                    TypeName = table.Column<string>(nullable: false),
+                    AdminId = table.Column<string>(nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false),
                     UpdatedAt = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BuildingTypes", x => x.BuildingId);
+                    table.PrimaryKey("PK_BuildingTypes", x => x.TypeId);
                     table.ForeignKey(
                         name: "FK_BuildingTypes_Admins_AdminId",
                         column: x => x.AdminId,
@@ -266,10 +265,9 @@ namespace Groundforce.Services.Data.Migrations
                 name: "Points",
                 columns: table => new
                 {
-                    PointId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AmountAttached = table.Column<int>(nullable: false),
-                    AdminId = table.Column<int>(nullable: false),
+                    PointId = table.Column<string>(nullable: false),
+                    AmountAttached = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    AdminId = table.Column<string>(nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false),
                     UpdatedAt = table.Column<DateTime>(nullable: false)
                 },
@@ -285,21 +283,48 @@ namespace Groundforce.Services.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BankAccounts",
+                name: "VerificationItems",
                 columns: table => new
                 {
-                    BankId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    BankName = table.Column<string>(nullable: false),
-                    AccountNumber = table.Column<int>(nullable: false),
-                    IsActive = table.Column<bool>(nullable: false),
-                    FieldAgentId = table.Column<int>(nullable: false),
+                    ItemId = table.Column<string>(nullable: false),
+                    ItemName = table.Column<string>(maxLength: 250, nullable: false),
+                    ApplicationUserId = table.Column<string>(nullable: false),
+                    ClientId = table.Column<string>(nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false),
                     UpdatedAt = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BankAccounts", x => x.BankId);
+                    table.PrimaryKey("PK_VerificationItems", x => x.ItemId);
+                    table.ForeignKey(
+                        name: "FK_VerificationItems_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_VerificationItems_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "ClientId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BankAccounts",
+                columns: table => new
+                {
+                    AccountId = table.Column<string>(nullable: false),
+                    AccountName = table.Column<string>(nullable: false),
+                    AccountNumber = table.Column<string>(nullable: false),
+                    IsActive = table.Column<bool>(nullable: false),
+                    FieldAgentId = table.Column<string>(nullable: false),
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    UpdatedAt = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BankAccounts", x => x.AccountId);
                     table.ForeignKey(
                         name: "FK_BankAccounts_FieldAgents_FieldAgentId",
                         column: x => x.FieldAgentId,
@@ -312,15 +337,14 @@ namespace Groundforce.Services.Data.Migrations
                 name: "Transactions",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<string>(nullable: false),
                     Status = table.Column<string>(nullable: false),
                     Reference = table.Column<string>(nullable: false),
                     PaidAmount = table.Column<int>(nullable: false),
                     PaidAt = table.Column<DateTime>(nullable: false),
-                    ActualAmount = table.Column<int>(nullable: false),
-                    FieldAgentId = table.Column<int>(nullable: false),
-                    AdminId = table.Column<int>(nullable: false),
+                    ActualAmount = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    FieldAgentId = table.Column<string>(nullable: false),
+                    AdminId = table.Column<string>(nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false),
                     UpdatedAt = table.Column<DateTime>(nullable: false)
                 },
@@ -342,54 +366,13 @@ namespace Groundforce.Services.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AssignedAddresses",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Remarks = table.Column<string>(nullable: true),
-                    Landmark = table.Column<string>(nullable: true),
-                    BusStop = table.Column<string>(nullable: true),
-                    BuildingColor = table.Column<string>(nullable: true),
-                    IsVerified = table.Column<bool>(nullable: false),
-                    AddressId = table.Column<int>(nullable: false),
-                    BuildingTypeId = table.Column<int>(nullable: false),
-                    FieldAgentId = table.Column<int>(nullable: false),
-                    AdminId = table.Column<int>(nullable: false),
-                    CreatedAt = table.Column<DateTime>(nullable: false),
-                    UpdatedAt = table.Column<DateTime>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AssignedAddresses", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AssignedAddresses_Admins_AdminId",
-                        column: x => x.AdminId,
-                        principalTable: "Admins",
-                        principalColumn: "AdminId");
-                    table.ForeignKey(
-                        name: "FK_AssignedAddresses_BuildingTypes_BuildingTypeId",
-                        column: x => x.BuildingTypeId,
-                        principalTable: "BuildingTypes",
-                        principalColumn: "BuildingId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AssignedAddresses_FieldAgents_FieldAgentId",
-                        column: x => x.FieldAgentId,
-                        principalTable: "FieldAgents",
-                        principalColumn: "FieldAgentId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "PointAllocated",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FieldAgentId = table.Column<int>(nullable: false),
-                    AdminId = table.Column<int>(nullable: false),
-                    PointsId = table.Column<int>(nullable: false),
+                    Id = table.Column<string>(nullable: false),
+                    FieldAgentId = table.Column<string>(nullable: false),
+                    AdminId = table.Column<string>(nullable: false),
+                    PointsId = table.Column<string>(nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false),
                     UpdatedAt = table.Column<DateTime>(nullable: false)
                 },
@@ -416,36 +399,53 @@ namespace Groundforce.Services.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Addresses",
+                name: "Missions",
                 columns: table => new
                 {
-                    AddressId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AddressName = table.Column<string>(maxLength: 250, nullable: false),
-                    ApplicationUserId = table.Column<string>(nullable: true),
+                    MissionId = table.Column<string>(nullable: false),
+                    Landmark = table.Column<string>(nullable: true),
+                    BusStop = table.Column<string>(nullable: true),
+                    BuildingColor = table.Column<string>(nullable: true),
+                    IsVerified = table.Column<bool>(nullable: false),
+                    IsAccepted = table.Column<bool>(nullable: false),
+                    AddressExists = table.Column<bool>(nullable: false),
+                    TypeOfStructure = table.Column<string>(nullable: true),
+                    Longitude = table.Column<string>(nullable: true),
+                    Latitude = table.Column<string>(nullable: true),
+                    Remarks = table.Column<string>(nullable: true),
+                    VerificationItemId = table.Column<string>(nullable: false),
+                    BuildingTypeId = table.Column<string>(nullable: true),
+                    FieldAgentId = table.Column<string>(nullable: false),
+                    AdminId = table.Column<string>(nullable: true),
                     CreatedAt = table.Column<DateTime>(nullable: false),
                     UpdatedAt = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Addresses", x => x.AddressId);
+                    table.PrimaryKey("PK_Missions", x => x.MissionId);
                     table.ForeignKey(
-                        name: "FK_Addresses_AssignedAddresses_AddressId",
-                        column: x => x.AddressId,
-                        principalTable: "AssignedAddresses",
-                        principalColumn: "Id");
+                        name: "FK_Missions_Admins_AdminId",
+                        column: x => x.AdminId,
+                        principalTable: "Admins",
+                        principalColumn: "AdminId");
                     table.ForeignKey(
-                        name: "FK_Addresses_AspNetUsers_ApplicationUserId",
-                        column: x => x.ApplicationUserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        name: "FK_Missions_BuildingTypes_BuildingTypeId",
+                        column: x => x.BuildingTypeId,
+                        principalTable: "BuildingTypes",
+                        principalColumn: "TypeId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Missions_FieldAgents_FieldAgentId",
+                        column: x => x.FieldAgentId,
+                        principalTable: "FieldAgents",
+                        principalColumn: "FieldAgentId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Missions_VerificationItems_VerificationItemId",
+                        column: x => x.VerificationItemId,
+                        principalTable: "VerificationItems",
+                        principalColumn: "ItemId");
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Addresses_ApplicationUserId",
-                table: "Addresses",
-                column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Admins_ApplicationUserId",
@@ -494,21 +494,6 @@ namespace Groundforce.Services.Data.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AssignedAddresses_AdminId",
-                table: "AssignedAddresses",
-                column: "AdminId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AssignedAddresses_BuildingTypeId",
-                table: "AssignedAddresses",
-                column: "BuildingTypeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AssignedAddresses_FieldAgentId",
-                table: "AssignedAddresses",
-                column: "FieldAgentId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_BankAccounts_FieldAgentId",
                 table: "BankAccounts",
                 column: "FieldAgentId",
@@ -532,6 +517,27 @@ namespace Groundforce.Services.Data.Migrations
                 column: "ApplicationUserId",
                 unique: true,
                 filter: "[ApplicationUserId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Missions_AdminId",
+                table: "Missions",
+                column: "AdminId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Missions_BuildingTypeId",
+                table: "Missions",
+                column: "BuildingTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Missions_FieldAgentId",
+                table: "Missions",
+                column: "FieldAgentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Missions_VerificationItemId",
+                table: "Missions",
+                column: "VerificationItemId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_PointAllocated_AdminId",
@@ -562,13 +568,20 @@ namespace Groundforce.Services.Data.Migrations
                 name: "IX_Transactions_FieldAgentId",
                 table: "Transactions",
                 column: "FieldAgentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VerificationItems_ApplicationUserId",
+                table: "VerificationItems",
+                column: "ApplicationUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VerificationItems_ClientId",
+                table: "VerificationItems",
+                column: "ClientId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Addresses");
-
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -588,7 +601,7 @@ namespace Groundforce.Services.Data.Migrations
                 name: "BankAccounts");
 
             migrationBuilder.DropTable(
-                name: "Clients");
+                name: "Missions");
 
             migrationBuilder.DropTable(
                 name: "PointAllocated");
@@ -600,19 +613,22 @@ namespace Groundforce.Services.Data.Migrations
                 name: "Transactions");
 
             migrationBuilder.DropTable(
-                name: "AssignedAddresses");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
-                name: "Points");
 
             migrationBuilder.DropTable(
                 name: "BuildingTypes");
 
             migrationBuilder.DropTable(
+                name: "VerificationItems");
+
+            migrationBuilder.DropTable(
+                name: "Points");
+
+            migrationBuilder.DropTable(
                 name: "FieldAgents");
+
+            migrationBuilder.DropTable(
+                name: "Clients");
 
             migrationBuilder.DropTable(
                 name: "Admins");

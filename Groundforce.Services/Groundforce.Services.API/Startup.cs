@@ -4,13 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Groundforce.Services.Data;
 using Microsoft.AspNetCore.Identity;
 using Groundforce.Services.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Groundforce.Services.Data;
+using Groundforce.Services.Data.Services;
 
 namespace Groundforce.Services.API
 {
@@ -26,11 +27,21 @@ namespace Groundforce.Services.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-            
+            services.AddControllers()
+                    .AddNewtonsoftJson(options =>
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+
             // db connection string
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbConnection")));
             
+            services.AddScoped<IRequestRepository, RequestRepository>();
+            services.AddScoped<IVerificationItemRepository, VerificationItemRepository>();
+            //services.AddScoped<IMission, MissionRepository>();
+            services.AddScoped<IAgentRepository, AgentRepository>();
+            services.AddScoped<IBankRepository, BankRepository>();
+            //services.AddScoped<IAdminRepository, AdminRepository>();
+
             // Identity service
             services.AddIdentity<ApplicationUser, IdentityRole>(option =>
             {
@@ -39,11 +50,11 @@ namespace Groundforce.Services.API
                 option.Password.RequireLowercase = false;
                 option.Password.RequireNonAlphanumeric = false;
                 option.Password.RequireUppercase = false;
-
-
             }
             ).AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
+
+            services.AddCors();
 
             //register cloudinary
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
@@ -75,7 +86,6 @@ namespace Groundforce.Services.API
                                 }
                             },
                             new string[] {}
-
                     }
                 });
             });
@@ -86,15 +96,14 @@ namespace Groundforce.Services.API
                 option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 
-            })
-                .AddJwtBearer(options => {
+            }).AddJwtBearer(options => {
                 options.SaveToken = true;
                 options.RequireHttpsMetadata = true;
                 options.TokenValidationParameters = new TokenValidationParameters()
                 {
                     ValidateIssuerSigningKey = true,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
                     ValidIssuer = Configuration["Jwt:Site"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:SigningKey"]))
                 };
@@ -117,6 +126,8 @@ namespace Groundforce.Services.API
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Groundforce Api V1");
             });
+
+            app.UseCors(x => x.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
             app.UseRouting();
 

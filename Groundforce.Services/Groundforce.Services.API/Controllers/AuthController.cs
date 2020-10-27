@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Groundforce.Services.DTOs;
 using Groundforce.Common.Utilities;
+using Groundforce.Common.Utilities.Helpers;
 using Groundforce.Services.Core;
 using Groundforce.Services.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -10,8 +10,10 @@ using Microsoft.Extensions.Logging;
 using Twilio.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Groundforce.Services.Models;
+using Groundforce.Services.DTOs;
+using Groundforce.Services.Data.Services;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -22,6 +24,9 @@ namespace Groundforce.Services.API.Controllers
         // private fields
         private readonly IConfiguration _config;
         private readonly AppDbContext _ctx;
+        private readonly IRequestRepository _requestRepository;
+        private readonly IAgentRepository _agentRepository;
+        private readonly IBankRepository _bankRepository;
         private readonly ILogger<AuthController> _logger;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -29,26 +34,40 @@ namespace Groundforce.Services.API.Controllers
 
         public AuthController(IConfiguration configuration, ILogger<AuthController> logger,
                                  SignInManager<ApplicationUser> signInManager,
-                                 UserManager<ApplicationUser> userManager, AppDbContext ctx)
+                                 UserManager<ApplicationUser> userManager, AppDbContext ctx,
+                                 IRequestRepository requestRepository, IAgentRepository agentRepository,
+                                 IBankRepository bankRepository)
         {
             _config = configuration;
             _logger = logger;
             _signInManager = signInManager;
             _ctx = ctx;
+            _requestRepository = requestRepository;
+            _agentRepository = agentRepository;
+            _bankRepository = bankRepository;
             _userManager = userManager;
         }
 
-        // verify OTP
+        //verify OTP
         [HttpPost("verification")]
-        public async Task<IActionResult> Verification([FromBody] SendOTPDTOs model)
+        public async Task<IActionResult> VerifyPhone([FromBody] PhoneNumberToVerifyDTO model)
         {
             PhoneNumberStatus phoneNumberStatus;
             try
             {
                 //create instance of the phoneNumberService class
-                var phoneNumberResource = new PhoneNumberResource(_ctx);
-                //call the phone number check method
-                phoneNumberStatus = await phoneNumberResource.CheckPhoneNumber(model.PhoneNumber);
+                var updateRequestStatus = new LobbyService(_ctx);
+                
+                // check for valid GUID
+                Request result = null;
+                string requestId = "";
+                do
+                {
+                    requestId = Guid.NewGuid().ToString();
+                    result = await _requestRepository.GetRequestById(requestId);
+                } while (result != null);
+
+                phoneNumberStatus = await updateRequestStatus.CheckPhoneNumber(model.PhoneNumber, requestId);
             }
             catch (Exception e)
             {
@@ -75,129 +94,110 @@ namespace Groundforce.Services.API.Controllers
 
         //confirm OTP
         [HttpPost("confirmation")]
-        public async Task<IActionResult> Confirmation([FromBody] ConfirmationDTO model)
+        public async Task<IActionResult> ConfirmOTP([FromBody] OTPToConfirmDTO model)
         {
             try
             {
                 CreateTwilioService.Init(_config);
                 await CreateTwilioService.ConfirmOTP(model.PhoneNumber, model.VerifyCode);
-                return Ok("OTP confirmed!");
             }
             catch (TwilioException e)
             {
                 _logger.LogError(e.Message);
                 return BadRequest("Failed to confirm OTP");
             }
+            try
+            {
+                //get the phone number of the successfully registered user 
+                var registeredUser = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
+                registeredUser.IsConfirmed = true;
+                if(!await _requestRepository.UpdateRequest(registeredUser))
+                  throw new Exception("Could not update request");
+
+                return Ok("OTP confirmed!");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest("Request not confirmed!");
+            }
         }
 
 
-        // register user
+        //// register user
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp(UserToRegisterDTO model)
         {
+            // check if email aready exists
             var userToAdd = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
             if (userToAdd != null)
                 return BadRequest("Email already exist");
 
-            var phoneNumberIsInRequestTable = await _ctx.Request.AnyAsync(x => x.PhoneNumber == model.PhoneNumber);
-            if (!phoneNumberIsInRequestTable)
+            var phoneNumberIsInRequestTable = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
+            if (phoneNumberIsInRequestTable == null)
                 return BadRequest("Phone number has not gone through verification process");
 
-            //create new applicationUser
-            string defaultPix = "~/images/avarta.jpg";
-            var user = new ApplicationUser
-            {
-                UserName = model.Email,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Email = model.Email,
-                DOB = model.DOB,
-                LGA = model.LGA,
-                PhoneNumber = model.PhoneNumber,
-                PlaceOfBirth = model.PlaceOfBirth,
-                State = model.State,
-                CreatedAt = DateTime.Now,
-                Gender = model.Gender,
-                HomeAddress = model.HomeAddress,
-                AvatarUrl = defaultPix
-            };
 
-            var result = await _userManager.CreateAsync(user, model.PIN);
-
+            //Add new applicationUser
+            var authSupportService = new AuthSupportService(_userManager, _agentRepository, _bankRepository);
+            var result = await authSupportService.CreateAppUser(model);
             if (!result.Succeeded)
             {
                 foreach (var err in result.Errors)
                 {
                     ModelState.AddModelError("", err.Description);
                 }
-                return BadRequest("Failed to create user!");
+                return BadRequest(ModelState);
             }
 
-            await _userManager.AddToRoleAsync(user, "Agent");
 
-            var createdUser = await _userManager.FindByEmailAsync(model.Email);
-
-            if (createdUser == null) return BadRequest();
-
-            //create new field agent
-            var agent = new FieldAgent
+            //Add field agent
+            ApplicationUser createdUser = await _userManager.FindByEmailAsync(model.Email);
+            bool isAgentCreated = false;
+            if (createdUser != null)
             {
-                ApplicationUserId = createdUser.Id,
-                Latitude = model.Latitude,    
-                Longitude = model.Longitude,
-                Religion = model.Religion,
-                AdditionalPhoneNumber = model.AdditionalPhoneNumber
-            };
-
-            try
-            {
-                await _ctx.FieldAgents.AddAsync(agent);
-                _ctx.SaveChanges();
+                try
+                {
+                    isAgentCreated = await authSupportService.CreateFieldAgent(createdUser.Id, model);
+                }
+                catch (Exception e)
+                {
+                    await _userManager.DeleteAsync(createdUser);
+                    await _userManager.RemoveFromRoleAsync(createdUser, "Agent");
+                    _logger.LogError(e.Message);
+                    return BadRequest("Failed to add additional details");
+                }
             }
-            catch (Exception e)
+            else { return BadRequest("User not created"); }
+
+
+            // Add bank details
+            bool isBankCreated = false;
+            FieldAgent newCreatedAgent = null;
+            if (isAgentCreated)
             {
-                _ctx.Remove(createdUser);
-                _ctx.SaveChanges();
-                _logger.LogError(e.Message);
-                return BadRequest("Failed to add additional details");
+                try
+                {
+                    newCreatedAgent = await _agentRepository.GetAgentById(createdUser.Id);
+                    isBankCreated = await authSupportService.CreateBankDetails(newCreatedAgent.FieldAgentId, model);
+                }
+                catch (Exception e)
+                {
+                    await _userManager.DeleteAsync(createdUser);
+                    await _userManager.RemoveFromRoleAsync(createdUser, "Agent");
+                    await _agentRepository.DeleteAgent(newCreatedAgent);
+                    _logger.LogError(e.Message);
+                    return BadRequest("Failed to add bank details");
+                }
             }
+            else { return BadRequest("Field agent not created"); }
 
-            var createdFieldAgent = _ctx.FieldAgents.Where(x => x.ApplicationUserId == createdUser.Id).FirstOrDefault();
-
-            if (createdFieldAgent == null) return BadRequest();
-
-            var bank = new BankAccount
-            {
-                FieldAgentId = createdFieldAgent.FieldAgentId,
-                BankName = model.BankName,
-                AccountNumber = model.AccountNumber
-            };
-
-            try
-            {
-                await _ctx.BankAccounts.AddAsync(bank);
-                //get the phone number of the successfully registered user 
-                var registeredUser = _ctx.Request.FirstOrDefault(item => item.PhoneNumber == model.PhoneNumber);
-                //set that the user is now verified
-                registeredUser.IsVerified = true;
-                _ctx.Request.Update(registeredUser);
-                await _ctx.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                _ctx.Remove(createdUser);
-                _ctx.Remove(createdFieldAgent);
-                _ctx.SaveChanges();
-                _logger.LogError(e.Message);
-                return BadRequest("Failed to add bank details");
-            }
-
-            return Ok();
+            return RedirectToAction("Get", "User", new { Id = createdUser.Id });
         }
 
         //User Login
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDTO model)
+        public async Task<IActionResult> Login(UserToLoginDTO model)
         {
             if (ModelState.IsValid)
             {
@@ -215,12 +215,10 @@ namespace Groundforce.Services.API.Controllers
                 var userRoles = await _userManager.GetRolesAsync(user);
                 if (result.Succeeded)
                 {
-                    var getToken = GetTokenHelperClass.GetToken(user, _config, userRoles);
+                    var getToken = JwtTokenConfig.GetToken(user, _config, userRoles);
                     return Ok(getToken);
                 }
-
-                ModelState.AddModelError("", "Invalid creadentials");
-                return Unauthorized(ModelState);
+                return Unauthorized("Invalid creadentials");
 
             }
 

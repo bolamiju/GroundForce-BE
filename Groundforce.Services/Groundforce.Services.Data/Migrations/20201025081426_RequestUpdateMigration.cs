@@ -2,16 +2,16 @@
 
 namespace Groundforce.Services.Data.Migrations
 {
-    public partial class RequestUpdate : Migration
+    public partial class RequestUpdateMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Block",
+                name: "IsVerified",
                 table: "Request");
 
             migrationBuilder.AddColumn<bool>(
-                name: "IsBlock",
+                name: "IsConfirmed",
                 table: "Request",
                 nullable: false,
                 defaultValue: false);
@@ -20,11 +20,11 @@ namespace Groundforce.Services.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "IsBlock",
+                name: "IsConfirmed",
                 table: "Request");
 
             migrationBuilder.AddColumn<bool>(
-                name: "Block",
+                name: "IsVerified",
                 table: "Request",
                 type: "bit",
                 nullable: false,

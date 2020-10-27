@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Groundforce.Services.DTOs
 {
-    public class LoginDTO
+    public class UserToLoginDTO
     {
 
         [Required]

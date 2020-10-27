@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Groundforce.Services.Core",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Groundforce.Common.Utilities", "Groundforce.Common.Utilities\Groundforce.Common.Utilities.csproj", "{025DFDBF-5C8A-47D4-8F80-54B3E68C0CDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Groundforce.Services.DTOs", "Groundforce.Services.DTOs\Groundforce.Services.DTOs.csproj", "{CEDC4269-0D30-4944-80DB-7C4CA5E059BB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Groundforce.Services.DTOs", "Groundforce.Services.DTOs\Groundforce.Services.DTOs.csproj", "{779CEB14-8819-453E-A75C-E87C267EFDBF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,10 +47,10 @@ Global
 		{025DFDBF-5C8A-47D4-8F80-54B3E68C0CDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{025DFDBF-5C8A-47D4-8F80-54B3E68C0CDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{025DFDBF-5C8A-47D4-8F80-54B3E68C0CDA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CEDC4269-0D30-4944-80DB-7C4CA5E059BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CEDC4269-0D30-4944-80DB-7C4CA5E059BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CEDC4269-0D30-4944-80DB-7C4CA5E059BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CEDC4269-0D30-4944-80DB-7C4CA5E059BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{779CEB14-8819-453E-A75C-E87C267EFDBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{779CEB14-8819-453E-A75C-E87C267EFDBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{779CEB14-8819-453E-A75C-E87C267EFDBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{779CEB14-8819-453E-A75C-E87C267EFDBF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
