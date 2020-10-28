@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Groundforce.Services.Data.Migrations
 {
-    public partial class CompleteRefactorMigration : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -65,7 +65,7 @@ namespace Groundforce.Services.Data.Migrations
                 {
                     RequestId = table.Column<string>(nullable: false),
                     PhoneNumber = table.Column<string>(nullable: false),
-                    IsVerified = table.Column<bool>(nullable: false),
+                    IsConfirmed = table.Column<bool>(nullable: false),
                     IsBlock = table.Column<bool>(nullable: false),
                     RequestAttempt = table.Column<int>(nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false),
@@ -241,6 +241,27 @@ namespace Groundforce.Services.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "VerificationItems",
+                columns: table => new
+                {
+                    ItemId = table.Column<string>(nullable: false),
+                    ItemName = table.Column<string>(maxLength: 250, nullable: false),
+                    ApplicationUserId = table.Column<string>(nullable: false),
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    UpdatedAt = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VerificationItems", x => x.ItemId);
+                    table.ForeignKey(
+                        name: "FK_VerificationItems_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "BuildingTypes",
                 columns: table => new
                 {
@@ -279,34 +300,6 @@ namespace Groundforce.Services.Data.Migrations
                         column: x => x.AdminId,
                         principalTable: "Admins",
                         principalColumn: "AdminId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "VerificationItems",
-                columns: table => new
-                {
-                    ItemId = table.Column<string>(nullable: false),
-                    ItemName = table.Column<string>(maxLength: 250, nullable: false),
-                    ApplicationUserId = table.Column<string>(nullable: false),
-                    ClientId = table.Column<string>(nullable: false),
-                    CreatedAt = table.Column<DateTime>(nullable: false),
-                    UpdatedAt = table.Column<DateTime>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_VerificationItems", x => x.ItemId);
-                    table.ForeignKey(
-                        name: "FK_VerificationItems_AspNetUsers_ApplicationUserId",
-                        column: x => x.ApplicationUserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_VerificationItems_Clients_ClientId",
-                        column: x => x.ClientId,
-                        principalTable: "Clients",
-                        principalColumn: "ClientId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -366,39 +359,6 @@ namespace Groundforce.Services.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PointAllocated",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    FieldAgentId = table.Column<string>(nullable: false),
-                    AdminId = table.Column<string>(nullable: false),
-                    PointsId = table.Column<string>(nullable: false),
-                    CreatedAt = table.Column<DateTime>(nullable: false),
-                    UpdatedAt = table.Column<DateTime>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PointAllocated", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PointAllocated_Admins_AdminId",
-                        column: x => x.AdminId,
-                        principalTable: "Admins",
-                        principalColumn: "AdminId");
-                    table.ForeignKey(
-                        name: "FK_PointAllocated_FieldAgents_FieldAgentId",
-                        column: x => x.FieldAgentId,
-                        principalTable: "FieldAgents",
-                        principalColumn: "FieldAgentId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_PointAllocated_Points_PointsId",
-                        column: x => x.PointsId,
-                        principalTable: "Points",
-                        principalColumn: "PointId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Missions",
                 columns: table => new
                 {
@@ -445,6 +405,39 @@ namespace Groundforce.Services.Data.Migrations
                         column: x => x.VerificationItemId,
                         principalTable: "VerificationItems",
                         principalColumn: "ItemId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PointAllocated",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    FieldAgentId = table.Column<string>(nullable: false),
+                    AdminId = table.Column<string>(nullable: false),
+                    PointsId = table.Column<string>(nullable: false),
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    UpdatedAt = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PointAllocated", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PointAllocated_Admins_AdminId",
+                        column: x => x.AdminId,
+                        principalTable: "Admins",
+                        principalColumn: "AdminId");
+                    table.ForeignKey(
+                        name: "FK_PointAllocated_FieldAgents_FieldAgentId",
+                        column: x => x.FieldAgentId,
+                        principalTable: "FieldAgents",
+                        principalColumn: "FieldAgentId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PointAllocated_Points_PointsId",
+                        column: x => x.PointsId,
+                        principalTable: "Points",
+                        principalColumn: "PointId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -573,11 +566,6 @@ namespace Groundforce.Services.Data.Migrations
                 name: "IX_VerificationItems_ApplicationUserId",
                 table: "VerificationItems",
                 column: "ApplicationUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_VerificationItems_ClientId",
-                table: "VerificationItems",
-                column: "ClientId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -599,6 +587,9 @@ namespace Groundforce.Services.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "BankAccounts");
+
+            migrationBuilder.DropTable(
+                name: "Clients");
 
             migrationBuilder.DropTable(
                 name: "Missions");
@@ -626,9 +617,6 @@ namespace Groundforce.Services.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "FieldAgents");
-
-            migrationBuilder.DropTable(
-                name: "Clients");
 
             migrationBuilder.DropTable(
                 name: "Admins");
