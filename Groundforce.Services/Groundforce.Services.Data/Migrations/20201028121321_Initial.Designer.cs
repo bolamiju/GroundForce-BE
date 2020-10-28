@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Groundforce.Services.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20201024182506_CompleteRefactorMigration")]
-    partial class CompleteRefactorMigration
+    [Migration("20201028121321_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -401,7 +401,7 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<bool>("IsBlock")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsVerified")
+                    b.Property<bool>("IsConfirmed")
                         .HasColumnType("bit");
 
                     b.Property<string>("PhoneNumber")
@@ -473,10 +473,6 @@ namespace Groundforce.Services.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ClientId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -491,8 +487,6 @@ namespace Groundforce.Services.Data.Migrations
                     b.HasKey("ItemId");
 
                     b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("ClientId");
 
                     b.ToTable("VerificationItems");
                 });
@@ -742,12 +736,6 @@ namespace Groundforce.Services.Data.Migrations
                     b.HasOne("Groundforce.Services.Models.ApplicationUser", "ApplicationUser")
                         .WithMany("VerificationItems")
                         .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Groundforce.Services.Models.Client", "Client")
-                        .WithMany()
-                        .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
