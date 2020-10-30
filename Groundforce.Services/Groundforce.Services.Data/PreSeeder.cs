@@ -43,7 +43,7 @@ namespace Groundforce.Services.Data
                         State = "Jos",
                         LGA = "Rururu",
                         HomeAddress ="10, wayside",
-                        IsVerified = true
+                        IsAccountActive = true
                     },
                     new ApplicationUser{ UserName="randomuser2@sample.com",
                         Email = "randomuser2@sample.com", 
@@ -55,7 +55,7 @@ namespace Groundforce.Services.Data
                         State = "Jos",
                         LGA = "Rururu",
                         HomeAddress ="10, wayside",
-                        IsVerified = true
+                        IsAccountActive = true
                     }
                 };
             }
@@ -95,13 +95,16 @@ namespace Groundforce.Services.Data
             string[] BuildingTypesArr = {"Duplex","Bungalow", "Block of Flats",
             "Detached House","Semi-Detached House" , "Storey Building",
             "Terraced House", "Mud House", "Wooden House" };
-            var adminIdFk = ctx.Admins.FirstOrDefault().AdminId;
-            foreach (var type in BuildingTypesArr)
+            if (!ctx.BuildingTypes.Any())
             {
-                var buildingTypeId = Guid.NewGuid().ToString();
-                ctx.BuildingTypes.Add(new BuildingType {TypeId = buildingTypeId,  TypeName = type, AdminId = adminIdFk, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now });
-                ctx.SaveChanges();
-            }            
+                var adminIdFk = ctx.Admins.FirstOrDefault().AdminId;
+                foreach (var type in BuildingTypesArr)
+                {
+                    var buildingTypeId = Guid.NewGuid().ToString();
+                    ctx.BuildingTypes.Add(new BuildingType { TypeId = buildingTypeId, TypeName = type, AdminId = adminIdFk, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now });
+                    ctx.SaveChanges();
+                }
+            }           
         }
     }
 }

@@ -9,6 +9,8 @@ namespace Groundforce.Common.Utilities
         Verified,
         ValidRequest,
         Blocked,
-        InvalidRequest
+        InvalidRequest,
+        Approved,
+        Pending
     }
 }
