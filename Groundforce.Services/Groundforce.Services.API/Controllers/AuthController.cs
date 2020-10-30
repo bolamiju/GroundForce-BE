@@ -25,8 +25,6 @@ namespace Groundforce.Services.API.Controllers
         private readonly IConfiguration _config;
         private readonly AppDbContext _ctx;
         private readonly IRequestRepository _requestRepository;
-        private readonly IAgentRepository _agentRepository;
-        private readonly IBankRepository _bankRepository;
         private readonly ILogger<AuthController> _logger;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -35,24 +33,22 @@ namespace Groundforce.Services.API.Controllers
         public AuthController(IConfiguration configuration, ILogger<AuthController> logger,
                                  SignInManager<ApplicationUser> signInManager,
                                  UserManager<ApplicationUser> userManager, AppDbContext ctx,
-                                 IRequestRepository requestRepository, IAgentRepository agentRepository,
-                                 IBankRepository bankRepository)
+                                 IRequestRepository requestRepository)
         {
             _config = configuration;
             _logger = logger;
             _signInManager = signInManager;
             _ctx = ctx;
             _requestRepository = requestRepository;
-            _agentRepository = agentRepository;
-            _bankRepository = bankRepository;
             _userManager = userManager;
         }
 
         //verify OTP
-        [HttpPost("verification")]
+        [HttpPost("verifyPhone")]
         public async Task<IActionResult> VerifyPhone([FromBody] PhoneNumberToVerifyDTO model)
         {
             PhoneNumberStatus phoneNumberStatus;
+            ResponseMessageDTO msgObj = new ResponseMessageDTO();
             try
             {
                 //create instance of the phoneNumberService class
@@ -72,128 +68,67 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest("Failed to update user verification request status");
+                msgObj.Message = "Failed to update user verification request status";
+                return BadRequest(msgObj);
             }
 
-            if (phoneNumberStatus == PhoneNumberStatus.Blocked) return BadRequest("Number blocked");
-            if (phoneNumberStatus == PhoneNumberStatus.InvalidRequest) return BadRequest();
-            if (phoneNumberStatus == PhoneNumberStatus.Verified) return BadRequest("Number already registered");
+            if (phoneNumberStatus == PhoneNumberStatus.Blocked) return BadRequest(ResponseMessage.Message("Number blocked"));
+            if (phoneNumberStatus == PhoneNumberStatus.InvalidRequest) return BadRequest(ResponseMessage.Message("Invalid request"));
+            if (phoneNumberStatus == PhoneNumberStatus.Verified) return BadRequest(ResponseMessage.Message("Number already verified"));
 
             try
             {
                 CreateTwilioService.Init(_config);
                 await CreateTwilioService.SendOTP(model.PhoneNumber);
-                return Ok("OTP sent!");
+                msgObj.Message = "OTP sent!";
+                return Ok(msgObj);
             }
             catch (TwilioException e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest("Failed to send OTP");
+                return BadRequest(ResponseMessage.Message("Failed to send OTP"));
             }
         }
 
-        //confirm OTP
-        [HttpPost("confirmation")]
+
+        [HttpPost("confirmOTP")]
         public async Task<IActionResult> ConfirmOTP([FromBody] OTPToConfirmDTO model)
         {
+            string status = "";
             try
             {
                 CreateTwilioService.Init(_config);
-                await CreateTwilioService.ConfirmOTP(model.PhoneNumber, model.VerifyCode);
+                status = await CreateTwilioService.ConfirmOTP(model.PhoneNumber, model.VerifyCode);
             }
             catch (TwilioException e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest("Failed to confirm OTP");
+                return BadRequest(ResponseMessage.Message("Failed to confirm OTP"));
             }
             try
             {
-                //get the phone number of the successfully registered user 
                 var registeredUser = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
-                registeredUser.IsConfirmed = true;
-                if(!await _requestRepository.UpdateRequest(registeredUser))
-                  throw new Exception("Could not update request");
+                //get the phone number of the successfully registered user 
+                if (status != PhoneNumberStatus.Approved.ToString().ToLower())
+                {
+                    registeredUser.IsConfirmed = false;
+                    return BadRequest("OTP does not match");
+                }
 
-                return Ok("OTP confirmed!");
+                registeredUser.IsConfirmed = true;
+                if (!await _requestRepository.UpdateRequest(registeredUser))
+                    throw new Exception("Could not update request");
+
+
+                return Ok(ResponseMessage.Message("OTP confirmed!"));
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest("Request not confirmed!");
+                return BadRequest(ResponseMessage.Message("Request not confirmed!"));
             }
         }
 
-
-        //// register user
-        [HttpPost("signup")]
-        public async Task<IActionResult> SignUp(UserToRegisterDTO model)
-        {
-            // check if email aready exists
-            var userToAdd = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
-            if (userToAdd != null)
-                return BadRequest("Email already exist");
-
-            var phoneNumberIsInRequestTable = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
-            if (phoneNumberIsInRequestTable == null)
-                return BadRequest("Phone number has not gone through verification process");
-
-
-            //Add new applicationUser
-            var authSupportService = new AuthSupportService(_userManager, _agentRepository, _bankRepository);
-            var result = await authSupportService.CreateAppUser(model);
-            if (!result.Succeeded)
-            {
-                foreach (var err in result.Errors)
-                {
-                    ModelState.AddModelError("", err.Description);
-                }
-                return BadRequest(ModelState);
-            }
-
-
-            //Add field agent
-            ApplicationUser createdUser = await _userManager.FindByEmailAsync(model.Email);
-            bool isAgentCreated = false;
-            if (createdUser != null)
-            {
-                try
-                {
-                    isAgentCreated = await authSupportService.CreateFieldAgent(createdUser.Id, model);
-                }
-                catch (Exception e)
-                {
-                    await _userManager.DeleteAsync(createdUser);
-                    await _userManager.RemoveFromRoleAsync(createdUser, "Agent");
-                    _logger.LogError(e.Message);
-                    return BadRequest("Failed to add additional details");
-                }
-            }
-            else { return BadRequest("User not created"); }
-
-
-            // Add bank details
-            bool isBankCreated = false;
-            FieldAgent newCreatedAgent = null;
-            if (isAgentCreated)
-            {
-                try
-                {
-                    newCreatedAgent = await _agentRepository.GetAgentById(createdUser.Id);
-                    isBankCreated = await authSupportService.CreateBankDetails(newCreatedAgent.FieldAgentId, model);
-                }
-                catch (Exception e)
-                {
-                    await _userManager.DeleteAsync(createdUser);
-                    await _userManager.RemoveFromRoleAsync(createdUser, "Agent");
-                    await _agentRepository.DeleteAgent(newCreatedAgent);
-                    _logger.LogError(e.Message);
-                    return BadRequest("Failed to add bank details");
-                }
-            }
-            else { return BadRequest("Field agent not created"); }
-
-            return RedirectToAction("Get", "User", new { Id = createdUser.Id });
-        }
 
         //User Login
         [HttpPost("login")]
@@ -201,14 +136,13 @@ namespace Groundforce.Services.API.Controllers
         {
             if (ModelState.IsValid)
             {
-
                 //get user by email
                 var user = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
 
                 //Check if user exist
                 if (user == null)
                 {
-                    return BadRequest("Account does not exist");
+                    return NotFound(ResponseMessage.Message("User not found, ensure credentials are entered correctly."));
                 }
 
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Pin, false, false);
@@ -216,9 +150,9 @@ namespace Groundforce.Services.API.Controllers
                 if (result.Succeeded)
                 {
                     var getToken = JwtTokenConfig.GetToken(user, _config, userRoles);
-                    return Ok(getToken);
+                    return Ok(new { token = getToken});
                 }
-                return Unauthorized("Invalid creadentials");
+                return Unauthorized(ResponseMessage.Message("Invalid credentials"));
 
             }
 
@@ -234,11 +168,12 @@ namespace Groundforce.Services.API.Controllers
             {
                 var user = _userManager.Users.SingleOrDefault(e => e.PhoneNumber == details.PhoneNumber);
                 if (user == null) return NotFound();
+
                 //generate token needed to reset password
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
                 var setNewPassword = await _userManager.ResetPasswordAsync(user, token, details.Pin);
-                if (setNewPassword.Succeeded) return Ok("Password successfully updated");
+                if (setNewPassword.Succeeded) return Ok(ResponseMessage.Message("Password successfully updated"));
 
                 // if passwordset is unsuccessful add errors to model error
                 foreach (var error in setNewPassword.Errors)

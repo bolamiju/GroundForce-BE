@@ -21,7 +21,7 @@ namespace Groundforce.Services.Core
         }
 
         // create IdentityUser
-        public async Task<IdentityResult> CreateAppUser(UserToRegisterDTO model)
+        public async Task<IdentityResult> CreateAppUser(UserToRegisterDTO model, string role)
         {
             string defaultPix = "~/images/avarta.jpg";
             var user = new ApplicationUser
@@ -44,7 +44,7 @@ namespace Groundforce.Services.Core
             var result =  await _userManager.CreateAsync(user, model.PIN);
 
             if(result.Succeeded)
-                await _userManager.AddToRoleAsync(user, "Agent");
+                await _userManager.AddToRoleAsync(user, role);
 
             return result;
         }

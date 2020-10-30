@@ -15,6 +15,13 @@ namespace Groundforce.Services.Data.Services
             _ctx = context;
         }
 
+        public async Task<bool> DeleteRequestByPhone(string number)
+        {
+            var request = await _ctx.Request.FirstOrDefaultAsync(x => x.PhoneNumber == number);
+            _ctx.Request.Remove(request);
+            return await _ctx.SaveChangesAsync() > 0;
+        }
+
         public async Task<Request> GetRequestById(string Id)
         {
             return await _ctx.Request.FirstOrDefaultAsync(x => x.RequestId == Id);

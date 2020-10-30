@@ -42,7 +42,8 @@ namespace Groundforce.Services.Models
         [Display(Name = "Home address")]
         public string HomeAddress { get; set; }
 
-        public bool IsVerified { get; set; } = false;
+        public bool IsAccountActive { get; set; } = false;
+
         public string AvatarUrl { get; set; }
         public string PublicId { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
