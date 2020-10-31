@@ -72,10 +72,24 @@ namespace Groundforce.Services.API.Controllers
                 return BadRequest(ResponseMessage.Message("Phone number already exist"));
 
 
-
             //Add new applicationUser
+            var userModel = new UserWithoutDetailsDTO
+            {
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                Email = model.Email,
+                DOB = model.DOB,
+                LGA = model.LGA,
+                PhoneNumber = model.PhoneNumber,
+                PlaceOfBirth = model.PlaceOfBirth,
+                State = model.State,
+                Gender = model.Gender,
+                HomeAddress = model.HomeAddress,
+                PIN = model.PIN
+            };
+
             var authSupportService = new AuthSupportService(_userManager, _agentRepository, _bankRepository);
-            var result = await authSupportService.CreateAppUser(model, "Agent");
+            var result = await authSupportService.CreateAppUser(userModel, "Agent");
             if (!result.Succeeded)
             {
                 foreach (var err in result.Errors)
@@ -133,7 +147,7 @@ namespace Groundforce.Services.API.Controllers
         //// register admin
         [HttpPost("register/admin")]
         [Authorize(Roles = "Admin, Agent")]
-        public async Task<IActionResult> RegisterAdmin(UserToRegisterDTO model)
+        public async Task<IActionResult> RegisterAdmin(UserWithoutDetailsDTO model)
         {
             // ensure that number has gone through verification and confirmation
             var phoneNumberIsInRequestTable = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
@@ -169,16 +183,24 @@ namespace Groundforce.Services.API.Controllers
             }
 
 
-            //Add field agent
+            //Add admin
             ApplicationUser createdUser = await _userManager.FindByEmailAsync(model.Email);
             bool isAdminCreated = false;
             if (createdUser != null)
             {
+                string adminId = "";
+                Admin admin = null;
+                do
+                {
+                    adminId = Guid.NewGuid().ToString();
+                    admin = await _adminRepository.GetAdminById(adminId);
+                } while (admin != null);
+
                 try
                 {
                     var adminToAdd = new Admin
                     {
-                        AdminId = "",
+                        AdminId = adminId,
                         ApplicationUserId = createdUser.Id
                     };
 

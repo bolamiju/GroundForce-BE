@@ -21,7 +21,7 @@ namespace Groundforce.Services.Core
         }
 
         // create IdentityUser
-        public async Task<IdentityResult> CreateAppUser(UserToRegisterDTO model, string role)
+        public async Task<IdentityResult> CreateAppUser(UserWithoutDetailsDTO model, string role)
         {
             string defaultPix = "~/images/avarta.jpg";
             var user = new ApplicationUser
