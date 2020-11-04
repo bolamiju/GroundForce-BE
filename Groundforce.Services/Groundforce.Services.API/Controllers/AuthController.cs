@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Groundforce.Services.API.Controllers
 {
-    [Route("api/v1/[controller]")]
+    [Route("api/v1/auth")]
     [ApiController]
     public class AuthController : ControllerBase
     {
@@ -48,7 +48,6 @@ namespace Groundforce.Services.API.Controllers
         public async Task<IActionResult> VerifyPhone([FromBody] PhoneNumberToVerifyDTO model)
         {
             PhoneNumberStatus phoneNumberStatus;
-            ResponseMessageDTO msgObj = new ResponseMessageDTO();
             try
             {
                 //create instance of the phoneNumberService class
@@ -68,8 +67,7 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                msgObj.Message = "Failed to update user verification request status";
-                return BadRequest(msgObj);
+                return BadRequest(ResponseMessage.Message("Failed to update user verification request status"));
             }
 
             if (phoneNumberStatus == PhoneNumberStatus.Blocked) return BadRequest(ResponseMessage.Message("Number blocked"));
@@ -80,8 +78,7 @@ namespace Groundforce.Services.API.Controllers
             {
                 CreateTwilioService.Init(_config);
                 await CreateTwilioService.SendOTP(model.PhoneNumber);
-                msgObj.Message = "OTP sent!";
-                return Ok(msgObj);
+                return Ok(ResponseMessage.Message("OTP sent!"));
             }
             catch (TwilioException e)
             {
@@ -112,7 +109,7 @@ namespace Groundforce.Services.API.Controllers
                 if (status != PhoneNumberStatus.Approved.ToString().ToLower())
                 {
                     registeredUser.IsConfirmed = false;
-                    return BadRequest("OTP does not match");
+                    return BadRequest(ResponseMessage.Message("OTP does not match"));
                 }
 
                 registeredUser.IsConfirmed = true;
@@ -125,7 +122,7 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Request not confirmed!"));
+                return BadRequest(ResponseMessage.Message("Request not confirmed"));
             }
         }
 
@@ -161,18 +158,54 @@ namespace Groundforce.Services.API.Controllers
 
 
         // forgot password route
-        [HttpPatch("ForgotPassword")]
+        [HttpPatch("forgotPassword/verifyPhone")]
+        public async Task<IActionResult> ForgotPasswordVerify([FromBody] PhoneNumberToVerifyDTO details)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    CreateTwilioService.Init(_config);
+                    await CreateTwilioService.SendOTP(details.PhoneNumber);
+                    return Ok(ResponseMessage.Message("OTP sent!"));
+                }
+                catch (TwilioException e)
+                {
+                    _logger.LogError(e.Message);
+                    return BadRequest(ResponseMessage.Message("Failed to send OTP"));
+                }
+            }
+            return BadRequest();
+        }
+
+        // forgot password route
+        [HttpPatch("forgotPassword/resetPin")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO details)
         {
             if (ModelState.IsValid)
             {
                 var user = _userManager.Users.SingleOrDefault(e => e.PhoneNumber == details.PhoneNumber);
-                if (user == null) return NotFound();
+                if (user == null) return NotFound(ResponseMessage.Message($"User with phone number: {details.PhoneNumber}, is not found"));
+
+                string status = "";
+                try
+                {
+                    CreateTwilioService.Init(_config);
+                    status = await CreateTwilioService.ConfirmOTP(details.PhoneNumber, details.OTPCode);
+                }
+                catch (TwilioException e)
+                {
+                    _logger.LogError(e.Message);
+                    return BadRequest(ResponseMessage.Message("OTP confirmation failed"));
+                }
+
+                if (status != PhoneNumberStatus.Approved.ToString().ToLower())
+                    return BadRequest(ResponseMessage.Message("OTP does not match"));
 
                 //generate token needed to reset password
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-                var setNewPassword = await _userManager.ResetPasswordAsync(user, token, details.Pin);
+                var setNewPassword = await _userManager.ResetPasswordAsync(user, token, details.NewPin);
                 if (setNewPassword.Succeeded) return Ok(ResponseMessage.Message("Password successfully updated"));
 
                 // if passwordset is unsuccessful add errors to model error

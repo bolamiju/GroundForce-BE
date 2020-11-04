@@ -42,7 +42,7 @@ namespace Groundforce.Services.Models
         [Display(Name = "Home address")]
         public string HomeAddress { get; set; }
 
-        public bool IsAccountActive { get; set; } = false;
+        public bool Active { get; set; } = false;
 
         public string AvatarUrl { get; set; }
         public string PublicId { get; set; }

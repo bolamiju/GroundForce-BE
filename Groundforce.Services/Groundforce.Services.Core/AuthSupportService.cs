@@ -38,7 +38,8 @@ namespace Groundforce.Services.Core
                 CreatedAt = DateTime.Now,
                 Gender = model.Gender,
                 HomeAddress = model.HomeAddress,
-                AvatarUrl = defaultPix
+                AvatarUrl = defaultPix,
+                Active = true
             };
 
             var result =  await _userManager.CreateAsync(user, model.PIN);
