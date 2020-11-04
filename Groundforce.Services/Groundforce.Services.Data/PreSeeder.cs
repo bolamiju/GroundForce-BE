@@ -94,7 +94,7 @@ namespace Groundforce.Services.Data
                 }
 
                 string[] BuildingTypesArr = {"Duplex","Bungalow", "Block of Flats",
-            "Detached House","Semi-Detached House" , "Storey Building",
+            "Detached House","Semi-Detached House" , "Story Building",
             "Terraced House", "Mud House", "Wooden House" };
                 var adminIdFk = ctx.Admins.FirstOrDefault().AdminId;
                 foreach (var type in BuildingTypesArr)
