@@ -158,7 +158,7 @@ namespace Groundforce.Services.API.Controllers
 
 
         // forgot password route
-        [HttpPatch("forgotPassword/verifyPhone")]
+        [HttpPost("forgotPassword/verifyPhone")]
         public async Task<IActionResult> ForgotPasswordVerify([FromBody] PhoneNumberToVerifyDTO details)
         {
             if (ModelState.IsValid)
