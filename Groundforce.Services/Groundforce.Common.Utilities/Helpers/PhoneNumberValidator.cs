@@ -9,7 +9,7 @@ namespace Groundforce.Common.Utilities.Helpers
     {
         public static bool PhoneNumberValid(string phoneNumber)
         {
-            var regex = @"^\+234\d{9,10}$";
+            var regex = @"^\+\d{3}\d{9,10}$";
             var response = Regex.Match(phoneNumber, regex).Success;
             return response;
         }
