@@ -34,113 +34,18 @@ namespace Groundforce.Services.API.Controllers
         private readonly IAdminRepository _adminRepository;
 
         public UserController(ILogger<UserController> logger, UserManager<ApplicationUser> userManager, 
-            AppDbContext ctx, IOptions<CloudinarySettings> cloudinaryConfig, IAgentRepository agentRepository, 
-            IBankRepository bankRepository, IRequestRepository requestRepository, IAdminRepository adminRepository )
+            AppDbContext ctx, IOptions<CloudinarySettings> cloudinaryConfig, IAgentRepository agentRepository,
+                                 IAdminRepository adminRepository, IBankRepository bankRepository,
+                                 IRequestRepository requestRepository)
         {
             _userManager = userManager;
             _ctx = ctx;
             _cloudinaryConfig = cloudinaryConfig;
             _agentRepository = agentRepository;
+            _logger = logger;
+            _adminRepository = adminRepository;
             _bankRepository = bankRepository;
             _requestRepository = requestRepository;
-            _adminRepository = adminRepository;
-            _logger = logger;
-        }
-
-        //// register agent
-        [HttpPost("register/agent")]
-        [AllowAnonymous]
-        public async Task<IActionResult> RegisterAgent(UserToRegisterDTO model)
-        {
-            // ensure that number has gone through verification and confirmation
-            var phoneNumberIsInRequestTable = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
-            if (phoneNumberIsInRequestTable == null)
-                return BadRequest(ResponseMessage.Message("Phone number has not been verified yet"));
-
-            if (!phoneNumberIsInRequestTable.IsConfirmed)
-                return BadRequest(ResponseMessage.Message("Phone number has not been confrimed yet"));
-
-
-            // check if email aready exists
-            var emailToAdd = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
-            if (emailToAdd != null)
-                return BadRequest(ResponseMessage.Message("Email already exist"));
-
-            // check if number aready exists
-            var numberToAdd = _userManager.Users.FirstOrDefault(x => x.PhoneNumber == model.PhoneNumber);
-            if (numberToAdd != null)
-                return BadRequest(ResponseMessage.Message("Phone number already exist"));
-
-
-            //Add new applicationUser
-            var userModel = new UserWithoutDetailsDTO
-            {
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Email = model.Email,
-                DOB = model.DOB,
-                LGA = model.LGA,
-                PhoneNumber = model.PhoneNumber,
-                PlaceOfBirth = model.PlaceOfBirth,
-                State = model.State,
-                Gender = model.Gender,
-                HomeAddress = model.HomeAddress,
-                PIN = model.PIN
-            };
-
-            var authSupportService = new AuthSupportService(_userManager, _agentRepository, _bankRepository);
-            var result = await authSupportService.CreateAppUser(userModel, "Agent");
-            if (!result.Succeeded)
-            {
-                foreach (var err in result.Errors)
-                {
-                    ModelState.AddModelError("", err.Description);
-                }
-                return BadRequest(ModelState);
-            }
-
-
-            //Add field agent
-            ApplicationUser createdUser = await _userManager.FindByEmailAsync(model.Email);
-            bool isAgentCreated = false;
-            if (createdUser == null)
-                return BadRequest(ResponseMessage.Message("Failed to create identity user"));
-            
-            try
-            {
-                isAgentCreated = await authSupportService.CreateFieldAgent(createdUser.Id, model);
-            }
-            catch (Exception e)
-            {
-                await _userManager.DeleteAsync(createdUser);
-                await _userManager.RemoveFromRoleAsync(createdUser, "Agent");
-                _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Failed to add additional details"));
-            }
-            
-
-            // Add bank details
-            bool isBankCreated = false;
-            FieldAgent newCreatedAgent = null;
-            if (!isAgentCreated)
-                return BadRequest(("Failed to create user"));
-            
-            try
-            {
-                newCreatedAgent = await _agentRepository.GetAgentById(createdUser.Id);
-                isBankCreated = await authSupportService.CreateBankDetails(newCreatedAgent.FieldAgentId, model);
-            }
-            catch (Exception e)
-            {
-                await _userManager.DeleteAsync(createdUser);
-                await _userManager.RemoveFromRoleAsync(createdUser, "Agent");
-                await _agentRepository.DeleteAgent(newCreatedAgent);
-                _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Failed to add bank details"));
-            }
-            
-
-            return Ok(new { Message = "Account registered successfully", createdUser.Id });
         }
                
         //updates user picture
@@ -149,14 +54,16 @@ namespace Groundforce.Services.API.Controllers
         [Authorize(Roles = "Agent")]
         public async Task<IActionResult> UpdatePicture(string Id, [FromForm] PhotoToUploadDTO Picture)
         {
-            var userToUpdate = await _userManager.FindByIdAsync(Id);
-            if (userToUpdate == null)
+            ApplicationUser user = null;
+            try
             {
-                return BadRequest(ResponseMessage.Message("User does not exist"));
+                var authSupportService = new AuthSupportService(_userManager, _agentRepository, _bankRepository);
+                user = await authSupportService.verifyUser(Id);
             }
-
-            if (!userToUpdate.Active)
-                return Unauthorized(ResponseMessage.Message("User's account is not active"));
+            catch (Exception e)
+            {
+                return BadRequest(ResponseMessage.Message(e.Message));
+            }
 
             var picture = Picture.Photo;
 
@@ -166,9 +73,9 @@ namespace Groundforce.Services.API.Controllers
                 {
                     var managePhoto = new ManagePhoto(_cloudinaryConfig);
                     var uplResult = managePhoto.UploadAvatar(picture);
-                    userToUpdate.AvatarUrl = uplResult.Url.ToString();
-                    userToUpdate.PublicId = uplResult.PublicId;
-                    await _userManager.UpdateAsync(userToUpdate);
+                    user.AvatarUrl = uplResult.Url.ToString();
+                    user.PublicId = uplResult.PublicId;
+                    await _userManager.UpdateAsync(user);
 
                     return Ok(ResponseMessage.Message("Picture successfully uploaded"));
                 }
@@ -186,7 +93,7 @@ namespace Groundforce.Services.API.Controllers
         [Authorize(Roles = "Agent, Admin")]
         public async Task<IActionResult> Get(string Id)
         {
-            if (string.IsNullOrWhiteSpace(Id)) return BadRequest();
+            if (string.IsNullOrWhiteSpace(Id)) return BadRequest(ResponseMessage.Message("Invalid Id"));
 
             var user = await _userManager.FindByIdAsync(Id);
 
@@ -195,7 +102,7 @@ namespace Groundforce.Services.API.Controllers
                 return NotFound(ResponseMessage.Message("User not found"));
 
             if (!user.Active)
-                return Unauthorized(ResponseMessage.Message("User's account is not active"));
+                return Unauthorized(ResponseMessage.Message("Not an active account"));
 
 
             // Returns the field agent by userId
@@ -234,11 +141,23 @@ namespace Groundforce.Services.API.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByIdAsync(Id);
-                if (user == null) return BadRequest(ResponseMessage.Message("User Does Not Exist"));
+                ApplicationUser user = null;
+                try
+                {
+                    var authSupportService = new AuthSupportService(_userManager, _agentRepository, _bankRepository);
+                    user = await authSupportService.verifyUser(Id);
+                }
+                catch (Exception e)
+                {
+                    return BadRequest(ResponseMessage.Message(e.Message));
+                }
 
-                if (!user.Active)
-                    return Unauthorized(ResponseMessage.Message("User's account is not active"));
+
+                // check if user with id is logged in
+                var loggedInUserId = _userManager.GetUserId(User);
+                if (loggedInUserId != Id)
+                    return BadRequest(ResponseMessage.Message($"Id: {Id} does not match loggedIn user Id"));
+
 
                 //update application user
                 user.Email = model.Email;
@@ -280,15 +199,24 @@ namespace Groundforce.Services.API.Controllers
 
 
         //change pin
-        [HttpPatch("{Id}/ChangePassword")]
+        [HttpPatch("{Id}/change-password")]
         [Authorize(Roles = "Agent")]
         public async Task<IActionResult> ChangePassword(string Id, [FromBody] ResetUserPwdDTO userToUpdate)
         {
-            var user = await _userManager.FindByIdAsync(Id);
-            if (user == null) return NotFound();
+            ApplicationUser user = null;
+            try
+            {
+                var authSupportService = new AuthSupportService(_userManager, _agentRepository, _bankRepository);
+                user = await authSupportService.verifyUser(Id);
+            }catch(Exception e)
+            {
+                return BadRequest(ResponseMessage.Message(e.Message));
+            }
 
-            if (!user.Active)
-                return Unauthorized(ResponseMessage.Message("User's account is not active"));
+            // check if user with id is logged in
+            var loggedInUserId = _userManager.GetUserId(User);
+            if (loggedInUserId != Id)
+                return BadRequest(ResponseMessage.Message($"Id: {Id} does not match loggedIn user Id"));
 
             if (ModelState.IsValid)
             {
@@ -306,6 +234,69 @@ namespace Groundforce.Services.API.Controllers
             return BadRequest(ModelState);
         }
 
+
+        //remove user
+        [HttpDelete("{Id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUser(string Id)
+        {
+            if (Id == null)
+                BadRequest(ResponseMessage.Message("You need to provide user Id"));
+
+            var user = await _userManager.FindByIdAsync(Id);
+            if (user == null)
+                NotFound($"User with id {Id} was not found");
+
+            FieldAgent agent = null;
+            try
+            {
+                // get field agent
+                agent = await _agentRepository.GetAgentById(user.Id);
+                if (agent == null)
+                    throw new Exception($"Agent with user id {user.Id} was not found");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(ResponseMessage.Message("Failed to delete user!"));
+            }
+
+            List<BankAccount> bankDetails = new List<BankAccount>();
+            try
+            {
+                // get bank details
+                bankDetails = await _bankRepository.GetBankDetailsByAgent(agent.FieldAgentId);
+                if (bankDetails == null)
+                    throw new Exception($"Bank with field agent id {agent.FieldAgentId} was not found");
+
+                foreach (var detail in bankDetails)
+                {
+                    if (!await _bankRepository.DdeleteBankDetail(detail))
+                        throw new Exception("Could not delete bank record");
+                }
+
+                if (!await _agentRepository.DeleteAgent(agent))
+                    throw new Exception("Could not delete agent record");
+
+                var result = await _userManager.DeleteAsync(user);
+                if (!result.Succeeded)
+                {
+                    foreach (var err in result.Errors)
+                        ModelState.AddModelError("", err.Description);
+                    return BadRequest(ModelState);
+                }
+
+                if (!await _requestRepository.DeleteRequestByPhone(user.PhoneNumber))
+                    throw new Exception("Could not delete request record");
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(ResponseMessage.Message("Failed to delete user!"));
+            }
+            return Ok(ResponseMessage.Message("User deleted!"));
+        }
 
 
     }

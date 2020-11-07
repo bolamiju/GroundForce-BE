@@ -66,8 +66,6 @@ namespace Groundforce.Services.Core
             {
                 FieldAgentId = agentId,
                 ApplicationUserId = Id,
-                Latitude = model.Latitude,
-                Longitude = model.Longitude,
                 Religion = model.Religion,
                 AdditionalPhoneNumber = model.AdditionalPhoneNumber
             };
@@ -94,6 +92,19 @@ namespace Groundforce.Services.Core
                 AccountNumber = model.AccountNumber
             };
             return await _bankRepository.AddBankDetail(bank);
+        }
+
+
+        public async Task<ApplicationUser> verifyUser(string Id)
+        {
+            var user = await _userManager.FindByIdAsync(Id);
+            if (user == null) 
+                throw new Exception($"User with id: {Id} was not found");
+
+            if (!user.Active)
+                throw new Exception("User's account is not acctive");
+
+            return user;
         }
     }
 }

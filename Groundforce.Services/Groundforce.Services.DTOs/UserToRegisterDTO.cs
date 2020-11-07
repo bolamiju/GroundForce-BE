@@ -70,20 +70,6 @@ namespace Groundforce.Services.DTOs
         [Display(Name = "Account number")]
         public string AccountNumber { get; set; }
 
-        //Longitude
-        [Required]
-        public string Longitude { get; set; }
-
-        //LAtitude
-        [Required]
-        public string Latitude { get; set; }
-
-        //Pin: Used as Password
-        [Required]
-        [MaxLength(4)]
-        [MinLength(4)]
-        [DataType(DataType.Password)]
-        public string PIN { get; set; }
 
     }
 
