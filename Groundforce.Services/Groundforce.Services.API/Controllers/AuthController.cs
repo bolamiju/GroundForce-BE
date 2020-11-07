@@ -52,12 +52,18 @@ namespace Groundforce.Services.API.Controllers
         [HttpPost("verify-phone")]
         public async Task<IActionResult> VerifyPhone([FromBody] PhoneNumberToVerifyDTO model)
         {
+            bool response = PhoneNumberValidator.PhoneNumberValid(model.PhoneNumber);
+            if (!response)
+            {
+                return BadRequest(ResponseMessage.Message("Phone number is invalid"));
+            }
+
             PhoneNumberStatus phoneNumberStatus;
             try
             {
                 //create instance of the phoneNumberService class
                 var updateRequestStatus = new LobbyService(_ctx);
-                
+
                 // check for valid GUID
                 Request result = null;
                 string requestId = "";
@@ -91,7 +97,6 @@ namespace Groundforce.Services.API.Controllers
                 return BadRequest(ResponseMessage.Message("Failed to send OTP"));
             }
         }
-
 
         [HttpPost("confirm-otp")]
         public async Task<IActionResult> ConfirmOTP([FromBody] OTPToConfirmDTO model)
@@ -135,6 +140,12 @@ namespace Groundforce.Services.API.Controllers
         [HttpPost("register/agent")]
         public async Task<IActionResult> RegisterAgent(UserToRegisterDTO model)
         {
+            bool response = PhoneNumberValidator.PhoneNumberValid(model.AdditionalPhoneNumber);
+            if (!response)
+            {
+                return BadRequest(ResponseMessage.Message("Additional phone number is invalid"));
+            }
+
             // ensure that number has gone through verification and confirmation
             var phoneNumberIsInRequestTable = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
             if (phoneNumberIsInRequestTable == null)
