@@ -6,9 +6,9 @@ namespace Groundforce.Common.Utilities.Helpers
 {
     public static class ResponseMessage
     {
-        public static object Message(string errMsg)
+        public static object Message(string errMsg, Object data = null)
         {
-            return new { Message = errMsg };
+            return new { Message = errMsg, data };
         }
     }
 }
