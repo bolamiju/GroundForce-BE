@@ -222,7 +222,7 @@ namespace Groundforce.Services.API.Controllers
             }
 
 
-            return Ok(new { Message = "Account registered successfully", createdUser.Id });
+            return Ok(ResponseMessage.Message("Picture upload was successful!", new { Message = "Account registered successfully", createdUser.Id }));
         }
 
         //// register agent location
