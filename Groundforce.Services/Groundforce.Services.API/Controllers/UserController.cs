@@ -77,7 +77,7 @@ namespace Groundforce.Services.API.Controllers
                     user.PublicId = uplResult.PublicId;
                     await _userManager.UpdateAsync(user);
 
-                    return Ok(new { Message = "Picture upload was successful!", user.AvatarUrl, user.PublicId });
+                    return Ok(ResponseMessage.Message("Picture upload was successful!", new { user.AvatarUrl, user.PublicId }));
                 }
                 catch (Exception)
                 {
