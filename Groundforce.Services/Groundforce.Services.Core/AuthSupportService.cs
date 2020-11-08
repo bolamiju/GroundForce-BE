@@ -42,7 +42,7 @@ namespace Groundforce.Services.Core
                 Active = true
             };
 
-            var result =  await _userManager.CreateAsync(user, model.PIN);
+            var result =  await _userManager.CreateAsync(user);
 
             if(result.Succeeded)
                 await _userManager.AddToRoleAsync(user, role);

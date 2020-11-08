@@ -233,7 +233,7 @@ namespace Groundforce.Services.API.Controllers
             }
 
 
-            return Ok(ResponseMessage.Message("Picture upload was successful!", new { Message = "Account registered successfully", createdUser.Id }));
+            return Ok(ResponseMessage.Message("Registration was successful!", new { createdUser.Id }));
         }
 
         //// register agent location
@@ -278,7 +278,7 @@ namespace Groundforce.Services.API.Controllers
 
         //// register agent pin
         [HttpPatch("{id}/register-pin")]
-        public async Task<IActionResult> AddUserLocation(UserPinDTO model, string id)
+        public async Task<IActionResult> AddUserPIN(UserPinDTO model, string id)
         {
             // ensure user can be found using id provided
             var user = await _userManager.FindByIdAsync(id);
@@ -301,9 +301,8 @@ namespace Groundforce.Services.API.Controllers
                 return BadRequest(ResponseMessage.Message(e.Message));
             }
 
-            // update agent 
-            agent.Longitude = model.PIN;
-            var result = await _userManager.UpdateAsync(user);
+            // create user password 
+            var result = await _userManager.AddPasswordAsync(user, model.PIN);
             if (!result.Succeeded)
             {
                 foreach (var err in result.Errors)
