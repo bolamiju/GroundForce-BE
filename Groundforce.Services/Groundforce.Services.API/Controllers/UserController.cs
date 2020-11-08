@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Groundforce.Services.Core;
 
-namespace Groundforce.Services.API.Controllers0
+namespace Groundforce.Services.API.Controllers
 {
     [Authorize(AuthenticationSchemes = "Bearer")]
     [Route("api/v1/[controller]")]
