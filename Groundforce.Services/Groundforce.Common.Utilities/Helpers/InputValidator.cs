@@ -36,7 +36,7 @@ namespace Groundforce.Common.Utilities.Helpers
             {
                 if(!Regex.Match(item.Value, @"^\D+$").Success)
                 {
-                    result += item + ", ";
+                    result += item.Key + ", ";
                 }
             }
 
