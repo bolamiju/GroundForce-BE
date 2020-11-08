@@ -84,11 +84,18 @@ namespace Groundforce.Services.DTOs
 
         public override bool IsValid(object value)
         {
-            var age = DateTime.Now.Year - Convert.ToDateTime(value).Year;
-            if (age > _maxAge || age < _minAge)
-                return false;
+            try
+            {
+                var age = DateTime.Now.Year - Convert.ToDateTime(value).Year;
+                if (age > _maxAge || age < _minAge)
+                    return false;
 
-            return true;
+                return true;
+            }
+            catch(Exception)
+            {
+                return false;
+            }
         }
     }
 }

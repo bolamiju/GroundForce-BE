@@ -163,12 +163,14 @@ namespace Groundforce.Services.API.Controllers
 
             // ensure that number has gone through verification and confirmation
             var phoneNumberIsInRequestTable = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
+            if (phoneNumberIsInRequestTable.IsBlock)
+                return BadRequest(ResponseMessage.Message("Phone number has been blocked. Contact the Admin"));
+
             if (phoneNumberIsInRequestTable == null)
                 return BadRequest(ResponseMessage.Message("Phone number has not been verified yet"));
 
             if (!phoneNumberIsInRequestTable.IsConfirmed)
-                return BadRequest(ResponseMessage.Message("Phone number has not been confrimed yet"));
-
+                return BadRequest(ResponseMessage.Message("Phone number has not been confirmed yet"));
 
             // check if email aready exists
             var emailToAdd = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
