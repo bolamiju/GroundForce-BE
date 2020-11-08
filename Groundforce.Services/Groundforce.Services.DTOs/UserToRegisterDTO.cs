@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace Groundforce.Services.DTOs
 {
@@ -34,6 +35,7 @@ namespace Groundforce.Services.DTOs
         //DOB which is Date Of Birth
         [Required]
         [Display(Name = "Date of birth")]
+        [ValidateDOBFormat(ErrorMessage = "Invalid date of birth format. Must be dd/mm/yyyy")]
         [ValidateDOBRange(18, 120, ErrorMessage = "Age range allowed is 18 - 120")]
         public string DOB { get; set; }
 
@@ -89,6 +91,19 @@ namespace Groundforce.Services.DTOs
                 return false;
 
             return true;
+        }
+    }
+
+    class ValidateDOBFormatAttribute : ValidationAttribute
+    {
+        public ValidateDOBFormatAttribute(){}
+
+        public override bool IsValid(object value)
+        {
+            var regex = @"^\d{1,2}/\d{1,2}/\d{4}$";
+            string DOB = value.ToString();
+            var response = Regex.Match(DOB, regex).Success;
+            return response;
         }
     }
 }

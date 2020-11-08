@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Groundforce.Services.Core;
 
-namespace Groundforce.Services.API.Controllers
+namespace Groundforce.Services.API.Controllers0
 {
     [Authorize(AuthenticationSchemes = "Bearer")]
     [Route("api/v1/[controller]")]
@@ -141,6 +141,23 @@ namespace Groundforce.Services.API.Controllers
         {
             if (ModelState.IsValid)
             {
+                bool response = InputValidator.PhoneNumberValidator(model.AdditionalPhoneNumber);
+                if (!response)
+                {
+                    return BadRequest(ResponseMessage.Message("Additional phone number is invalid. Must have country-code and must be 13, 14 chars long e.g. +2348050000000"));
+                }
+
+                var editParams = new Dictionary<string, string>();
+                editParams.Add("Gender", model.Gender);
+                editParams.Add("Religion", model.Religion);
+
+                string output = InputValidator.WordInputValidator(editParams);
+
+                if (output.Length > 0)
+                {
+                    return BadRequest(ResponseMessage.Message("Invalid input: " + output));
+                }
+
                 ApplicationUser user = null;
                 try
                 {
@@ -184,6 +201,10 @@ namespace Groundforce.Services.API.Controllers
                     agent.AdditionalPhoneNumber = model.AdditionalPhoneNumber;
                     agent.Religion = model.Religion;
                     fieldAgentId = agent.FieldAgentId;
+                    if(!await _agentRepository.UpdateAgent(agent))
+                    {
+                        return BadRequest(ResponseMessage.Message("Failed to update agent"));
+                    }
                 }
                 catch (Exception e)
                 {
@@ -203,6 +224,18 @@ namespace Groundforce.Services.API.Controllers
         [Authorize(Roles = "Agent")]
         public async Task<IActionResult> ChangePassword(string Id, [FromBody] ResetUserPwdDTO userToUpdate)
         {
+            bool response = InputValidator.PinValidator(userToUpdate.CurrentPwd);
+            if (!response)
+            {
+                return BadRequest(ResponseMessage.Message("Current password should be 4 digits"));
+            }
+
+            response = InputValidator.PinValidator(userToUpdate.NewPwd);
+            if (!response)
+            {
+                return BadRequest(ResponseMessage.Message("New password should be 4 digits"));
+            }
+
             ApplicationUser user = null;
             try
             {
