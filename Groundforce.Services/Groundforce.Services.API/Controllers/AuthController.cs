@@ -140,11 +140,26 @@ namespace Groundforce.Services.API.Controllers
         [HttpPost("register/agent")]
         public async Task<IActionResult> RegisterAgent(UserToRegisterDTO model)
         {
+            bool phoneNumberResponse = PhoneNumberValidator.PhoneNumberValid(model.PhoneNumber);
+            if (!phoneNumberResponse)
+                return BadRequest(ResponseMessage.Message("Phone number is invalid"));
+
             bool response = PhoneNumberValidator.PhoneNumberValid(model.AdditionalPhoneNumber);
             if (!response)
             {
                 return BadRequest(ResponseMessage.Message("Additional phone number is invalid"));
             }
+
+            bool dateResponse = DateFormatValidator.ValidateDate(model.DOB);
+            if (!dateResponse)
+                return BadRequest(ResponseMessage.Message("Date format is invalid"));
+
+            if (model.AccountNumber.Trim().Length != 10)
+                return BadRequest(ResponseMessage.Message("Account number is invalid"));
+
+            bool accountNumberResponse = AccountNumberValidator.ValidateNUBANAccount(model.BankName, model.AccountNumber);
+            if (!accountNumberResponse)
+                return BadRequest(ResponseMessage.Message("Bank account number is invalid"));
 
             // ensure that number has gone through verification and confirmation
             var phoneNumberIsInRequestTable = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
