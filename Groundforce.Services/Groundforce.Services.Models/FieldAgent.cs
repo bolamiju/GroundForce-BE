@@ -15,13 +15,11 @@ namespace Groundforce.Services.Models
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
 
-        [Required]
+
         public string Longitude { get; set; }
 
-        [Required]
         public string Latitude { get; set; }
 
-        [Required]
         public string Religion { get; set; }
 
         public string AdditionalPhoneNumber { get; set; }
