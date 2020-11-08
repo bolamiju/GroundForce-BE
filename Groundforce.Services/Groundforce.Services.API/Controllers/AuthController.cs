@@ -277,7 +277,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
         //// register agent pin
-        [HttpPost("{id}/register-pin")]
+        [HttpPatch("{id}/register-pin")]
         public async Task<IActionResult> AddUserLocation(UserPinDTO model, string id)
         {
             // ensure user can be found using id provided
