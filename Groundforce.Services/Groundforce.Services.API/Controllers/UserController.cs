@@ -66,25 +66,30 @@ namespace Groundforce.Services.API.Controllers
             }
 
             var picture = Picture.Photo;
+            var pictureSizeCheck = picture.FileName.EndsWith(".jpg") || picture.FileName.EndsWith(".jpeg") || picture.FileName.EndsWith(".png");
 
-            if (picture != null && picture.Length > 0)
+            if (picture != null && picture.Length < 2097152)
             {
-                try
+                if (pictureSizeCheck)
                 {
-                    var managePhoto = new ManagePhoto(_cloudinaryConfig);
-                    var uplResult = managePhoto.UploadAvatar(picture);
-                    user.AvatarUrl = uplResult.Url.ToString();
-                    user.PublicId = uplResult.PublicId;
-                    await _userManager.UpdateAsync(user);
+                    try
+                    {
+                        var managePhoto = new ManagePhoto(_cloudinaryConfig);
+                        var uplResult = managePhoto.UploadAvatar(picture);
+                        user.AvatarUrl = uplResult.Url.ToString();
+                        user.PublicId = uplResult.PublicId;
+                        await _userManager.UpdateAsync(user);
 
-                    return Ok(ResponseMessage.Message("Picture upload was successful!", new { user.AvatarUrl, user.PublicId }));
+                        return Ok(ResponseMessage.Message("Picture upload was successful!", new { user.AvatarUrl, user.PublicId }));
+                    }
+                    catch (Exception)
+                    {
+                        return BadRequest(ResponseMessage.Message("Picture not successfully uploaded"));
+                    }
                 }
-                catch (Exception)
-                {
-                    return BadRequest(ResponseMessage.Message("Picture not successfully uploaded"));
-                }
+                return BadRequest(ResponseMessage.Message("File format is not supported. Please upload a picture"));
             }
-            return BadRequest(ResponseMessage.Message("Picture not uploaded"));
+            return BadRequest(ResponseMessage.Message("File size should not exceed 2mb"));
         }
 
         // Gets user by Id.
