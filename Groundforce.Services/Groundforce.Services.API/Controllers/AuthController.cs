@@ -152,6 +152,10 @@ namespace Groundforce.Services.API.Controllers
                 }
             }
 
+            response = InputValidator.DateFormatValidator(model.DOB);
+            if (!response)
+                return BadRequest(ResponseMessage.Message("Date format is invalid. Must be in this format MM/DD/YYYY"));
+
             var regParams = new Dictionary<string, string>();
             regParams.Add("Gender", model.Gender);
             regParams.Add("Religion", model.Religion);
@@ -173,13 +177,17 @@ namespace Groundforce.Services.API.Controllers
                 return BadRequest(ResponseMessage.Message("Account number must be 10 digits"));
             }
 
+            response = InputValidator.NUBANAccountValidator(model.BankName, model.AccountNumber);
+            if (!response)
+                return BadRequest(ResponseMessage.Message("Account number for the Bank is invalid"));
+
             // ensure that number has gone through verification and confirmation
             var phoneNumberIsInRequestTable = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
             if (phoneNumberIsInRequestTable == null)
                 return BadRequest(ResponseMessage.Message("Phone number has not been verified yet"));
 
             if (!phoneNumberIsInRequestTable.IsConfirmed)
-                return BadRequest(ResponseMessage.Message("Phone number has not been confrimed yet"));
+                return BadRequest(ResponseMessage.Message("Phone number has not been confirmed yet"));
 
 
             // check if email aready exists
@@ -191,7 +199,6 @@ namespace Groundforce.Services.API.Controllers
             var numberToAdd = _userManager.Users.FirstOrDefault(x => x.PhoneNumber == model.PhoneNumber);
             if (numberToAdd != null)
                 return BadRequest(ResponseMessage.Message("Phone number already exist"));
-
 
             //Add new applicationUser
             var userModel = new UserWithoutDetailsDTO
@@ -363,6 +370,9 @@ namespace Groundforce.Services.API.Controllers
                 {
                     return NotFound(ResponseMessage.Message("User not found, ensure credentials are entered correctly."));
                 }
+
+                if(!user.Active)
+                    return NotFound(ResponseMessage.Message("User's account is not acctive"));
 
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Pin, false, false);
                 var userRoles = await _userManager.GetRolesAsync(user);
