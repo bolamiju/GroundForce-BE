@@ -22,7 +22,6 @@ namespace Groundforce.Services.Models
         public string Gender { get; set; }
 
         [Required]
-        [MaxLength(50, ErrorMessage = "Last name must not be more than 50 characters")]
         [Display(Name = "Date of birth")]
         [ValidateDOBRange(18, 120, ErrorMessage = "Age range allowed is 18 - 120")]
         public string DOB { get; set; }

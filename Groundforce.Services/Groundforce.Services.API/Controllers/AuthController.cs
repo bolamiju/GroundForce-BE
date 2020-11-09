@@ -14,6 +14,7 @@ using Groundforce.Services.DTOs;
 using Groundforce.Services.Data.Services;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -52,10 +53,10 @@ namespace Groundforce.Services.API.Controllers
         [HttpPost("verify-phone")]
         public async Task<IActionResult> VerifyPhone([FromBody] PhoneNumberToVerifyDTO model)
         {
-            bool response = PhoneNumberValidator.PhoneNumberValid(model.PhoneNumber);
+            bool response = InputValidator.PhoneNumberValidator(model.PhoneNumber);
             if (!response)
             {
-                return BadRequest(ResponseMessage.Message("Phone number is invalid"));
+                return BadRequest(ResponseMessage.Message("Phone number is invalid. Must have country-code and must be 13, 14 chars long e.g. +2348050000000"));
             }
 
             PhoneNumberStatus phoneNumberStatus;
@@ -140,11 +141,44 @@ namespace Groundforce.Services.API.Controllers
         [HttpPost("register/agent")]
         public async Task<IActionResult> RegisterAgent(UserToRegisterDTO model)
         {
-            bool response = PhoneNumberValidator.PhoneNumberValid(model.AdditionalPhoneNumber);
+            bool response = InputValidator.PhoneNumberValidator(model.PhoneNumber);
+            if (!response)
+                return BadRequest(ResponseMessage.Message("Phone number is invalid. Must have country-code and must be 13, 14 chars long e.g. +2348050000000"));
+            
+            response = InputValidator.PhoneNumberValidator(model.AdditionalPhoneNumber);
             if (!response)
             {
-                return BadRequest(ResponseMessage.Message("Additional phone number is invalid"));
+                return BadRequest(ResponseMessage.Message("Additional phone number is invalid. Must have country-code and must be 13, 14 chars long e.g. +2348050000000"));
             }
+
+            response = InputValidator.DateFormatValidator(model.DOB);
+            if (!response)
+                return BadRequest(ResponseMessage.Message("Date format is invalid. Must be in this format MM/DD/YYYY"));
+
+            var regParams = new Dictionary<string, string>();
+            regParams.Add("Gender", model.Gender);
+            regParams.Add("Religion", model.Religion);
+            regParams.Add("State", model.State);
+            regParams.Add("Place of birth", model.PlaceOfBirth);
+            regParams.Add("LGA", model.LGA);
+            regParams.Add("Bank", model.BankName);
+
+            string output = InputValidator.WordInputValidator(regParams);
+
+            if (output.Length > 0)
+            {
+                return BadRequest(ResponseMessage.Message("Invalid input: " + output));
+            }
+
+            response = InputValidator.AccountNumberValidator(model.AccountNumber);
+            if (!response)
+            {
+                return BadRequest(ResponseMessage.Message("Account number must be 10 digits"));
+            }
+
+            response = InputValidator.NUBANAccountValidator(model.BankName, model.AccountNumber);
+            if (!response)
+                return BadRequest(ResponseMessage.Message("Account number for the Bank is invalid"));
 
             // ensure that number has gone through verification and confirmation
             var phoneNumberIsInRequestTable = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
@@ -152,7 +186,7 @@ namespace Groundforce.Services.API.Controllers
                 return BadRequest(ResponseMessage.Message("Phone number has not been verified yet"));
 
             if (!phoneNumberIsInRequestTable.IsConfirmed)
-                return BadRequest(ResponseMessage.Message("Phone number has not been confrimed yet"));
+                return BadRequest(ResponseMessage.Message("Phone number has not been confirmed yet"));
 
 
             // check if email aready exists
@@ -164,7 +198,6 @@ namespace Groundforce.Services.API.Controllers
             var numberToAdd = _userManager.Users.FirstOrDefault(x => x.PhoneNumber == model.PhoneNumber);
             if (numberToAdd != null)
                 return BadRequest(ResponseMessage.Message("Phone number already exist"));
-
 
             //Add new applicationUser
             var userModel = new UserWithoutDetailsDTO
@@ -280,6 +313,12 @@ namespace Groundforce.Services.API.Controllers
         [HttpPatch("{id}/register-pin")]
         public async Task<IActionResult> AddUserPIN(UserPinDTO model, string id)
         {
+            bool response = InputValidator.PinValidator(model.PIN);
+            if (!response)
+            {
+                return BadRequest(ResponseMessage.Message("Pin should be 4 digits"));
+            }
+
             // ensure user can be found using id provided
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound(ResponseMessage.Message($"User with id: {id} not found"));
@@ -331,6 +370,9 @@ namespace Groundforce.Services.API.Controllers
                     return NotFound(ResponseMessage.Message("User not found, ensure credentials are entered correctly."));
                 }
 
+                if(!user.Active)
+                    return NotFound(ResponseMessage.Message("User's account is not acctive"));
+
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Pin, false, false);
                 var userRoles = await _userManager.GetRolesAsync(user);
                 if (result.Succeeded)
@@ -376,6 +418,12 @@ namespace Groundforce.Services.API.Controllers
         {
             if (ModelState.IsValid)
             {
+                bool response = InputValidator.PinValidator(details.NewPin);
+                if (!response)
+                {
+                    return BadRequest(ResponseMessage.Message("New pin should be 4 digits"));
+                }
+
                 var user = _userManager.Users.SingleOrDefault(e => e.PhoneNumber == details.PhoneNumber);
                 if (user == null) return NotFound(ResponseMessage.Message($"User with phone number: {details.PhoneNumber}, is not found"));
 

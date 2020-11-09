@@ -8,5 +8,6 @@ namespace Groundforce.Services.Data.Services
         Task<bool> AddAgent(FieldAgent model);
         Task<FieldAgent> GetAgentById(string Id);
         Task<bool> DeleteAgent(FieldAgent model);
+        Task<bool> UpdateAgent(FieldAgent model);
     }
 }
