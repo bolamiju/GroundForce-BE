@@ -370,6 +370,9 @@ namespace Groundforce.Services.API.Controllers
                     return NotFound(ResponseMessage.Message("User not found, ensure credentials are entered correctly."));
                 }
 
+                if(!user.Active)
+                    return NotFound(ResponseMessage.Message("User's account is not acctive"));
+
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Pin, false, false);
                 var userRoles = await _userManager.GetRolesAsync(user);
                 if (result.Succeeded)
