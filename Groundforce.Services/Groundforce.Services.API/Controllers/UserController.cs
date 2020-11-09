@@ -65,6 +65,11 @@ namespace Groundforce.Services.API.Controllers
                 return BadRequest(ResponseMessage.Message(e.Message));
             }
 
+            // check if user with id is logged in
+            var loggedInUserId = _userManager.GetUserId(User);
+            if (loggedInUserId != Id)
+                return BadRequest(ResponseMessage.Message($"Id: {Id} does not match loggedIn user Id"));
+
             var picture = Picture.Photo;
 
             if (picture != null && picture.Length > 0)
