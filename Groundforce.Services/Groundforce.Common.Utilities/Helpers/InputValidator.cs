@@ -44,7 +44,7 @@ namespace Groundforce.Common.Utilities.Helpers
             result = result.Substring(0, result.Length - 2);
             return result;
         }
-
+      
         public static bool DateFormatValidator(string date)
         {
             bool dateValidity = DateTime.TryParseExact(

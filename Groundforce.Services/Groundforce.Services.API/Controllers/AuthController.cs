@@ -199,7 +199,6 @@ namespace Groundforce.Services.API.Controllers
             if (numberToAdd != null)
                 return BadRequest(ResponseMessage.Message("Phone number already exist"));
 
-
             //Add new applicationUser
             var userModel = new UserWithoutDetailsDTO
             {
