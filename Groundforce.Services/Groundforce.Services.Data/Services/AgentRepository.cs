@@ -28,5 +28,11 @@ namespace Groundforce.Services.Data.Services
         {
             return await _ctx.FieldAgents.FirstOrDefaultAsync(x => x.ApplicationUserId == Id || x.FieldAgentId == Id);
         }
+
+        public async Task<bool> UpdateAgent(FieldAgent model)
+        {
+            _ctx.FieldAgents.Update(model);
+            return await _ctx.SaveChangesAsync() > 0;
+        }
     }
 }
