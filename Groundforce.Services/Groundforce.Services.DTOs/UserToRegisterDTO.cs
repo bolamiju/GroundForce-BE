@@ -20,7 +20,6 @@ namespace Groundforce.Services.DTOs
         public string PhoneNumber { get; set; }
 
         //additional Phonenumber
-        [Required]
         public string AdditionalPhoneNumber { get; set; }
 
         //gender

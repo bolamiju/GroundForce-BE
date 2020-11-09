@@ -41,8 +41,7 @@ namespace Groundforce.Common.Utilities.Helpers
                 }
             }
 
-            result = result.Substring(0, result.Length - 2);
-            return result;
+            return result.Length > 0 ? result.Substring(0, result.Length - 2) : result;
         }
       
         public static bool DateFormatValidator(string date)
