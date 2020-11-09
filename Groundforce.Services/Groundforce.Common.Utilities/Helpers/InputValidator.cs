@@ -1,10 +1,63 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Groundforce.Common.Utilities.Helpers
 {
-    public static class AccountNumberValidator
+    public static class InputValidator
     {
-        public static bool ValidateNUBANAccount(string bankName, string accountNumber)
+        public static bool PhoneNumberValidator(string phoneNumber)
+        {
+            var regex = @"^\+\d{3}\d{9,10}$";
+            var response = Regex.Match(phoneNumber, regex).Success;
+            return response;
+        }
+
+        public static bool PinValidator(string pin)
+        {
+            var regex = @"^\d{4}$";
+            var response = Regex.Match(pin, regex).Success;
+            return response;
+        }
+
+        public static bool AccountNumberValidator(string accountNumber)
+        {
+            var regex = @"^\d{10}$";
+            var response = Regex.Match(accountNumber, regex).Success;
+            return response;
+        }
+
+        public static string WordInputValidator(Dictionary<string, string> regParams)
+        {
+            var result = "";
+
+            foreach(var item in regParams)
+            {
+                if(!Regex.Match(item.Value, @"^\D+$").Success)
+                {
+                    result += item.Key + ", ";
+                }
+            }
+
+            result = result.Substring(0, result.Length - 2);
+            return result;
+        }
+
+        public static bool DateFormatValidator(string date)
+        {
+            bool dateValidity = DateTime.TryParseExact(
+            date,
+            "MM/dd/yyyy",
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.None,
+            out _);
+
+            return dateValidity;
+        }
+
+        public static bool NUBANAccountValidator(string bankName, string accountNumber)
         {
             bankName = bankName.Replace(" ", "").Replace("(", "").Replace(")", "").ToLower();
 
