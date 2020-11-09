@@ -141,10 +141,15 @@ namespace Groundforce.Services.API.Controllers
         [HttpPost("register/agent")]
         public async Task<IActionResult> RegisterAgent(UserToRegisterDTO model)
         {
-            bool response = InputValidator.PhoneNumberValidator(model.AdditionalPhoneNumber);
-            if (!response)
+            bool response;
+            if (model.AdditionalPhoneNumber.Length > 0)
             {
-                return BadRequest(ResponseMessage.Message("Additional phone number is invalid. Must have country-code and must be 13, 14 chars long e.g. +2348050000000"));
+                response = InputValidator.PhoneNumberValidator(model.AdditionalPhoneNumber);
+
+                if (!response)
+                {
+                    return BadRequest(ResponseMessage.Message("Additional phone number is invalid. Must have country-code and must be 13, 14 chars long e.g. +2348050000000"));
+                }
             }
 
             var regParams = new Dictionary<string, string>();
