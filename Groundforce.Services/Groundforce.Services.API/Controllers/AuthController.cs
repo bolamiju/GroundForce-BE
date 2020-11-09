@@ -141,11 +141,19 @@ namespace Groundforce.Services.API.Controllers
         [HttpPost("register/agent")]
         public async Task<IActionResult> RegisterAgent(UserToRegisterDTO model)
         {
-            bool response = InputValidator.PhoneNumberValidator(model.AdditionalPhoneNumber);
+            bool response = InputValidator.PhoneNumberValidator(model.PhoneNumber);
+            if (!response)
+                return BadRequest(ResponseMessage.Message("Phone number is invalid. Must have country-code and must be 13, 14 chars long e.g. +2348050000000"));
+            
+            response = InputValidator.PhoneNumberValidator(model.AdditionalPhoneNumber);
             if (!response)
             {
                 return BadRequest(ResponseMessage.Message("Additional phone number is invalid. Must have country-code and must be 13, 14 chars long e.g. +2348050000000"));
             }
+
+            response = InputValidator.DateFormatValidator(model.DOB);
+            if (!response)
+                return BadRequest(ResponseMessage.Message("Date format is invalid. Must be in this format MM/DD/YYYY"));
 
             var regParams = new Dictionary<string, string>();
             regParams.Add("Gender", model.Gender);
@@ -168,13 +176,17 @@ namespace Groundforce.Services.API.Controllers
                 return BadRequest(ResponseMessage.Message("Account number must be 10 digits"));
             }
 
+            response = InputValidator.NUBANAccountValidator(model.BankName, model.AccountNumber);
+            if (!response)
+                return BadRequest(ResponseMessage.Message("Account number for the Bank is invalid"));
+
             // ensure that number has gone through verification and confirmation
             var phoneNumberIsInRequestTable = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
             if (phoneNumberIsInRequestTable == null)
                 return BadRequest(ResponseMessage.Message("Phone number has not been verified yet"));
 
             if (!phoneNumberIsInRequestTable.IsConfirmed)
-                return BadRequest(ResponseMessage.Message("Phone number has not been confrimed yet"));
+                return BadRequest(ResponseMessage.Message("Phone number has not been confirmed yet"));
 
 
             // check if email aready exists
@@ -186,7 +198,6 @@ namespace Groundforce.Services.API.Controllers
             var numberToAdd = _userManager.Users.FirstOrDefault(x => x.PhoneNumber == model.PhoneNumber);
             if (numberToAdd != null)
                 return BadRequest(ResponseMessage.Message("Phone number already exist"));
-
 
             //Add new applicationUser
             var userModel = new UserWithoutDetailsDTO
