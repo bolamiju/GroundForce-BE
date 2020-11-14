@@ -6,13 +6,19 @@ using System.Text;
 
 namespace Groundforce.Services.Models
 {
-    public class Client
+    public class UserActivity
     {
         [Key]
         [Required]
-        public string ClientId { get; set; }
+        public string Id { get; set; }
+
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
+
+        public string RecordId { get; set; }
+
+        [MaxLength(20)]
+        public string Description { get; set; }
 
     }
 }

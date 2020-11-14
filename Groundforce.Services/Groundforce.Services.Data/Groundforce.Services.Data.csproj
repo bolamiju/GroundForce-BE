@@ -5,15 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20201024180307_CompleteRefactorMigration.cs" />
-    <Compile Remove="Migrations\20201024180307_CompleteRefactorMigration.Designer.cs" />
-    <Compile Remove="Migrations\20201024181751_CompleteRefactorMigration.cs" />
-    <Compile Remove="Migrations\20201024181751_CompleteRefactorMigration.Designer.cs" />
-    <Compile Remove="Migrations\20201024182331_CompleteRefactorMigration.cs" />
-    <Compile Remove="Migrations\20201024182331_CompleteRefactorMigration.Designer.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.8">

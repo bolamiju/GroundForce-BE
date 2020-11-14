@@ -13,6 +13,8 @@ namespace Groundforce.Services.Data
     {
         public static async Task Seeder(AppDbContext ctx, RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
+
+            // pre-load data to roles table
             ctx.Database.EnsureCreated();
             if (!roleManager.Roles.Any())
             {
@@ -28,8 +30,9 @@ namespace Groundforce.Services.Data
                 }
             }
 
-            List<ApplicationUser> listOfUsers = null;
 
+            // pre-load data of admin type to the users table
+            List<ApplicationUser> listOfUsers = null;
             if (!userManager.Users.Any())
             {
                 listOfUsers = new List<ApplicationUser>
@@ -38,30 +41,25 @@ namespace Groundforce.Services.Data
                         Email = "randomuser1@sample.com",
                         LastName="RandomUser",
                         FirstName="James" ,
-                        Gender="Male",
-                        PhoneNumber = "09876543212",
+                        Gender="m",
+                        PhoneNumber = "+2349876543212",
                         DOB="1/1/1999",
-                        PlaceOfBirth= "Minna",
-                        State = "Jos",
-                        LGA = "Rururu",
-                        HomeAddress ="10, wayside",
-                        Active = true
+                        IsVerified = true,
+                        IsActive = true
                     },
                     new ApplicationUser{ UserName="randomuser2@sample.com",
                         Email = "randomuser2@sample.com",
-                        LastName="RandomUser", FirstName="John",
-                        Gender="Male",
-                        PhoneNumber = "09876543211",
+                        LastName="RandomUser", 
+                        FirstName="John",
+                        Gender="m",
+                        PhoneNumber = "+2349876543211",
                         DOB="1/1/1999",
-                        PlaceOfBirth= "Minna",
-                        State = "Jos",
-                        LGA = "Rururu",
-                        HomeAddress ="10, wayside",
-                        Active = true
+                        IsVerified = true,
+                        IsActive = true
                     }
                 };
 
-
+                // add user record to the request table
                 if (!ctx.Request.Any())
                 {
                     foreach (var user in listOfUsers)
@@ -71,10 +69,8 @@ namespace Groundforce.Services.Data
                         {
                             RequestId = requestId,
                             PhoneNumber = user.PhoneNumber,
-                            IsConfirmed = true,
-                            RequestAttempt = 1,
-                            CreatedAt = DateTime.Now,
-                            UpdatedAt = DateTime.Now
+                            Status = "approved",
+                            RequestAttempt = 1
                         });
                         int addedReq = ctx.SaveChanges();
 
@@ -84,27 +80,26 @@ namespace Groundforce.Services.Data
                             if (result.Succeeded)
                             {
                                 await userManager.AddToRoleAsync(user, "Admin");
-                                var adminId = Guid.NewGuid().ToString();
-                                ctx.Admins.Add(new Admin { AdminId = adminId, ApplicationUserId = user.Id });
-                                ctx.SaveChanges();
+                                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                                await userManager.ConfirmEmailAsync(user, token);
                             }
                         }
                     }
 
                 }
 
+                // pre-load data to the building table
                 string[] BuildingTypesArr = {"Duplex","Bungalow", "Block of Flats",
             "Detached House","Semi-Detached House" , "Story Building",
             "Terraced House", "Mud House", "Wooden House" };
-                var adminIdFk = ctx.Admins.FirstOrDefault().AdminId;
                 foreach (var type in BuildingTypesArr)
                 {
                     var buildingTypeId = Guid.NewGuid().ToString();
-                    ctx.BuildingTypes.Add(new BuildingType { TypeId = buildingTypeId, TypeName = type, AdminId = adminIdFk, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now });
+                    ctx.BuildingTypes.Add(new BuildingType { TypeId = buildingTypeId, TypeName = type });
                     ctx.SaveChanges();
                 }
 
-
+                // fetch data from Data.json file and preload the tables
                 string strResultJson = File.ReadAllText(@"../Groundforce.Services.Data/Data.json");
                 var agents = JsonConvert.DeserializeObject<List<ApplicationUser>>(strResultJson);
                 foreach (var agent in agents)
@@ -114,7 +109,7 @@ namespace Groundforce.Services.Data
                     {
                         RequestId = requestId,
                         PhoneNumber = agent.PhoneNumber,
-                        IsConfirmed = true,
+                        Status = "approved",
                         RequestAttempt = 1
                     });
 
@@ -133,17 +128,13 @@ namespace Groundforce.Services.Data
                             Gender = agent.Gender,
                             PhoneNumber = agent.PhoneNumber,
                             DOB = agent.DOB,
-                            PlaceOfBirth = agent.PlaceOfBirth,
-                            State = agent.State,
-                            LGA = agent.LGA,
-                            HomeAddress = agent.HomeAddress,
-                            Active = true
+                            IsVerified = true,
+                            IsActive = true
                         };
 
                         var userAdded = await userManager.CreateAsync(userObj, "1234");
 
                         var agentId = "";
-                        int agentAdded = 0;
                         if (userAdded.Succeeded)
                         {
                             await userManager.AddToRoleAsync(userObj, "Agent");
@@ -151,40 +142,33 @@ namespace Groundforce.Services.Data
                             agentId = Guid.NewGuid().ToString();
                             var agentObj = new FieldAgent
                             {
-                                FieldAgentId = agentId,
                                 ApplicationUserId = userId,
+                                PlaceOfBirth = agent.FieldAgent.PlaceOfBirth,
+                                State = agent.FieldAgent.State,
+                                LGA = agent.FieldAgent.LGA,
+                                HomeAddress = agent.FieldAgent.HomeAddress,
                                 Longitude = agent.FieldAgent.Longitude,
                                 Latitude = agent.FieldAgent.Latitude,
                                 Religion = agent.FieldAgent.Religion,
                                 AdditionalPhoneNumber = agent.FieldAgent.AdditionalPhoneNumber,
+                                AccountName = agent.FieldAgent.AccountName,
+                                AccountNumber = agent.FieldAgent.AccountNumber,
                             };
 
                             ctx.FieldAgents.Add(agentObj);
-                            agentAdded = ctx.SaveChanges();
-                        }
-
-                        if (agentAdded > 0)
-                        {
-                            var accountId = Guid.NewGuid().ToString();
-                            var account = new BankAccount
-                            {
-                                AccountId = accountId,
-                                AccountName = agent.FieldAgent.BankAccounts.AccountName,
-                                AccountNumber = agent.FieldAgent.BankAccounts.AccountNumber,
-                                FieldAgentId = agentId
-                            };
-
-                            ctx.BankAccounts.Add(account);
                             ctx.SaveChanges();
                         }
 
+
                         var itemId = Guid.NewGuid().ToString();
-                        var appUserId = ctx.Admins.FirstOrDefault().ApplicationUserId;
+                        //var appUserId = await userManager.GetUsersInRoleAsync("Admin");
+                        //string AddedBy = appUserId.FirstOrDefault().Id;
                         var item = new VerificationItem
                         {
                             ItemId = itemId,
-                            ItemName = agent.FieldAgent.Missions.ToList()[0].VerificationItem.ItemName,
-                            ApplicationUserId = appUserId
+                            Title = agent.FieldAgent.Missions.ToList()[0].VerificationItem.Title,
+                            Description = agent.FieldAgent.Missions.ToList()[0].VerificationItem.Description,
+                            ApplicationUserId = listOfUsers[0].Id
                         };
 
                         ctx.VerificationItems.Add(item);
@@ -194,14 +178,11 @@ namespace Groundforce.Services.Data
                         {
                             var missionId = Guid.NewGuid().ToString();
                             var buildingType = ctx.BuildingTypes.FirstOrDefault().TypeId;
-                            var adminId = ctx.Admins.FirstOrDefault().AdminId;
                             var mission = new Mission
                             {
                                 MissionId = missionId,
                                 VerificationItemId = itemId,
-                                BuildingTypeId = buildingType,
-                                FieldAgentId = agentId,
-                                AdminId = adminId
+                                FieldAgentId = agentId
                             };
 
                             ctx.Missions.Add(mission);

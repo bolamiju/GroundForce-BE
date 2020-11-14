@@ -2,28 +2,27 @@
     {
         "LastName": "Adeyemi",
         "FirstName": "Tunde",
-        "Gender": "Male",
+        "Gender": "m",
         "DOB": "1/1/1999",
-        "PlaceOfBirth": "Lagos",
-        "State": "Lagos",
-        "LGA": "Oshodi",
-        "HomeAddress": "2, Sanusi Street",
         "Email": "atunde@gmail.com",
         "PhoneNumber": "+2348038752895",
         "FieldAgent": {
+            "PlaceOfBirth": "Lagos",
+            "State": "Lagos",
+            "LGA": "Oshodi",
+            "HomeAddress": "2, Sanusi Street",
             "Longitude": "34533 E",
             "Latitude": "87582 N",
             "Religion": "Muslim",
             "AdditionalPhoneNumber": "+2349047836732",
-            "BankAccounts": {
-                "AccountName": "GTB",
-                "AccountNumber": "0067635469"
-            },
+            "AccountName": "GTB",
+            "AccountNumber": "0067635469",
             "Missions": [
                 {
-                    "VerificationItem": {
-                        "ItemName": "3, Feranmi Close"
-                    }
+                  "VerificationItem": {
+                    "Title": "Feranmi Close",
+                    "Description": "3, Feranmi Close"
+                  }
                 }
             ]
         }
@@ -33,26 +32,25 @@
         "FirstName": "Sola",
         "Gender": "Male",
         "DOB": "1/6/1999",
-        "PlaceOfBirth": "Lagos",
-        "State": "Lagos",
-        "LGA": "Surulere",
-        "HomeAddress": "23, Cheese Avenue",
         "Email": "asola@gmail.com",
         "PhoneNumber": "+2348093648245",
         "FieldAgent": {
+            "PlaceOfBirth": "Lagos",
+            "State": "Lagos",
+            "LGA": "Surulere",
+            "HomeAddress": "23, Cheese Avenue",
             "Longitude": "34653 E",
             "Latitude": "87232 N",
             "Religion": "Christian",
             "AdditionalPhoneNumber": "+2348034875098",
-            "BankAccounts": {
-                "AccountName": "GTB",
-                "AccountNumber": "0083509345"
-            },
+            "AccountName": "GTB",
+            "AccountNumber": "0083509345",
             "Missions": [
                 {
-                    "VerificationItem": {
-                        "ItemName": "3B, Temidire Close"
-                    }
+                  "VerificationItem": {
+                    "Title": "Temidire Close",
+                    "Description": "3B, Temidire Close"
+                  }
                 }
             ]
         }
@@ -62,26 +60,25 @@
         "FirstName": "Omawunmi",
         "Gender": "Female",
         "DOB": "10/11/1999",
-        "PlaceOfBirth": "Lagos",
-        "State": "Lagos",
-        "LGA": "Oshodi",
-        "HomeAddress": "3, Feranmi Close",
         "Email": "aderin@gmail.com",
         "PhoneNumber": "+2348057439876",
         "FieldAgent": {
+            "PlaceOfBirth": "Lagos",
+            "State": "Lagos",
+            "LGA": "Oshodi",
+            "HomeAddress": "3, Feranmi Close",
             "Longitude": "35555 E",
             "Latitude": "87543 N",
             "Religion": "Muslim",
             "AdditionalPhoneNumber": "+2348058903476",
-            "BankAccounts": {
-                "AccountName": "Access Bank",
-                "AccountNumber": "0003762987"
-            },
+            "AccountName": "Access Bank",
+            "AccountNumber": "0003762987",
             "Missions": [
                 {
-                    "VerificationItem": {
-                        "ItemName": "23, Cheese Avenue"
-                    }
+                  "VerificationItem": {
+                    "Title": "Cheese Avenue",
+                    "Description": "23, Temidire Close"
+                  }
                 }
             ]
         }
@@ -91,26 +88,25 @@
         "FirstName": "Simisola",
         "Gender": "Female",
         "DOB": "1/2/1999",
-        "PlaceOfBirth": "Lagos",
-        "State": "Lagos",
-        "LGA": "Mushin",
-        "HomeAddress": "3B, Temidire Close",
         "Email": "simi@gmail.com",
         "PhoneNumber": "+2348034785490",
         "FieldAgent": {
+            "PlaceOfBirth": "Lagos",
+            "State": "Lagos",
+            "LGA": "Mushin",
+            "HomeAddress": "3B, Temidire Close",
             "Longitude": "34676 E",
             "Latitude": "87324 N",
             "Religion": "Muslim",
             "AdditionalPhoneNumber": "+2348093452546",
-            "BankAccounts": {
-                "AccountName": "UBA",
-                "AccountNumber": "0062875643"
-            },
+            "AccountName": "UBA",
+            "AccountNumber": "0062875643",
             "Missions": [
                 {
-                    "VerificationItem": {
-                        "ItemName": "2, Sanusi Street"
-                    }
+                  "VerificationItem": {
+                    "Title": "Sanusi Street",
+                    "Description": "2, Sanusi Street"
+                  }
                 }
             ]
         }
@@ -120,26 +116,25 @@
         "FirstName": "Oladele",
         "Gender": "Male",
         "DOB": "1/11/1989",
-        "PlaceOfBirth": "Lagos",
-        "State": "Lagos",
-        "LGA": "Oshodi",
-        "HomeAddress": "2, Sanusi Street",
         "Email": "adele@gmail.com",
         "PhoneNumber": "+2348093095476",
         "FieldAgent": {
+            "PlaceOfBirth": "Lagos",
+            "State": "Lagos",
+            "LGA": "Oshodi",
+            "HomeAddress": "2, Sanusi Street",
             "Longitude": "34533 E",
             "Latitude": "87582 N",
             "Religion": "Muslim",
             "AdditionalPhoneNumber": "+2349047836732",
-            "BankAccounts": {
-                "AccountName": "First Bank",
-                "AccountNumber": "0376894098"
-            },
+            "AccountName": "First Bank",
+            "AccountNumber": "0376894098",
             "Missions": [
                 {
-                    "VerificationItem": {
-                        "ItemName": "16, Dabinu Plaza"
-                    }
+                  "VerificationItem": {
+                    "Title": "Dabinu Plaza",
+                    "Description": "16, Dabinu Plaza"
+                  }
                 }
             ]
         }
