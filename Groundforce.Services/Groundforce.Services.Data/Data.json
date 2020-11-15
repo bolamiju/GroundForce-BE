@@ -30,7 +30,7 @@
     {
         "LastName": "Adeleke",
         "FirstName": "Sola",
-        "Gender": "Male",
+        "Gender": "m",
         "DOB": "1/6/1999",
         "Email": "asola@gmail.com",
         "PhoneNumber": "+2348093648245",
@@ -58,7 +58,7 @@
     {
         "LastName": "Derin",
         "FirstName": "Omawunmi",
-        "Gender": "Female",
+        "Gender": "f",
         "DOB": "10/11/1999",
         "Email": "aderin@gmail.com",
         "PhoneNumber": "+2348057439876",
@@ -86,7 +86,7 @@
     {
         "LastName": "Kunsal",
         "FirstName": "Simisola",
-        "Gender": "Female",
+        "Gender": "f",
         "DOB": "1/2/1999",
         "Email": "simi@gmail.com",
         "PhoneNumber": "+2348034785490",
@@ -114,7 +114,7 @@
     {
         "LastName": "Adeyemi",
         "FirstName": "Oladele",
-        "Gender": "Male",
+        "Gender": "m",
         "DOB": "1/11/1989",
         "Email": "adele@gmail.com",
         "PhoneNumber": "+2348093095476",

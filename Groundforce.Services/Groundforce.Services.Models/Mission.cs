@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Groundforce.Services.Models
 {
@@ -8,7 +7,7 @@ namespace Groundforce.Services.Models
     {
         [Key]
         [Required]
-        public string MissionId { get; set; }       
+        public string MissionId { get; set; }
 
         //Foriegn Keys
         [Required]
@@ -24,6 +23,6 @@ namespace Groundforce.Services.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
-        public MissionVerified VerifiedMission { get; set; }
+        public MissionVerified MissionVerified { get; set; }
     }
 }

@@ -139,10 +139,10 @@ namespace Groundforce.Services.Data
                         {
                             await userManager.AddToRoleAsync(userObj, "Agent");
 
-                            agentId = Guid.NewGuid().ToString();
+                            agentId = userId;
                             var agentObj = new FieldAgent
                             {
-                                ApplicationUserId = userId,
+                                ApplicationUserId = agentId,
                                 PlaceOfBirth = agent.FieldAgent.PlaceOfBirth,
                                 State = agent.FieldAgent.State,
                                 LGA = agent.FieldAgent.LGA,
