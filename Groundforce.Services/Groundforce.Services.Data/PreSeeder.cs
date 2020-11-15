@@ -69,7 +69,7 @@ namespace Groundforce.Services.Data
                         {
                             RequestId = requestId,
                             PhoneNumber = user.PhoneNumber,
-                            Status = "approved",
+                            Status = "confirmed",
                             RequestAttempt = 1
                         });
                         int addedReq = ctx.SaveChanges();
@@ -109,7 +109,7 @@ namespace Groundforce.Services.Data
                     {
                         RequestId = requestId,
                         PhoneNumber = agent.PhoneNumber,
-                        Status = "approved",
+                        Status = "confirmed",
                         RequestAttempt = 1
                     });
 

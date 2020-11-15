@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Groundforce.Services.Data;
+using Groundforce.Services.Data.Services;
 //using Groundforce.Services.Data.Services;
 
 namespace Groundforce.Services.API
@@ -36,7 +37,7 @@ namespace Groundforce.Services.API
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbConnection")));
             
 
-            //services.AddScoped<IRequestRepository, RequestRepository>();
+            services.AddScoped<IRequestRepository, RequestRepository>();
             //services.AddScoped<IVerificationItemRepository, VerificationItemRepository>();
             //services.AddScoped<IMissionRepository, MissionRepositiory>();
             //services.AddScoped<IAgentRepository, AgentRepository>();
