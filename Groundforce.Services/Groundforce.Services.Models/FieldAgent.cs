@@ -20,7 +20,7 @@ namespace Groundforce.Services.Models
         public string LGA { get; set; }
 
         [Required]
-        [MaxLength(150)]
+        [MaxLength(10)]
         public string ZipCode { get; set; }
 
 

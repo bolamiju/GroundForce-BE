@@ -29,12 +29,12 @@ namespace Groundforce.Services.API.Controllers
         private readonly ILogger<AuthController> _logger;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
-
+        private readonly IAgentRepository _agentRepository;
 
         public AuthController(IConfiguration configuration, ILogger<AuthController> logger,
                                  SignInManager<ApplicationUser> signInManager,
                                  UserManager<ApplicationUser> userManager, AppDbContext ctx,
-                                 IRequestRepository requestRepository)
+                                 IRequestRepository requestRepository, IAgentRepository agentRepository)
         {
             _config = configuration;
             _logger = logger;
@@ -42,6 +42,7 @@ namespace Groundforce.Services.API.Controllers
             _ctx = ctx;
             _requestRepository = requestRepository;
             _userManager = userManager;
+            _agentRepository = agentRepository;
         }
 
 
@@ -238,22 +239,9 @@ namespace Groundforce.Services.API.Controllers
                     
                 }
 
-                // construct the user object
-                string defaultPix = "~/images/avarta.jpg";
-                var userModel = new ApplicationUser
-                {
-                    UserName = model.Email,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Email = model.Email,
-                    Gender = model.Gender,
-                    PhoneNumber = model.PhoneNumber,
-                    DOB = model.DOB,
-                    AvatarUrl = defaultPix
-                };
-
                 // create user
-                var result = await _userManager.CreateAsync(userModel, model.PIN);
+                AuthSupportService auth = new AuthSupportService(_userManager, _agentRepository);
+                var result = await auth.CreateUser(model);
 
                 if (!result.Succeeded)
                 {
@@ -264,13 +252,11 @@ namespace Groundforce.Services.API.Controllers
                     return BadRequest(ResponseMessage.Message("Bad request", ModelState));
                 }
 
-                createdUser = await _userManager.FindByEmailAsync(model.Email);
-                if (createdUser == null)
-                    return BadRequest(ResponseMessage.Message("Bad request","Could not access newly created user"));
-               
-                foreach(var role in model.Roles)
+                // create agent
+                if (model.Roles.Contains("agent"))
                 {
-                    await _userManager.AddToRoleAsync(userModel, role);
+                    var successResult = await auth.CreateFieldAgent(model, createdUser.Id);
+                    if (!successResult) return BadRequest(ResponseMessage.Message("Bad request", "Could not create field agent profile"));
                 }
                
             }catch(Exception e)
@@ -325,94 +311,6 @@ namespace Groundforce.Services.API.Controllers
         }
 
 
-        // forgot password route
-        [HttpPost("forgot-pin/verify-phone")]
-        public async Task<IActionResult> ForgotPasswordVerify([FromBody] PhoneNumberToVerifyDTO details)
-        {
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    var user = _userManager.Users.SingleOrDefault(e => e.PhoneNumber == details.PhoneNumber);
-                    if (user == null) return NotFound(ResponseMessage.Message("Notfound", $"User with phone number: {details.PhoneNumber}, was not found"));
-
-                    if (!user.IsActive)
-                        return Unauthorized(ResponseMessage.Message("Unauthorized", "In-active account"));
-                }
-                catch(Exception e)
-                {
-                    _logger.LogError(e.Message);
-                    return BadRequest(ResponseMessage.Message("Bad request", "Data processing error"));
-                }
-
-                try
-                {
-                    CreateTwilioService.Init(_config);
-                    await CreateTwilioService.SendOTP(details.PhoneNumber);
-                    return Ok(ResponseMessage.Message("Success", null, "OTP sent!"));
-                }
-                catch (TwilioException e)
-                {
-                    _logger.LogError(e.Message);
-                    return BadRequest(ResponseMessage.Message("Bad request", "Failed to send OTP"));
-                }
-               
-            }
-            return BadRequest(ResponseMessage.Message("Bad request", ModelState));
-        }
-
-
-        // forgot password route
-        //[HttpPatch("forgot-pin/reset-pin")]
-        //public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO details)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        var user = _userManager.Users.SingleOrDefault(e => e.PhoneNumber == details.PhoneNumber);
-        //        if (user == null) return NotFound(ResponseMessage.Message($"User with phone number: {details.PhoneNumber}, is not found"));
-
-        //        if (!user.IsActive)
-        //            return Unauthorized(ResponseMessage.Message("Unauthorized", "In-active account"));
-
-        //        string status = "";
-        //        try
-        //        {
-        //            CreateTwilioService.Init(_config);
-        //            status = await CreateTwilioService.ConfirmOTP(details.PhoneNumber, details.OTPCode);
-        //        }
-        //        catch (TwilioException e)
-        //        {
-        //            _logger.LogError(e.Message);
-        //            return BadRequest(ResponseMessage.Message("OTP confirmation failed"));
-        //        }
-
-        //        if (status == PhoneNumberStatus.pending.ToString().ToLower())
-        //            return BadRequest(ResponseMessage.Message("OTP does not match"));
-
-        //        try
-        //        {
-        //            //generate token needed to reset password
-        //            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-
-        //            var setNewPassword = await _userManager.ResetPasswordAsync(user, token, details.NewPin);
-        //            if (setNewPassword.Succeeded) return Ok(ResponseMessage.Message("Password successfully updated"));
-                    
-        //            // if passwordset is unsuccessful add errors to model error
-        //            foreach (var error in setNewPassword.Errors)
-        //            {
-        //                ModelState.AddModelError("Error", error.Description);
-        //            }
-        //        }
-        //        catch(Exception e)
-        //        {
-        //            _logger.LogError(e.Message);
-        //            return BadRequest(ResponseMessage.Message("Bad request", "Data processing error"));
-        //        }
-
-        //    }
-        //    return BadRequest();
-        //}
-
-
+     
     }
 }

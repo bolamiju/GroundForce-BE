@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Groundforce.Services.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20201117092322_ModelRedesignMigration")]
+    [Migration("20201117102309_ModelRedesignMigration")]
     partial class ModelRedesignMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -217,8 +217,8 @@ namespace Groundforce.Services.Data.Migrations
 
                     b.Property<string>("ZipCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(150)")
-                        .HasMaxLength(150);
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
 
                     b.HasKey("ApplicationUserId");
 

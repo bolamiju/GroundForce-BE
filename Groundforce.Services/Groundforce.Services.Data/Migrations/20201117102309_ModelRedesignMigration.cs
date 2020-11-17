@@ -50,7 +50,7 @@ namespace Groundforce.Services.Data.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "ZipCode",
                 table: "FieldAgents",
-                maxLength: 150,
+                maxLength: 10,
                 nullable: false,
                 defaultValue: "");
 

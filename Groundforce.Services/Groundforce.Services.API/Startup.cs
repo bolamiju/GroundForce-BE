@@ -40,7 +40,7 @@ namespace Groundforce.Services.API
             services.AddScoped<IRequestRepository, RequestRepository>();
             //services.AddScoped<IVerificationItemRepository, VerificationItemRepository>();
             //services.AddScoped<IMissionRepository, MissionRepositiory>();
-            //services.AddScoped<IAgentRepository, AgentRepository>();
+            services.AddScoped<IAgentRepository, AgentRepository>();
             //services.AddScoped<IBankRepository, BankRepository>();
             //services.AddScoped<IAdminRepository, AdminRepository>();
 
