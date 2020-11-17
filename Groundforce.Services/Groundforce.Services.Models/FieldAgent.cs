@@ -13,10 +13,6 @@ namespace Groundforce.Services.Models
 
         [Required]
         [MaxLength(150)]
-        public string PlaceOfBirth { get; set; }
-
-        [Required]
-        [MaxLength(150)]
         public string State { get; set; }
 
         [Required]
@@ -24,8 +20,12 @@ namespace Groundforce.Services.Models
         public string LGA { get; set; }
 
         [Required]
+        [MaxLength(150)]
+        public string ZipCode { get; set; }
+
+
         [MaxLength(200)]
-        public string HomeAddress { get; set; }
+        public string ResidentialAddress { get; set; }
 
         [Required]
         public string Longitude { get; set; }
@@ -33,18 +33,18 @@ namespace Groundforce.Services.Models
         [Required]
         public string Latitude { get; set; }
 
-        [Required]
+
         [MaxLength(25)]
         public string Religion { get; set; }
 
         [MaxLength(14)]
         public string AdditionalPhoneNumber { get; set; }
 
-        [Required]
+
         [MaxLength(100)]
         public string AccountName { get; set; }
 
-        [Required]
+
         [MaxLength(10)]
         public string AccountNumber { get; set; }
 

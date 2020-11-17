@@ -17,7 +17,6 @@ namespace Groundforce.Services.DTOs
         [Display(Name = "First name")]
         public string FirstName { get; set; }
 
-        [Required]
         [MaxLength(1, ErrorMessage ="Max length 1")]
         [RegularExpression(@"\w{1}", ErrorMessage = "Gender should be a single character eg: m or f")]
         public string Gender { get; set; }

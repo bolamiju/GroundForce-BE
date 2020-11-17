@@ -16,7 +16,6 @@ namespace Groundforce.Services.Models
         [MaxLength(50)]
         public string FirstName { get; set; }
 
-        [Required]
         [MaxLength(1)]
         public string Gender { get; set; }
 
