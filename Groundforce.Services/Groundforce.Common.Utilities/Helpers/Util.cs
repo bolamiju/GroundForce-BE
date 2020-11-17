@@ -45,18 +45,18 @@ namespace Groundforce.Common.Utilities.Helpers
             bool codeMatch = true;
 
             // compare the hash
-            using (var hash = new System.Security.Cryptography.HMACSHA512(verificationObj.CodeSalt))
-            {
-                var hashGenerated = hash.ComputeHash(System.Text.Encoding.UTF8.GetBytes(newCode));
-                for (int i = 0; i < hashGenerated.Length; i++)
-                {
-                    if (hashGenerated[i] != verificationObj.CodeHash[i])
-                    {
-                        codeMatch = false;
-                        break;
-                    }
-                }
-            }
+            //using (var hash = new System.Security.Cryptography.HMACSHA512(verificationObj.CodeSalt))
+            //{
+            //    var hashGenerated = hash.ComputeHash(System.Text.Encoding.UTF8.GetBytes(newCode));
+            //    for (int i = 0; i < hashGenerated.Length; i++)
+            //    {
+            //        if (hashGenerated[i] != verificationObj.CodeHash[i])
+            //        {
+            //            codeMatch = false;
+            //            break;
+            //        }
+            //    }
+            //}
 
             return codeMatch;
 

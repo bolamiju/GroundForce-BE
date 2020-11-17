@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Groundforce.Services.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20201117042944_VerifyEmailMigration")]
+    [Migration("20201117070910_VerifyEmailMigration")]
     partial class VerifyEmailMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -150,20 +150,17 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<byte[]>("CodeHash")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<byte[]>("CodeSalt")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
                     b.Property<string>("EmailAddress")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsVerified")
                         .HasColumnType("bit");
+
+                    b.Property<string>("VerificationCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(4)")
+                        .HasMaxLength(4);
 
                     b.HasKey("Id");
 

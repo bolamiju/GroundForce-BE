@@ -14,10 +14,8 @@ namespace Groundforce.Services.Models
         public string EmailAddress { get; set; }
 
         [Required]
-        public byte[] CodeHash { get; set; }
-
-        [Required]
-        public byte[] CodeSalt { get; set; }
+        [MaxLength(4)]
+        public string VerificationCode { get; set; }
 
         public bool IsVerified { get; set; } = false;
     }

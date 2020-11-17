@@ -5,9 +5,10 @@ using System.Text;
 
 namespace Groundforce.Services.DTOs
 {
-    public class EmailVerificationDTO
+    public class EmailToConfirmDTO
     {
         [Required]
+        [EmailAddress]
         public string EmailAddress { get; set; }
 
 
