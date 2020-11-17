@@ -43,7 +43,7 @@ namespace Groundforce.Services.API
             //services.AddTransient<IMailService, MailService>();
             //services.AddScoped<IVerificationItemRepository, VerificationItemRepository>();
             //services.AddScoped<IMissionRepository, MissionRepositiory>();
-            //services.AddScoped<IAgentRepository, AgentRepository>();
+            services.AddScoped<IAgentRepository, AgentRepository>();
             //services.AddScoped<IBankRepository, BankRepository>();
             //services.AddScoped<IAdminRepository, AdminRepository>();
 

@@ -17,7 +17,6 @@ namespace Groundforce.Services.DTOs
         [Display(Name = "First name")]
         public string FirstName { get; set; }
 
-        [Required]
         [MaxLength(1, ErrorMessage ="Max length 1")]
         [RegularExpression(@"\w{1}", ErrorMessage = "Gender should be a single character eg: m or f")]
         public string Gender { get; set; }
@@ -42,6 +41,24 @@ namespace Groundforce.Services.DTOs
         [DataType(DataType.Password)]
         [RegularExpression(@"^\d{4}$", ErrorMessage = "Pin must all be digits")]
         public string PIN { get; set; }
+
+        [Required]
+        [MaxLength(150, ErrorMessage = "State must not be 150 characters")]
+        public string State { get; set; }
+
+        [Required]
+        [MaxLength(150, ErrorMessage = "State must not be 150 characters")]
+        public string LGA { get; set; }
+
+        [Required]
+        [MaxLength(10, ErrorMessage = "State must not be 10 characters")]
+        public string ZipCode { get; set; }
+
+        [Required]
+        public string Longitude { get; set; }
+
+        [Required]
+        public string Latitude { get; set; }
 
         public List<string> Roles { get; set; }
 

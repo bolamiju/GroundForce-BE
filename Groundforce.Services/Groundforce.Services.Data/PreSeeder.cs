@@ -143,10 +143,10 @@ namespace Groundforce.Services.Data
                             var agentObj = new FieldAgent
                             {
                                 ApplicationUserId = agentId,
-                                PlaceOfBirth = agent.FieldAgent.PlaceOfBirth,
                                 State = agent.FieldAgent.State,
                                 LGA = agent.FieldAgent.LGA,
-                                HomeAddress = agent.FieldAgent.HomeAddress,
+                                ZipCode = agent.FieldAgent.ZipCode,
+                                ResidentialAddress = agent.FieldAgent.ResidentialAddress,
                                 Longitude = agent.FieldAgent.Longitude,
                                 Latitude = agent.FieldAgent.Latitude,
                                 Religion = agent.FieldAgent.Religion,
