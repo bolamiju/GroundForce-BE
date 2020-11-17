@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Groundforce.Services.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20201114232956_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20201117042746_NewMigration")]
+    partial class NewMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

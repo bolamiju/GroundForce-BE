@@ -16,6 +16,7 @@ namespace Groundforce.Services.Data
         public DbSet<PointAllocated> PointAllocated { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Request> Request { get; set; }
+        public DbSet<EmailVerification> EmailVerifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

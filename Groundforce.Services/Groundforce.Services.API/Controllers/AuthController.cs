@@ -14,6 +14,7 @@ using Groundforce.Services.DTOs;
 using Groundforce.Services.Data.Services;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
+using System.Collections.Generic;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -48,7 +49,7 @@ namespace Groundforce.Services.API.Controllers
         [HttpPost("verify-phone")]
         public async Task<IActionResult> VerifyPhone([FromBody] PhoneNumberToVerifyDTO model)
         {          
-            if(String.IsNullOrWhiteSpace(model.PhoneNumber)) return BadRequest(ResponseMessage.Message("Bad request", "Invalid request credentials"));
+            if(String.IsNullOrWhiteSpace(model.PhoneNumber)) return BadRequest(ResponseMessage.Message("Bad request", "Invalid request credential"));
 
             Request number = null;
             try
@@ -59,7 +60,7 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Error processing data", "Could not access record related to phone number"));
+                return BadRequest(ResponseMessage.Message("Bad request", "Could not access record related to phone number"));
             }
 
             try
@@ -139,11 +140,11 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Error processing data", "Could not access record related to phone number"));
+                return BadRequest(ResponseMessage.Message("Bad request", "Could not access record related to phone number"));
             }
 
             // if phone number has gone through verification
-            if (number == null) return BadRequest(ResponseMessage.Message("Phone number has not gone through verification yet"));
+            if (number == null) return BadRequest(ResponseMessage.Message("Bad request", "Phone number has not gone through verification yet"));
 
             
             if (number != null)
@@ -193,125 +194,225 @@ namespace Groundforce.Services.API.Controllers
         }
 
 
-        //// register user
-        //[HttpPost("register")]
-        //public async Task<IActionResult> RegisterAgent(UserToRegisterDTO model)
+        // register user
+        [HttpPost("register")]
+        public async Task<IActionResult> RegisterAgent(UserToRegisterDTO model)
+        {
+
+            try
+            {
+                // ensure that number has gone through verification and confirmation
+                var phoneNumberIsInRequestTable = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
+                if (phoneNumberIsInRequestTable == null)
+                    return BadRequest(ResponseMessage.Message("Bad request", "Phone number has not gone through verification yet"));
+
+                if (phoneNumberIsInRequestTable.Status == "pending")
+                    return BadRequest(ResponseMessage.Message("Bad request", "Phone number has not been confirmed yet"));
+
+            }catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", "Data processing error"));
+            }
+
+            ApplicationUser createdUser = null;
+            try
+            {
+                // check if email aready exists
+                var emailToAdd = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
+                if (emailToAdd != null)
+                    return BadRequest(ResponseMessage.Message("Bad request", "Email already exist"));
+
+                // check if number aready exists
+                var numberToAdd = _userManager.Users.FirstOrDefault(x => x.PhoneNumber == model.PhoneNumber);
+                if (numberToAdd != null)
+                    return BadRequest(ResponseMessage.Message("Bad request", "Phone number already exist"));
+
+                if(model.Roles.Contains("admin") || model.Roles.Contains("client"))
+                {
+                    if (!User.Identity.IsAuthenticated)
+                        return Unauthorized(ResponseMessage.Message("Unauthorized", "User must be signed-in, to register other users"));
+                   
+                    if (!User.IsInRole("Admin"))
+                        return Unauthorized(ResponseMessage.Message("Unauthorized", "User must be an Admin to perform this task"));
+                    
+                }
+
+                // construct the user object
+                string defaultPix = "~/images/avarta.jpg";
+                var userModel = new ApplicationUser
+                {
+                    UserName = model.Email,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Email = model.Email,
+                    Gender = model.Gender,
+                    PhoneNumber = model.PhoneNumber,
+                    DOB = model.DOB,
+                    AvatarUrl = defaultPix
+                };
+
+                // create user
+                var result = await _userManager.CreateAsync(userModel, model.PIN);
+
+                if (!result.Succeeded)
+                {
+                    foreach (var err in result.Errors)
+                    {
+                        ModelState.AddModelError("", err.Description);
+                    }
+                    return BadRequest(ResponseMessage.Message("Bad request", ModelState));
+                }
+
+                createdUser = await _userManager.FindByEmailAsync(model.Email);
+                if (createdUser == null)
+                    return BadRequest(ResponseMessage.Message("Bad request","Could not access newly created user"));
+               
+                foreach(var role in model.Roles)
+                {
+                    await _userManager.AddToRoleAsync(userModel, role);
+                }
+               
+            }catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", "Data processing error"));
+            }
+
+            return BadRequest(ResponseMessage.Message("Success", null , new { createdUser.Id }));
+
+        }
+
+
+        //User Login
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(UserToLoginDTO model)
+        {
+           
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ResponseMessage.Message("Bad request", ModelState));
+            
+                //get user by email
+                var user = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
+
+                //Check if user exist
+                if (user == null)
+                {
+                    return Unauthorized(ResponseMessage.Message("Unauthorized", "Invalid credentials"));
+                }
+
+                if (!user.IsActive)
+                    return Unauthorized(ResponseMessage.Message("Unauthorized", "In-active account"));
+
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Pin, false, false);
+                var userRoles = await _userManager.GetRolesAsync(user);
+                if (result.Succeeded)
+                {
+                    var getToken = JwtTokenConfig.GetToken(user, _config, userRoles);
+                    return Ok(ResponseMessage.Message("Success",null, new { token = getToken }));
+                }
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", "Data processing error"));
+            }
+
+            return Unauthorized(ResponseMessage.Message("Unauthorized", "Invalid credentials"));
+
+        }
+
+
+        // forgot password route
+        [HttpPost("forgot-pin/verify-phone")]
+        public async Task<IActionResult> ForgotPasswordVerify([FromBody] PhoneNumberToVerifyDTO details)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var user = _userManager.Users.SingleOrDefault(e => e.PhoneNumber == details.PhoneNumber);
+                    if (user == null) return NotFound(ResponseMessage.Message("Notfound", $"User with phone number: {details.PhoneNumber}, was not found"));
+
+                    if (!user.IsActive)
+                        return Unauthorized(ResponseMessage.Message("Unauthorized", "In-active account"));
+                }
+                catch(Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    return BadRequest(ResponseMessage.Message("Bad request", "Data processing error"));
+                }
+
+                try
+                {
+                    CreateTwilioService.Init(_config);
+                    await CreateTwilioService.SendOTP(details.PhoneNumber);
+                    return Ok(ResponseMessage.Message("Success", null, "OTP sent!"));
+                }
+                catch (TwilioException e)
+                {
+                    _logger.LogError(e.Message);
+                    return BadRequest(ResponseMessage.Message("Bad request", "Failed to send OTP"));
+                }
+               
+            }
+            return BadRequest(ResponseMessage.Message("Bad request", ModelState));
+        }
+
+
+        // forgot password route
+        //[HttpPatch("forgot-pin/reset-pin")]
+        //public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO details)
         //{
-
-        //    // ensure that number has gone through verification and confirmation
-        //    var phoneNumberIsInRequestTable = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
-        //    if (phoneNumberIsInRequestTable == null)
-        //        return BadRequest(ResponseMessage.Message("Phone number has not been verified yet"));
-
-        //    if (phoneNumberIsInRequestTable.Status == "pending")
-        //        return BadRequest(ResponseMessage.Message("Phone number has not been confirmed yet"));
-
-
-        //    var regParams = new Dictionary<string, string>();
-        //    regParams.Add("Gender", model.Gender);
-        //    regParams.Add("Religion", model.Religion);
-        //    regParams.Add("State", model.State);
-        //    regParams.Add("Place of birth", model.PlaceOfBirth);
-        //    regParams.Add("LGA", model.LGA);
-        //    regParams.Add("Bank", model.BankName);
-
-        //    string output = InputValidator.WordInputValidator(regParams);
-
-        //    if (output.Length > 0)
+        //    if (ModelState.IsValid)
         //    {
-        //        return BadRequest(ResponseMessage.Message("Invalid input: " + output));
-        //    }
+        //        var user = _userManager.Users.SingleOrDefault(e => e.PhoneNumber == details.PhoneNumber);
+        //        if (user == null) return NotFound(ResponseMessage.Message($"User with phone number: {details.PhoneNumber}, is not found"));
 
-        //    response = InputValidator.AccountNumberValidator(model.AccountNumber);
-        //    if (!response)
-        //    {
-        //        return BadRequest(ResponseMessage.Message("Account number must be 10 digits"));
-        //    }
+        //        if (!user.IsActive)
+        //            return Unauthorized(ResponseMessage.Message("Unauthorized", "In-active account"));
 
-        //    response = InputValidator.NUBANAccountValidator(model.BankName, model.AccountNumber);
-        //    if (!response)
-        //        return BadRequest(ResponseMessage.Message("Account number for the Bank is invalid"));
-
-
-        //    // check if email aready exists
-        //    var emailToAdd = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
-        //    if (emailToAdd != null)
-        //        return BadRequest(ResponseMessage.Message("Email already exist"));
-
-        //    // check if number aready exists
-        //    var numberToAdd = _userManager.Users.FirstOrDefault(x => x.PhoneNumber == model.PhoneNumber);
-        //    if (numberToAdd != null)
-        //        return BadRequest(ResponseMessage.Message("Phone number already exist"));
-
-        //    //Add new applicationUser
-        //    var userModel = new UserWithoutDetailsDTO
-        //    {
-        //        FirstName = model.FirstName,
-        //        LastName = model.LastName,
-        //        Email = model.Email,
-        //        DOB = model.DOB,
-        //        LGA = model.LGA,
-        //        PhoneNumber = model.PhoneNumber,
-        //        PlaceOfBirth = model.PlaceOfBirth,
-        //        State = model.State,
-        //        Gender = model.Gender,
-        //        HomeAddress = model.HomeAddress
-        //    };
-
-        //    var authSupportService = new AuthSupportService(_userManager, _agentRepository, _bankRepository);
-        //    var result = await authSupportService.CreateAppUser(userModel, "Agent");
-        //    if (!result.Succeeded)
-        //    {
-        //        foreach (var err in result.Errors)
+        //        string status = "";
+        //        try
         //        {
-        //            ModelState.AddModelError("", err.Description);
+        //            CreateTwilioService.Init(_config);
+        //            status = await CreateTwilioService.ConfirmOTP(details.PhoneNumber, details.OTPCode);
         //        }
-        //        return BadRequest(ModelState);
+        //        catch (TwilioException e)
+        //        {
+        //            _logger.LogError(e.Message);
+        //            return BadRequest(ResponseMessage.Message("OTP confirmation failed"));
+        //        }
+
+        //        if (status == PhoneNumberStatus.pending.ToString().ToLower())
+        //            return BadRequest(ResponseMessage.Message("OTP does not match"));
+
+        //        try
+        //        {
+        //            //generate token needed to reset password
+        //            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        //            var setNewPassword = await _userManager.ResetPasswordAsync(user, token, details.NewPin);
+        //            if (setNewPassword.Succeeded) return Ok(ResponseMessage.Message("Password successfully updated"));
+                    
+        //            // if passwordset is unsuccessful add errors to model error
+        //            foreach (var error in setNewPassword.Errors)
+        //            {
+        //                ModelState.AddModelError("Error", error.Description);
+        //            }
+        //        }
+        //        catch(Exception e)
+        //        {
+        //            _logger.LogError(e.Message);
+        //            return BadRequest(ResponseMessage.Message("Bad request", "Data processing error"));
+        //        }
+
         //    }
-
-
-        //    //Add field agent
-        //    ApplicationUser createdUser = await _userManager.FindByEmailAsync(model.Email);
-        //    bool isAgentCreated = false;
-        //    if (createdUser == null)
-        //        return BadRequest(ResponseMessage.Message("Failed to create identity user"));
-
-        //    try
-        //    {
-        //        isAgentCreated = await authSupportService.CreateFieldAgent(createdUser.Id, model);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        await _userManager.DeleteAsync(createdUser);
-        //        await _userManager.RemoveFromRoleAsync(createdUser, "Agent");
-        //        _logger.LogError(e.Message);
-        //        return BadRequest(ResponseMessage.Message("Failed to add additional details"));
-        //    }
-
-
-        //    // Add bank details
-        //    bool isBankCreated = false;
-        //    FieldAgent newCreatedAgent = null;
-        //    if (!isAgentCreated)
-        //        return BadRequest(("Failed to create user"));
-
-        //    try
-        //    {
-        //        newCreatedAgent = await _agentRepository.GetAgentById(createdUser.Id);
-        //        isBankCreated = await authSupportService.CreateBankDetails(newCreatedAgent.FieldAgentId, model);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        await _userManager.DeleteAsync(createdUser);
-        //        await _userManager.RemoveFromRoleAsync(createdUser, "Agent");
-        //        await _agentRepository.DeleteAgent(newCreatedAgent);
-        //        _logger.LogError(e.Message);
-        //        return BadRequest(ResponseMessage.Message("Failed to add bank details"));
-        //    }
-
-
-        //    return Ok(ResponseMessage.Message("Registration was successful!", new { createdUser.Id }));
+        //    return BadRequest();
         //}
+
 
     }
 }

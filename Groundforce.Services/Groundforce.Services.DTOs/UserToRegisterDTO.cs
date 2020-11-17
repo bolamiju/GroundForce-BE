@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
@@ -17,7 +18,7 @@ namespace Groundforce.Services.DTOs
         public string FirstName { get; set; }
 
         [Required]
-        [MaxLength(1, ErrorMessage = "Gender should be a single character eg: m or f")]
+        [MaxLength(1, ErrorMessage ="Max length 1")]
         [RegularExpression(@"\w{1}", ErrorMessage = "Gender should be a single character eg: m or f")]
         public string Gender { get; set; }
 
@@ -39,13 +40,17 @@ namespace Groundforce.Services.DTOs
         [Required]
         [StringLength(4, ErrorMessage = "Pin must be exactly 4 digits", MinimumLength = 4)]
         [DataType(DataType.Password)]
-        [RegularExpression(@"^\d{4}$", ErrorMessage = "Pin must be exactly 4 digits")]
+        [RegularExpression(@"^\d{4}$", ErrorMessage = "Pin must all be digits")]
         public string PIN { get; set; }
 
-        public bool Active { get; set; } = false;
+        public List<string> Roles { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+
+        public UserToRegisterDTO()
+        {
+            Roles = new List<string>();
+        }
+
 
     }
 
