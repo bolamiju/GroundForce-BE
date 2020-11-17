@@ -13,8 +13,6 @@ using Groundforce.Services.Models;
 using Groundforce.Services.DTOs;
 using Groundforce.Services.Data.Services;
 using System.Linq;
-using Microsoft.AspNetCore.Authorization;
-using System.Collections.Generic;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -26,6 +24,7 @@ namespace Groundforce.Services.API.Controllers
         private readonly IConfiguration _config;
         private readonly AppDbContext _ctx;
         private readonly IRequestRepository _requestRepository;
+        private readonly IEmailRepository _emailRepository;
         private readonly ILogger<AuthController> _logger;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -34,7 +33,7 @@ namespace Groundforce.Services.API.Controllers
         public AuthController(IConfiguration configuration, ILogger<AuthController> logger,
                                  SignInManager<ApplicationUser> signInManager,
                                  UserManager<ApplicationUser> userManager, AppDbContext ctx,
-                                 IRequestRepository requestRepository)
+                                 IRequestRepository requestRepository, IEmailRepository emailRepository)
         {
             _config = configuration;
             _logger = logger;
@@ -42,6 +41,7 @@ namespace Groundforce.Services.API.Controllers
             _ctx = ctx;
             _requestRepository = requestRepository;
             _userManager = userManager;
+            _emailRepository = emailRepository;
         }
 
 
@@ -361,6 +361,42 @@ namespace Groundforce.Services.API.Controllers
             return BadRequest(ResponseMessage.Message("Bad request", ModelState));
         }
 
+        //verifying the email address
+        [HttpPost("verify-email")]
+        public async Task<IActionResult> VerifyEmail([FromForm] EmailToConfirmDTO email)
+        {
+            if (!ModelState.IsValid) return BadRequest(ResponseMessage.Message("Wrong input", errors: "Please enter a valid email address"));
+            EmailVerification result;
+
+            try
+            {
+                result = await _emailRepository.FindByEmailAddress(email.EmailAddress);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Could not find the email address"));
+            }
+
+            if (result == null) return BadRequest(ResponseMessage.Message("Email does not exist", errors: email.EmailAddress));
+
+            if (result.VerificationCode == email.VerificationCode)
+            {
+                try
+                {
+                    result.IsVerified = true;
+                    await _emailRepository.UpdateEmailVerificationStatus(result);
+                    return Ok(ResponseMessage.Message("Success.", data: "Email has been successfully verified"));
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    return BadRequest(ResponseMessage.Message("Could not verify the email. Try again."));
+                }
+            }
+            return BadRequest(ResponseMessage.Message("Incorrect code", errors: "Code provided does not match"));
+        }
+
 
         // forgot password route
         //[HttpPatch("forgot-pin/reset-pin")]
@@ -396,7 +432,7 @@ namespace Groundforce.Services.API.Controllers
 
         //            var setNewPassword = await _userManager.ResetPasswordAsync(user, token, details.NewPin);
         //            if (setNewPassword.Succeeded) return Ok(ResponseMessage.Message("Password successfully updated"));
-                    
+
         //            // if passwordset is unsuccessful add errors to model error
         //            foreach (var error in setNewPassword.Errors)
         //            {
