@@ -12,6 +12,9 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using Groundforce.Services.Data;
 using Groundforce.Services.Data.Services;
+using System.Net;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 //using Groundforce.Services.Data.Services;
 
 namespace Groundforce.Services.API
@@ -123,6 +126,21 @@ namespace Groundforce.Services.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler(builder =>
+                {
+                    builder.Run(async context => {
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        var err = context.Features.Get<IExceptionHandlerFeature>();
+
+                        if (err != null)
+                        {
+                            await context.Response.WriteAsync($"{err.Error.Source} {err.Error.StackTrace} {err.Error.Message}");
+                        }
+                    });
+                });
             }
 
             //app.UseHttpsRedirection();
