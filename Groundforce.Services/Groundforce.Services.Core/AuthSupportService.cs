@@ -22,7 +22,6 @@ namespace Groundforce.Services.Core
         public async Task<IdentityResult> CreateUser(UserToRegisterDTO model)
         {
             // construct the user object
-            string defaultPix = "~/images/avarta.jpg";
             var userModel = new ApplicationUser
             {
                 UserName = model.Email,
@@ -31,8 +30,7 @@ namespace Groundforce.Services.Core
                 Email = model.Email,
                 Gender = model.Gender,
                 PhoneNumber = model.PhoneNumber,
-                DOB = model.DOB,
-                AvatarUrl = defaultPix
+                DOB = model.DOB
             };
 
             // create user
@@ -61,7 +59,8 @@ namespace Groundforce.Services.Core
                 LGA = model.LGA,
                 State = model.State,
                 Longitude = model.Longitude,
-                Latitude = model.Latitude
+                Latitude = model.Latitude,
+                ResidentialAddress = model.ResidentialAddress
             };
 
             // create user
