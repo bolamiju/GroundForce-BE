@@ -57,9 +57,6 @@ namespace Groundforce.Services.API.Controllers
                 if (user == null)
                     return NotFound(ResponseMessage.Message("Notfound", errors: $"User with id: {id} was not found"));
 
-                if (!user.IsActive)
-                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: "Account is in-active"));
-
                 if (_userManager.GetUserId(User) != id )
                     return Unauthorized(ResponseMessage.Message("Unauthorized", errors: $"Id {id} does not match for loggedin user"));
 
@@ -124,9 +121,6 @@ namespace Groundforce.Services.API.Controllers
 
                 if (user == null)
                     return NotFound(ResponseMessage.Message("Notfound", errors: $"User with id: {model.Id} was not found"));
-
-                if (!user.IsActive)
-                    return Unauthorized(ResponseMessage.Message("Unauthorized",errors: "Account is in-active"));
 
                 if (_userManager.GetUserId(User) != model.Id)
                     return Unauthorized(ResponseMessage.Message("Unauthorized", errors: $"Id {model.Id} does not match for loggedin user"));

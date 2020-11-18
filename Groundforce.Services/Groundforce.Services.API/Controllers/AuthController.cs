@@ -255,7 +255,7 @@ namespace Groundforce.Services.API.Controllers
                 // create agent
                 createdUser = await _userManager.FindByEmailAsync(model.Email);
                 if (createdUser == null)
-                    return BadRequest(ResponseMessage.Message("Failed to create identity user"));
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to create identity user"));
 
                 if (model.Roles.Contains("agent"))
                 {
