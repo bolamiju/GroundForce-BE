@@ -396,16 +396,8 @@ namespace Groundforce.Services.API.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromForm] ForgotPasswordDTO model)
         {
-            ApplicationUser user;
-            try
-            {
-                user = await _userManager.FindByEmailAsync(model.EmailAddress);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return NotFound(ResponseMessage.Message("Not Found", "Email does not exist")); 
-            }
+            var user = await _userManager.FindByEmailAsync(model.EmailAddress);
+            if(user == null) return NotFound(ResponseMessage.Message("Not Found", "Email does not exist")); 
 
             try
             {
