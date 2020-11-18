@@ -40,24 +40,19 @@ namespace Groundforce.Services.DTOs
         [StringLength(4, ErrorMessage = "Pin must be exactly 4 digits", MinimumLength = 4)]
         [DataType(DataType.Password)]
         [RegularExpression(@"^\d{4}$", ErrorMessage = "Pin must all be digits")]
-        public string PIN { get; set; }
+        public string Password { get; set; }
 
-        [Required]
         [MaxLength(150, ErrorMessage = "State must not be 150 characters")]
         public string State { get; set; }
 
-        [Required]
         [MaxLength(150, ErrorMessage = "State must not be 150 characters")]
         public string LGA { get; set; }
 
-        [Required]
         [MaxLength(10, ErrorMessage = "State must not be 10 characters")]
         public string ZipCode { get; set; }
 
-        [Required]
         public string Longitude { get; set; }
 
-        [Required]
         public string Latitude { get; set; }
 
         public List<string> Roles { get; set; }
