@@ -15,6 +15,7 @@ using Groundforce.Services.Data.Services;
 using System.Net;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Groundforce.Services.Core;
 //using Groundforce.Services.Data.Services;
 
 namespace Groundforce.Services.API
@@ -41,7 +42,7 @@ namespace Groundforce.Services.API
             
 
             services.AddScoped<IRequestRepository, RequestRepository>();
-            services.AddScoped<IEmailRepository, EmailRepository>();
+            services.AddScoped<IEmailVerificationRepository, EmailVerificationRepository>();
             //services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
             //services.AddTransient<IMailService, MailService>();
             //services.AddScoped<IVerificationItemRepository, VerificationItemRepository>();
@@ -49,6 +50,7 @@ namespace Groundforce.Services.API
             services.AddScoped<IAgentRepository, AgentRepository>();
             //services.AddScoped<IBankRepository, BankRepository>();
             //services.AddScoped<IAdminRepository, AdminRepository>();
+            services.AddTransient<IMailService, MailService>();
 
             // Identity service
             services.AddIdentity<ApplicationUser, IdentityRole>(option =>
@@ -66,6 +68,7 @@ namespace Groundforce.Services.API
 
             //register cloudinary
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
+            services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
