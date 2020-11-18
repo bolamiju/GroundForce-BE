@@ -392,6 +392,42 @@ namespace Groundforce.Services.API.Controllers
             }
         }
 
+        //confirm email
+        [HttpPost("confirm-email")]
+        public async Task<IActionResult> ConfirmEmail([FromForm] EmailToConfirmDTO email)
+        {
+            if (!ModelState.IsValid) return BadRequest(ResponseMessage.Message("Wrong input", errors: "Please enter a valid email address"));
+            EmailVerification result;
+
+            try
+            {
+                result = await _emailVerificationRepository.GetEmailVerificationByEmail(email.EmailAddress);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Could not find the email address"));
+            }
+
+            if (result == null) return BadRequest(ResponseMessage.Message("Email does not exist", errors: email.EmailAddress));
+
+            if (result.VerificationCode == email.VerificationCode)
+            {
+                try
+                {
+                    result.IsVerified = true;
+                    await _emailVerificationRepository.UpdateEmailVerification(result);
+                    return Ok(ResponseMessage.Message("Success.", data: "Email has been successfully confirmed"));
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    return BadRequest(ResponseMessage.Message("Bad Request", errors: "Could not confirm the email."));
+                }
+            }
+            return BadRequest(ResponseMessage.Message("Bad Request", errors: "Code provided does not match"));
+        }
+
         // forgot password route
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromForm] ForgotPasswordDTO model)
