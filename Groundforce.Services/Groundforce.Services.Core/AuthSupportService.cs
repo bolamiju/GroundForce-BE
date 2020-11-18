@@ -36,7 +36,7 @@ namespace Groundforce.Services.Core
             };
 
             // create user
-            var result = await _userManager.CreateAsync(userModel, model.PIN);
+            var result = await _userManager.CreateAsync(userModel, model.Password);
 
             if (result.Succeeded)
             {
@@ -69,6 +69,14 @@ namespace Groundforce.Services.Core
 
             return result;
         }
+
+        public async Task<bool> IsAccountVerified(string Id)
+        {
+            var user = await _userManager.FindByIdAsync(Id);
+           
+            return false;
+        }
+
 
     }
 }
