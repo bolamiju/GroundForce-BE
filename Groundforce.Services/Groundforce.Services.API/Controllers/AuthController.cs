@@ -99,7 +99,7 @@ namespace Groundforce.Services.API.Controllers
                         result = await _requestRepository.GetRequestById(requestId);
                     } while (result != null);
 
-                    //adds number to the database
+                    //adds number to the requ est table for the first time
                     await _ctx.AddAsync(new Request()
                     {
                         RequestId = requestId,
@@ -202,6 +202,7 @@ namespace Groundforce.Services.API.Controllers
         public async Task<IActionResult> Register(UserToRegisterDTO model)
         {
 
+            ApplicationUser createdUser = null;
             try
             {
                 // ensure that number has gone through verification and confirmation
@@ -212,15 +213,7 @@ namespace Groundforce.Services.API.Controllers
                 if (phoneNumberIsInRequestTable.Status == "pending")
                     return BadRequest(ResponseMessage.Message("Bad request", errors: "Phone number has not been confirmed yet"));
 
-            }catch(Exception e)
-            {
-                _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Data processing error"));
-            }
 
-            ApplicationUser createdUser = null;
-            try
-            {
                 // check if email aready exists
                 var emailToAdd = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
                 if (emailToAdd != null)
@@ -230,6 +223,7 @@ namespace Groundforce.Services.API.Controllers
                 var numberToAdd = _userManager.Users.FirstOrDefault(x => x.PhoneNumber == model.PhoneNumber);
                 if (numberToAdd != null)
                     return BadRequest(ResponseMessage.Message("Bad request", errors: "Phone number already exist"));
+
 
                 if(model.Roles.Contains("admin") || model.Roles.Contains("client"))
                 {
@@ -333,7 +327,7 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Could not find the email address"));
+                return BadRequest(ResponseMessage.Message("Bad request", errors: "Could not find the email address"));
             }
 
             if (result == null) return BadRequest(ResponseMessage.Message("Email does not exist", errors: email.EmailAddress));

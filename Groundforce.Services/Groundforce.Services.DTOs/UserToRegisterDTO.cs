@@ -43,6 +43,9 @@ namespace Groundforce.Services.DTOs
         public string Password { get; set; }
 
         [MaxLength(150, ErrorMessage = "State must not be 150 characters")]
+        public string ResidentialAddress { get; set; }
+
+        [MaxLength(150, ErrorMessage = "State must not be 150 characters")]
         public string State { get; set; }
 
         [MaxLength(150, ErrorMessage = "State must not be 150 characters")]
