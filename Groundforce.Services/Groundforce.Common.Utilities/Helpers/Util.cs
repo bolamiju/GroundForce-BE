@@ -18,6 +18,15 @@ namespace Groundforce.Common.Utilities.Helpers
             return result;
         }
 
-
+        public static List<string> ListToLowerCase(List<string> list)
+        {
+            // convert roles from model to small letters
+            var roles = new List<string>();
+            foreach (var role in list)
+            {
+                roles.Add(role.ToLower());
+            }
+            return roles;
+        }
     }
 }

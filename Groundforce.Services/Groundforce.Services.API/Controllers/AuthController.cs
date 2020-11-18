@@ -237,7 +237,10 @@ namespace Groundforce.Services.API.Controllers
                 if (numberToAdd != null)
                     return BadRequest(ResponseMessage.Message("Bad request", "Phone number already exist"));
 
-                if(model.Roles.Contains("admin") || model.Roles.Contains("client"))
+                // convert list to lowercase
+                var convetedList = Util.ListToLowerCase(model.Roles);
+
+                if (convetedList.Contains("admin") || convetedList.Contains("client"))
                 {
                     if (!User.Identity.IsAuthenticated)
                         return Unauthorized(ResponseMessage.Message("Unauthorized", "User must be signed-in, to register other users"));
@@ -261,7 +264,7 @@ namespace Groundforce.Services.API.Controllers
                 }
 
                 // create agent
-                if (model.Roles.Contains("agent"))
+                if (convetedList.Contains("agent"))
                 {
                     var successResult = await auth.CreateFieldAgent(model, createdUser.Id);
                     if (!successResult) return BadRequest(ResponseMessage.Message("Bad request", "Could not create field agent profile"));

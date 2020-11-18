@@ -43,6 +43,7 @@ namespace Groundforce.Services.API
 
             services.AddScoped<IRequestRepository, RequestRepository>();
             services.AddScoped<IEmailVerificationRepository, EmailVerificationRepository>();
+            services.AddScoped<IPhotoRepository, PhotoRepository>();
             //services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
             //services.AddTransient<IMailService, MailService>();
             //services.AddScoped<IVerificationItemRepository, VerificationItemRepository>();

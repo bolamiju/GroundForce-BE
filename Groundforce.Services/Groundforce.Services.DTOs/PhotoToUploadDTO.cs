@@ -9,6 +9,8 @@ namespace Groundforce.Services.DTOs
     public class PhotoToUploadDTO
     {
         [Required]
+        public string Id { get; set; }
+        [Required]
         public IFormFile Photo { get; set; }
     }
 }

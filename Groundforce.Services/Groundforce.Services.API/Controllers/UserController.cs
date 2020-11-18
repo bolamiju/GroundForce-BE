@@ -16,6 +16,7 @@ using Groundforce.Services.Data.Services;
 using System.Collections.Generic;
 using System.Linq;
 using Groundforce.Services.Core;
+using Microsoft.Extensions.Configuration;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -29,16 +30,19 @@ namespace Groundforce.Services.API.Controllers
         private readonly IOptions<CloudinarySettings> _cloudinaryConfig;
         private readonly IAgentRepository _agentRepository;
         private readonly IRequestRepository _requestRepository;
+        private readonly IPhotoRepository _photoRepo;
 
         public UserController(ILogger<UserController> logger, UserManager<ApplicationUser> userManager, 
             IOptions<CloudinarySettings> cloudinaryConfig, IAgentRepository agentRepository,
-                                 IRequestRepository requestRepository)
+                                 IRequestRepository requestRepository,
+                                 IPhotoRepository photoRepository)
         {
             _userManager = userManager;
             _cloudinaryConfig = cloudinaryConfig;
             _agentRepository = agentRepository;
             _logger = logger;
             _requestRepository = requestRepository;
+            _photoRepo = photoRepository;
         }
         
 
@@ -164,6 +168,44 @@ namespace Groundforce.Services.API.Controllers
             return BadRequest(ModelState);
         }
 
+
+        //updates user picture
+        [HttpPatch]
+        [Route("picture")]
+        public async Task<IActionResult> UpdatePicture([FromForm] PhotoToUploadDTO Picture)
+        {
+            ApplicationUser user = null;
+            try
+            {
+                var authSupportService = new AuthSupportService(_userManager, _agentRepository);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", errors: "Data processing error"));
+            }
+
+            // check if user with id is logged in
+            var loggedInUserId = _userManager.GetUserId(User);
+            if (loggedInUserId != Picture.Id)
+                return BadRequest(ResponseMessage.Message($"Id: {Picture.Id} does not match loggedIn user Id"));
+
+            try
+            {
+                var uplResult = _photoRepo.UploadPix(Picture.Photo);
+                user.AvatarUrl = uplResult.Url.ToString();
+                user.PublicId = uplResult.PublicId;
+                await _userManager.UpdateAsync(user);
+
+                return Ok(ResponseMessage.Message("Picture upload was successful!", data: new { user.AvatarUrl, user.PublicId }));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", e.Message));
+            }
+              
+        }
 
 
     }
