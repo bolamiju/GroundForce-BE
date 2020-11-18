@@ -30,11 +30,12 @@ namespace Groundforce.Services.API.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IAgentRepository _agentRepository;
+        private readonly IEmailRepository _emailRepository;
 
         public AuthController(IConfiguration configuration, ILogger<AuthController> logger,
                                  SignInManager<ApplicationUser> signInManager,
                                  UserManager<ApplicationUser> userManager, AppDbContext ctx,
-                                 IRequestRepository requestRepository, IAgentRepository agentRepository)
+                                 IRequestRepository requestRepository, IAgentRepository agentRepository, IEmailRepository emailRepository)
         {
             _config = configuration;
             _logger = logger;
@@ -43,6 +44,7 @@ namespace Groundforce.Services.API.Controllers
             _requestRepository = requestRepository;
             _userManager = userManager;
             _agentRepository = agentRepository;
+            _emailRepository = emailRepository;
         }
 
 
@@ -318,7 +320,39 @@ namespace Groundforce.Services.API.Controllers
 
         }
 
+        [HttpPost("verify-email")]
+        public async Task<IActionResult> VerifyEmail([FromForm] EmailToConfirmDTO email)
+        {
+            if (!ModelState.IsValid) return BadRequest(ResponseMessage.Message("Wrong input", errors: "Please enter a valid email address"));
+            EmailVerification result;
 
-     
+            try
+            {
+                result = await _emailRepository.FindByEmailAddress(email.EmailAddress);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Could not find the email address"));
+            }
+
+            if (result == null) return BadRequest(ResponseMessage.Message("Email does not exist", errors: email.EmailAddress));
+
+            if (result.VerificationCode == email.VerificationCode)
+            {
+                try
+                {
+                    result.IsVerified = true;
+                    await _emailRepository.UpdateEmailVerificationStatus(result);
+                    return Ok(ResponseMessage.Message("Success.", data: "Email has been successfully verified"));
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    return BadRequest(ResponseMessage.Message("Could not verify the email. Try again."));
+                }
+            }
+            return BadRequest(ResponseMessage.Message("Incorrect code", errors: "Code provided does not match"));
+        }
     }
 }
