@@ -15,6 +15,9 @@ using Groundforce.Services.Data.Services;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Text.RegularExpressions;
+using System.Data.Common;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -26,25 +29,28 @@ namespace Groundforce.Services.API.Controllers
         private readonly IConfiguration _config;
         private readonly AppDbContext _ctx;
         private readonly IRequestRepository _requestRepository;
+        private readonly IEmailVerificationRepository _emailVerificationRepository;
+        private readonly IMailService _mailService;
         private readonly ILogger<AuthController> _logger;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IAgentRepository _agentRepository;
-        private readonly IEmailRepository _emailRepository;
 
         public AuthController(IConfiguration configuration, ILogger<AuthController> logger,
                                  SignInManager<ApplicationUser> signInManager,
                                  UserManager<ApplicationUser> userManager, AppDbContext ctx,
-                                 IRequestRepository requestRepository, IAgentRepository agentRepository, IEmailRepository emailRepository)
+                                 IRequestRepository requestRepository, IAgentRepository agentRepository,
+                                 IEmailVerificationRepository emailVerificationRepository, IMailService mailService)
         {
             _config = configuration;
             _logger = logger;
             _signInManager = signInManager;
             _ctx = ctx;
             _requestRepository = requestRepository;
+            _emailVerificationRepository = emailVerificationRepository;
+            _mailService = mailService;
             _userManager = userManager;
             _agentRepository = agentRepository;
-            _emailRepository = emailRepository;
         }
 
 
@@ -52,7 +58,7 @@ namespace Groundforce.Services.API.Controllers
         [HttpPost("verify-phone")]
         public async Task<IActionResult> VerifyPhone([FromBody] PhoneNumberToVerifyDTO model)
         {          
-            if(String.IsNullOrWhiteSpace(model.PhoneNumber)) return BadRequest(ResponseMessage.Message("Bad request", errors: "Invalid request credential"));
+            if(String.IsNullOrWhiteSpace(model.PhoneNumber)) return BadRequest(ResponseMessage.Message("Bad request", "Invalid request credential"));
 
             Request number = null;
             try
@@ -63,7 +69,7 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Could not access record related to phone number"));
+                return BadRequest(ResponseMessage.Message("Bad request", "Could not access record related to phone number"));
             }
 
             try
@@ -77,7 +83,7 @@ namespace Groundforce.Services.API.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(ResponseMessage.Message("Bad request", errors: e.Message));
+                return BadRequest(ResponseMessage.Message("Bad request", e.Message));
             }
 
             try
@@ -99,7 +105,7 @@ namespace Groundforce.Services.API.Controllers
                         result = await _requestRepository.GetRequestById(requestId);
                     } while (result != null);
 
-                    //adds number to the requ est table for the first time
+                    //adds number to the database
                     await _ctx.AddAsync(new Request()
                     {
                         RequestId = requestId,
@@ -111,19 +117,19 @@ namespace Groundforce.Services.API.Controllers
             }catch(Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request",errors: "Error with database processing"));
+                return BadRequest(ResponseMessage.Message("Bad request", "Error with database processing"));
             }
 
             try
             {
                 CreateTwilioService.Init(_config);
                 await CreateTwilioService.SendOTP(model.PhoneNumber);
-                return Ok(ResponseMessage.Message("Success", data: "OTP sent!"));
+                return Ok(ResponseMessage.Message("Success",null,"OTP sent!"));
             }
             catch (TwilioException e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to send OTP"));
+                return BadRequest(ResponseMessage.Message("Bad request","Failed to send OTP"));
             }
         }
 
@@ -132,7 +138,7 @@ namespace Groundforce.Services.API.Controllers
         [HttpPost("confirm-otp")]
         public async Task<IActionResult> ConfirmOTP([FromBody] OTPToConfirmDTO model)
         {
-            if (String.IsNullOrWhiteSpace(model.PhoneNumber)) return BadRequest(ResponseMessage.Message("Bad request", errors: "Invalid request credentials"));
+            if (String.IsNullOrWhiteSpace(model.PhoneNumber)) return BadRequest(ResponseMessage.Message("Bad request", "Invalid request credentials"));
 
             Request number = null;
             try
@@ -143,11 +149,11 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Could not access record related to phone number"));
+                return BadRequest(ResponseMessage.Message("Bad request", "Could not access record related to phone number"));
             }
 
             // if phone number has gone through verification
-            if (number == null) return BadRequest(ResponseMessage.Message("Bad request", errors: "Phone number has not gone through verification yet"));
+            if (number == null) return BadRequest(ResponseMessage.Message("Bad request", "Phone number has not gone through verification yet"));
 
             
             if (number != null)
@@ -160,7 +166,7 @@ namespace Groundforce.Services.API.Controllers
                 }
                 catch (Exception e)
                 {
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: e.Message));
+                    return BadRequest(ResponseMessage.Message("Bad request", e.Message));
                 }
             }
             
@@ -173,25 +179,25 @@ namespace Groundforce.Services.API.Controllers
             catch (TwilioException e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to confirm OTP try requesting for a new OTP"));
+                return BadRequest(ResponseMessage.Message("Bad request", "Failed to confirm OTP try requesting for a new OTP"));
             }
 
             try
             {
                 if (status == PhoneNumberStatus.pending.ToString().ToLower())
                 {
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "OTP does not match"));
+                    return BadRequest(ResponseMessage.Message("Bad request", "OTP does not match"));
                 }
 
                 number.Status = "confirmed";
                 if (!await _requestRepository.UpdateRequest(number))
                     throw new Exception("Could not update request");
-                return Ok(ResponseMessage.Message("Success", data: "OTP confirmed!"));
+                return Ok(ResponseMessage.Message("Success", null, "OTP confirmed!"));
 
             }catch(Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Error with database processing"));
+                return BadRequest(ResponseMessage.Message("Bad request", "Error with database processing"));
             }
 
         }
@@ -199,39 +205,45 @@ namespace Groundforce.Services.API.Controllers
 
         // register user
         [HttpPost("register")]
-        public async Task<IActionResult> Register(UserToRegisterDTO model)
+        public async Task<IActionResult> RegisterAgent(UserToRegisterDTO model)
         {
 
-            ApplicationUser createdUser = null;
             try
             {
                 // ensure that number has gone through verification and confirmation
                 var phoneNumberIsInRequestTable = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
                 if (phoneNumberIsInRequestTable == null)
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Phone number has not gone through verification yet"));
+                    return BadRequest(ResponseMessage.Message("Bad request", "Phone number has not gone through verification yet"));
 
                 if (phoneNumberIsInRequestTable.Status == "pending")
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Phone number has not been confirmed yet"));
+                    return BadRequest(ResponseMessage.Message("Bad request", "Phone number has not been confirmed yet"));
 
+            }catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", "Data processing error"));
+            }
 
+            ApplicationUser createdUser = null;
+            try
+            {
                 // check if email aready exists
                 var emailToAdd = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
                 if (emailToAdd != null)
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Email already exist"));
+                    return BadRequest(ResponseMessage.Message("Bad request", "Email already exist"));
 
                 // check if number aready exists
                 var numberToAdd = _userManager.Users.FirstOrDefault(x => x.PhoneNumber == model.PhoneNumber);
                 if (numberToAdd != null)
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Phone number already exist"));
-
+                    return BadRequest(ResponseMessage.Message("Bad request", "Phone number already exist"));
 
                 if(model.Roles.Contains("admin") || model.Roles.Contains("client"))
                 {
                     if (!User.Identity.IsAuthenticated)
-                        return Unauthorized(ResponseMessage.Message("Unauthorized", errors: "User must be signed-in, to register other users"));
+                        return Unauthorized(ResponseMessage.Message("Unauthorized", "User must be signed-in, to register other users"));
                    
                     if (!User.IsInRole("Admin"))
-                        return Unauthorized(ResponseMessage.Message("Unauthorized", errors: "User must be an Admin to perform this task"));
+                        return Unauthorized(ResponseMessage.Message("Unauthorized", "User must be an Admin to perform this task"));
                     
                 }
 
@@ -245,31 +257,23 @@ namespace Groundforce.Services.API.Controllers
                     {
                         ModelState.AddModelError("", err.Description);
                     }
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: ModelState));
+                    return BadRequest(ResponseMessage.Message("Bad request", ModelState));
                 }
 
                 // create agent
-                createdUser = await _userManager.FindByEmailAsync(model.Email);
-                if (createdUser == null)
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to create identity user"));
-
                 if (model.Roles.Contains("agent"))
                 {
                     var successResult = await auth.CreateFieldAgent(model, createdUser.Id);
-                    if (!successResult)
-                    {
-                        await _userManager.DeleteAsync(createdUser);
-                        return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to create user"));
-                    }
+                    if (!successResult) return BadRequest(ResponseMessage.Message("Bad request", "Could not create field agent profile"));
                 }
                
             }catch(Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Data processing error"));
+                return BadRequest(ResponseMessage.Message("Bad request", "Data processing error"));
             }
 
-            return BadRequest(ResponseMessage.Message("Success", data: new { createdUser.Id }));
+            return BadRequest(ResponseMessage.Message("Success", null , new { createdUser.Id }));
 
         }
 
@@ -282,7 +286,7 @@ namespace Groundforce.Services.API.Controllers
             try
             {
                 if (!ModelState.IsValid)
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: ModelState));
+                    return BadRequest(ResponseMessage.Message("Bad request", ModelState));
             
                 //get user by email
                 var user = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
@@ -290,63 +294,171 @@ namespace Groundforce.Services.API.Controllers
                 //Check if user exist
                 if (user == null)
                 {
-                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: "Invalid credentials"));
+                    return Unauthorized(ResponseMessage.Message("Unauthorized", "Invalid credentials"));
                 }
 
                 if (!user.IsActive)
-                    return Unauthorized(ResponseMessage.Message("Unauthorized",errors: "In-active account"));
+                    return Unauthorized(ResponseMessage.Message("Unauthorized", "In-active account"));
 
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
                 var userRoles = await _userManager.GetRolesAsync(user);
                 if (result.Succeeded)
                 {
                     var getToken = JwtTokenConfig.GetToken(user, _config, userRoles);
-                    return Ok(ResponseMessage.Message("Success", data: new { token = getToken }));
+                    return Ok(ResponseMessage.Message("Success",null, new { token = getToken }));
                 }
             }
             catch(Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Data processing error"));
+                return BadRequest(ResponseMessage.Message("Bad request", "Data processing error"));
             }
 
-            return Unauthorized(ResponseMessage.Message("Unauthorized", errors: "Invalid credentials"));
+            return Unauthorized(ResponseMessage.Message("Unauthorized", "Invalid credentials"));
 
         }
 
         [HttpPost("verify-email")]
-        public async Task<IActionResult> VerifyEmail([FromForm] EmailToConfirmDTO email)
+        public async Task<IActionResult> VerifyEmail([FromForm] EmailToVerifyDTO model)
         {
-            if (!ModelState.IsValid) return BadRequest(ResponseMessage.Message("Wrong input", errors: "Please enter a valid email address"));
-            EmailVerification result;
+            string emailCode;
+            try
+            {
+                emailCode = Guid.NewGuid().ToString();
+                emailCode = Regex.Replace(emailCode, @"\D", "");
+
+                if (emailCode.Length > 4) emailCode = emailCode.Remove(4);
+                else if (emailCode.Length < 4)
+                {
+                    while (emailCode.Length != 4)
+                    {
+                        Random rd = new Random();
+                        emailCode += rd.Next(0, 9);
+                    }
+                }
+
+                int.TryParse(emailCode, out int code);
+
+                var response = await _emailVerificationRepository.GetEmailVerificationByEmail(model.EmailAddress);
+                if (response != null)
+                {
+                    response.VerificationCode = emailCode;
+                    await _emailVerificationRepository.UpdateEmailVerification(response);
+                }
+                else
+                {
+                    // generate email verification id
+                    string emailVerificatioinId;
+                    EmailVerification result;
+                    do
+                    {
+                        emailVerificatioinId = Guid.NewGuid().ToString();
+                        result = await _emailVerificationRepository.GetEmailVerificationById(emailVerificatioinId);
+                    } while (result != null);
+
+                    var email = new EmailVerification
+                    {
+                        Id = emailVerificatioinId,
+                        EmailAddress = model.EmailAddress,
+                        VerificationCode = emailCode
+                    };
+
+                    await _emailVerificationRepository.AddEmailVerification(email);
+                }
+
+            }
+            catch (DbException de)
+            {
+                _logger.LogError(de.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", "Failed to add email verification"));
+            }
 
             try
             {
-                result = await _emailRepository.FindByEmailAddress(email.EmailAddress);
+                var request = new MailRequest
+                {
+                    ToEmail = model.EmailAddress,
+                    Code = emailCode
+                };
+
+                await _mailService.SendMailAsync(request);
+
+                return Ok(ResponseMessage.Message("Ok", null, "Email successfully sent"));
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Could not find the email address"));
+                return BadRequest(ResponseMessage.Message("Bad request", "Failed to send email address"));
+            }
+        }
+
+        // forgot password route
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromForm] ForgotPasswordDTO model)
+        {
+            ApplicationUser user;
+            try
+            {
+                user = await _userManager.FindByEmailAsync(model.EmailAddress);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return NotFound(ResponseMessage.Message("Not Found", "Email does not exist")); 
             }
 
-            if (result == null) return BadRequest(ResponseMessage.Message("Email does not exist", errors: email.EmailAddress));
-
-            if (result.VerificationCode == email.VerificationCode)
+            try
             {
+                // Use user to generate token
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+                // Use token to genetate password reset link
+                var emailUrl = Url.Action("ResetPassword", "Auth", new { email = model.EmailAddress, token }, Request.Scheme);
+                var forgotPassword = new ForgotPasswordRequest
+                {
+                    ToEmail = model.EmailAddress,
+                    ResetPasswordLink = emailUrl
+                };
+                await _mailService.SendForgotPasswordEmailAsync(forgotPassword);
+                return Ok(ResponseMessage.Message("Ok", null, "Forgot password reset link was successfully sent"));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", "Forgot password link failed to send"));
+            }
+        }
+
+
+        //reset password
+        [HttpPatch("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO model)
+        {
+            if (ModelState.IsValid)
+            {
+                //check if the user exists in the table by email
+                var user = _userManager.Users.SingleOrDefault(x => x.Email == model.Email);
+
+                if (user == null)
+                    return NotFound(ResponseMessage.Message("Bad request", errors: $"User with email: {model.Email}, is not found"));
+
+                if (!user.IsActive)
+                    return Unauthorized(ResponseMessage.Message("Unauthorized", "In-active account"));
+
                 try
                 {
-                    result.IsVerified = true;
-                    await _emailRepository.UpdateEmailVerificationStatus(result);
-                    return Ok(ResponseMessage.Message("Success.", data: "Email has been successfully verified"));
+                    // reset user password
+                    var setNewPassword = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPin);
+                    if (setNewPassword.Succeeded)
+                        return Ok(ResponseMessage.Message("Success", data: $"Password for {model.Email} is successfully updated"));
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e.Message);
-                    return BadRequest(ResponseMessage.Message("Could not verify the email. Try again."));
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: $"Could not update password for {model.Email}"));
                 }
             }
-            return BadRequest(ResponseMessage.Message("Incorrect code", errors: "Code provided does not match"));
+            return BadRequest(ResponseMessage.Message("Bad Request", errors: "Invalid input value"));
         }
     }
 }
