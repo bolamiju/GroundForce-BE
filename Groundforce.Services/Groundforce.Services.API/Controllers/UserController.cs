@@ -267,7 +267,13 @@ namespace Groundforce.Services.API.Controllers
 
                 var uploadResult = _photoRepo.UploadPix(model.Photo);
 
-                agent.AccountName = model.AccountName;
+                var validateAccountNumber = InputValidator.NUBANAccountValidator(model.BankCode, model.AccountNumber);
+
+                if (!validateAccountNumber) return BadRequest(ResponseMessage.Message("Bad request", errors: "Invalid account number"));
+
+                var accountName = Enum.GetName(typeof(BankCode), Convert.ToInt32(model.BankCode));
+
+                agent.AccountName = accountName;
                 agent.AccountNumber = model.AccountNumber;
                 agent.Religion = model.Religion;
                 agent.AdditionalPhoneNumber = model.AdditionalPhoneNumber;
