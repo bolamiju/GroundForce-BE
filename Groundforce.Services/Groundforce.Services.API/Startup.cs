@@ -44,14 +44,10 @@ namespace Groundforce.Services.API
             services.AddScoped<IRequestRepository, RequestRepository>();
             services.AddScoped<IEmailVerificationRepository, EmailVerificationRepository>();
             services.AddScoped<IPhotoRepository, PhotoRepository>();
-            //services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
-            //services.AddTransient<IMailService, MailService>();
-            //services.AddScoped<IVerificationItemRepository, VerificationItemRepository>();
-            //services.AddScoped<IMissionRepository, MissionRepositiory>();
+            services.AddScoped<IMissionRepository, MissionRepository>();
             services.AddScoped<IAgentRepository, AgentRepository>();
-            //services.AddScoped<IBankRepository, BankRepository>();
-            //services.AddScoped<IAdminRepository, AdminRepository>();
             services.AddTransient<IMailService, MailService>();
+            //services.AddScoped<IAdminRepository, AdminRepository>();
 
             // Identity service
             services.AddIdentity<ApplicationUser, IdentityRole>(option =>

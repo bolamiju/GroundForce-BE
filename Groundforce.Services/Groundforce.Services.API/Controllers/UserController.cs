@@ -61,8 +61,8 @@ namespace Groundforce.Services.API.Controllers
                 if (user == null)
                     return NotFound(ResponseMessage.Message("Notfound", errors: $"User with id: {id} was not found"));
 
-                if (_userManager.GetUserId(User) != id )
-                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: $"Id {id} does not match for loggedin user"));
+                if (_userManager.GetUserId(User) != id ||  !User.IsInRole("Admin"))
+                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: $"User must be logged-in or must have admin role"));
 
                 // construct the object
                 var appUser = new 
@@ -127,7 +127,7 @@ namespace Groundforce.Services.API.Controllers
                     return NotFound(ResponseMessage.Message("Notfound", errors: $"User with id: {model.Id} was not found"));
 
                 if (_userManager.GetUserId(User) != model.Id)
-                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: $"Id {model.Id} does not match for loggedin user"));
+                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: $"User must be logged-in"));
 
 
                 user.FirstName = model.FirstName;
@@ -183,9 +183,8 @@ namespace Groundforce.Services.API.Controllers
                     return BadRequest(ResponseMessage.Message("Notfound", errors: $"User with Id: {Picture.Id} was not found"));
 
                 // check if user with id is logged in
-                var loggedInUserId = _userManager.GetUserId(User);
-                if (loggedInUserId != Picture.Id)
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: $"Id: {Picture.Id} does not match loggedIn user Id"));
+                if (_userManager.GetUserId(User) != Picture.Id)
+                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: $"User must be logged-in"));
 
             }
             catch (Exception e)
@@ -252,6 +251,48 @@ namespace Groundforce.Services.API.Controllers
 
         }
 
+
+        //verify user
+        [HttpPatch("verify-user")]
+        public async Task<IActionResult> VerifyUserAccount([FromForm] UserToVerifyDTO model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.GetUserAsync(User);
+
+                if (user.IsVerified)
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: "User is already verified"));
+
+                var agent = await _agentRepository.GetAgentById(user.Id);
+
+                var uploadResult = _photoRepo.UploadPix(model.Photo);
+
+                agent.AccountName = model.AccountName;
+                agent.AccountNumber = model.AccountNumber;
+                agent.Religion = model.Religion;
+                agent.AdditionalPhoneNumber = model.AdditionalPhoneNumber;
+                user.Gender = model.Gender;
+                user.AvatarUrl = uploadResult.Url.ToString();
+                user.PublicId = uploadResult.PublicId;
+                user.IsVerified = true;
+
+                if (!await _agentRepository.UpdateAgent(agent))
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to update user"));
+
+                var update = await _userManager.UpdateAsync(user);
+                if (!update.Succeeded)
+                {
+                    foreach (var err in update.Errors)
+                    {
+                        ModelState.AddModelError("", err.Description);
+                    }
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to update user"));
+                }
+
+                return Ok(ResponseMessage.Message("Success", data: "Updated Successfully!"));
+            }
+            return BadRequest(ResponseMessage.Message("Invalid model state", errors: ModelState));
+        }
 
 
         //remove user

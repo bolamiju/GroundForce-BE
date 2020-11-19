@@ -35,13 +35,13 @@ namespace Groundforce.Services.Data.Services
         public ImageUploadResult UploadPix(IFormFile Picture)
         {
             // validate the pix size and extension type using settings from appsettings
-            var pictureSizeCheck = false;
+            var pictureFormat = false;
             var listOfExtensions = _appConfig.GetSection("PhotoSettings:Extensions").Get<List<string>>();
             for (int i = 0; i < listOfExtensions.Count; i++)
             {
                 if (Picture.FileName.EndsWith(listOfExtensions[i]))
                 {
-                    pictureSizeCheck = true;
+                    pictureFormat = true;
                     break;
                 }
             }
@@ -51,7 +51,7 @@ namespace Groundforce.Services.Data.Services
             if (Picture == null || Picture.Length > pixSize)
                 throw new Exception("File size should not exceed 2mb");
 
-            if (!pictureSizeCheck)
+            if (!pictureFormat)
                 throw new Exception("File format is not supported. Please upload a picture");
 
 
