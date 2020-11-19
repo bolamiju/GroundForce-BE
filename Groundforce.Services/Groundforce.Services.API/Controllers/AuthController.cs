@@ -442,14 +442,33 @@ namespace Groundforce.Services.API.Controllers
                 if (createdUser == null)
                     return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to create identity user"));
 
+                bool successResult = false;
                 if (convertedList.Contains("agent"))
                 {
-                    var successResult = await auth.CreateFieldAgent(model, createdUser.Id);
+                    successResult = await auth.CreateFieldAgent(model, createdUser.Id);
                     if (!successResult)
                     {
                         await _userManager.DeleteAsync(createdUser);
                         return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to create user"));
                     }
+                }
+
+                try
+                {
+                    if (successResult)
+                    {
+                        var welcomeEMail = new WelcomeRequest
+                        {
+                            ToEmail = model.Email,
+                            FirstName = model.FirstName
+                        };
+                        await _mailService.SendWelcomeRequestAsync(welcomeEMail);
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Could not send welcome mail"));
                 }
 
             }
@@ -459,7 +478,7 @@ namespace Groundforce.Services.API.Controllers
                 return BadRequest(ResponseMessage.Message("Bad request", errors: "Data processing error"));
             }
 
-            return Ok(ResponseMessage.Message("Success", data: new { createdUser.Id }));
+            return Ok(ResponseMessage.Message("Success. Welcome mail was sent", data: new { createdUser.Id }));
 
         }
 
