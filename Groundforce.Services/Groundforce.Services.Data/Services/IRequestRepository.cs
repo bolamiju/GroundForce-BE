@@ -8,5 +8,7 @@ namespace Groundforce.Services.Data.Services
         Task<Request> GetRequestById(string Id);
         Task<Request> GetRequestByPhone(string Number);
         Task<bool> UpdateRequest(Request model);
+        Task<bool> DeleteRequestByPhone(string number);
+
     }
 }

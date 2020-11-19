@@ -254,6 +254,58 @@ namespace Groundforce.Services.API.Controllers
 
 
 
+        //remove user
+        [HttpDelete("{Id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUser(string Id)
+        {
+            if (String.IsNullOrWhiteSpace(Id))
+                return BadRequest(ResponseMessage.Message("Bad request", errors: "Invalid Id"));
+
+            var user = await _userManager.FindByIdAsync(Id);
+            if (user == null)
+                return NotFound(ResponseMessage.Message("Notfound", $"User with id {Id} was not found"));
+
+            FieldAgent agent = null;
+            try
+            {
+                // get field agent
+                agent = await _agentRepository.GetAgentById(user.Id);
+                if (agent == null)
+                    throw new Exception($"Agent with user id {user.Id} was not found");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(ResponseMessage.Message("Failed to delete user!"));
+            }
+
+            try
+            {
+                if (!await _agentRepository.DeleteAgent(agent))
+                    throw new Exception("Could not delete agent record");
+
+                var result = await _userManager.DeleteAsync(user);
+                if (!result.Succeeded)
+                {
+                    foreach (var err in result.Errors)
+                        ModelState.AddModelError("", err.Description);
+                    return BadRequest(ResponseMessage.Message("", errors: ModelState));
+                }
+
+                if (!await _requestRepository.DeleteRequestByPhone(user.PhoneNumber))
+                    throw new Exception("Could not delete request record");
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(ResponseMessage.Message("Failed to delete user!"));
+            }
+            return Ok(ResponseMessage.Message("User deleted!"));
+        }
+
+
 
     }
 }
