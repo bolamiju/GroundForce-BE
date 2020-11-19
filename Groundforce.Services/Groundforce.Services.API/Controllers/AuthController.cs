@@ -204,135 +204,6 @@ namespace Groundforce.Services.API.Controllers
         }
 
 
-        // register user
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(UserToRegisterDTO model)
-        {
-
-            try
-            {
-                // ensure that number has gone through verification and confirmation
-                var phoneNumberIsInRequestTable = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
-                if (phoneNumberIsInRequestTable == null)
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Phone number has not gone through verification yet"));
-
-                if (phoneNumberIsInRequestTable.Status == "pending")
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Phone number has not been confirmed yet"));
-
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Data processing error"));
-            }
-
-            ApplicationUser createdUser = null;
-            try
-            {
-                // check if email aready exists
-                var emailToAdd = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
-                if (emailToAdd != null)
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Email already exist"));
-
-                // check if number aready exists
-                var numberToAdd = _userManager.Users.FirstOrDefault(x => x.PhoneNumber == model.PhoneNumber);
-                if (numberToAdd != null)
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Phone number already exist"));
-
-                // convert list to lowercase
-                var convertedList = Util.ListToLowerCase(model.Roles);
-
-                if (convertedList.Contains("admin") || convertedList.Contains("client"))
-                {
-                    if (!User.Identity.IsAuthenticated)
-                        return Unauthorized(ResponseMessage.Message("Unauthorized", errors: "User must be signed-in, to register other users"));
-
-                    if (!User.IsInRole("Admin"))
-                        return Unauthorized(ResponseMessage.Message("Unauthorized", errors: "User must be an Admin to perform this task"));
-
-                }
-
-                // create user
-                AuthSupportService auth = new AuthSupportService(_userManager, _agentRepository);
-                var result = await auth.CreateUser(model);
-
-                if (!result.Succeeded)
-                {
-                    foreach (var err in result.Errors)
-                    {
-                        ModelState.AddModelError("", err.Description);
-                    }
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: ModelState));
-                }
-
-                // create agent
-                createdUser = await _userManager.FindByEmailAsync(model.Email);
-                if (createdUser == null)
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to create identity user"));
-
-                if (convertedList.Contains("agent"))
-                {
-                    var successResult = await auth.CreateFieldAgent(model, createdUser.Id);
-                    if (!successResult)
-                    {
-                        await _userManager.DeleteAsync(createdUser);
-                        return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to create user"));
-                    }
-                }
-
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Data processing error"));
-            }
-
-            return Ok(ResponseMessage.Message("Success", data: new { createdUser.Id }));
-
-        }
-
-
-        //User Login
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(UserToLoginDTO model)
-        {
-
-            try
-            {
-                if (!ModelState.IsValid)
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: ModelState));
-
-                //get user by email
-                var user = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
-
-                //Check if user exist
-                if (user == null)
-                {
-                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: "Invalid credentials"));
-                }
-
-                if (!user.IsActive)
-                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: "In-active account"));
-
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
-                var userRoles = await _userManager.GetRolesAsync(user);
-                if (result.Succeeded)
-                {
-                    var getToken = JwtTokenConfig.GetToken(user, _config, userRoles);
-                    return Ok(ResponseMessage.Message("Success", data: new { token = getToken }));
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Data processing error"));
-            }
-
-            return Unauthorized(ResponseMessage.Message("Unauthorized", errors: "Invalid credentials"));
-
-        }
-
-
         [HttpPost("verify-email")]
         public async Task<IActionResult> VerifyEmail([FromForm] EmailToVerifyDTO model)
         {
@@ -503,5 +374,135 @@ namespace Groundforce.Services.API.Controllers
             }
             return BadRequest(ResponseMessage.Message("Bad Request", errors: "Invalid input value"));
         }
+
+
+        // register user
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(UserToRegisterDTO model)
+        {
+
+            try
+            {
+                // ensure that number has gone through verification and confirmation
+                var phoneNumberIsInRequestTable = await _requestRepository.GetRequestByPhone(model.PhoneNumber);
+                if (phoneNumberIsInRequestTable == null)
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Phone number has not gone through verification yet"));
+
+                if (phoneNumberIsInRequestTable.Status == "pending")
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Phone number has not been confirmed yet"));
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", errors: "Data processing error"));
+            }
+
+            ApplicationUser createdUser = null;
+            try
+            {
+                // check if email aready exists
+                var emailToAdd = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
+                if (emailToAdd != null)
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Email already exist"));
+
+                // check if number aready exists
+                var numberToAdd = _userManager.Users.FirstOrDefault(x => x.PhoneNumber == model.PhoneNumber);
+                if (numberToAdd != null)
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Phone number already exist"));
+
+                // convert list to lowercase
+                var convertedList = Util.ListToLowerCase(model.Roles);
+
+                if (convertedList.Contains("admin") || convertedList.Contains("client"))
+                {
+                    if (!User.Identity.IsAuthenticated)
+                        return Unauthorized(ResponseMessage.Message("Unauthorized", errors: "User must be signed-in, to register other users"));
+
+                    if (!User.IsInRole("Admin"))
+                        return Unauthorized(ResponseMessage.Message("Unauthorized", errors: "User must be an Admin to perform this task"));
+
+                }
+
+                // create user
+                AuthSupportService auth = new AuthSupportService(_userManager, _agentRepository);
+                var result = await auth.CreateUser(model);
+
+                if (!result.Succeeded)
+                {
+                    foreach (var err in result.Errors)
+                    {
+                        ModelState.AddModelError("", err.Description);
+                    }
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: ModelState));
+                }
+
+                // create agent
+                createdUser = await _userManager.FindByEmailAsync(model.Email);
+                if (createdUser == null)
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to create identity user"));
+
+                if (convertedList.Contains("agent"))
+                {
+                    var successResult = await auth.CreateFieldAgent(model, createdUser.Id);
+                    if (!successResult)
+                    {
+                        await _userManager.DeleteAsync(createdUser);
+                        return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to create user"));
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", errors: "Data processing error"));
+            }
+
+            return Ok(ResponseMessage.Message("Success", data: new { createdUser.Id }));
+
+        }
+
+
+        //User Login
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(UserToLoginDTO model)
+        {
+
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: ModelState));
+
+                //get user by email
+                var user = _userManager.Users.FirstOrDefault(x => x.Email == model.Email);
+
+                //Check if user exist
+                if (user == null)
+                {
+                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: "Invalid credentials"));
+                }
+
+                if (!user.IsActive)
+                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: "In-active account"));
+
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+                var userRoles = await _userManager.GetRolesAsync(user);
+                if (result.Succeeded)
+                {
+                    var getToken = JwtTokenConfig.GetToken(user, _config, userRoles);
+                    return Ok(ResponseMessage.Message("Success", data: new { token = getToken }));
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", errors: "Data processing error"));
+            }
+
+            return Unauthorized(ResponseMessage.Message("Unauthorized", errors: "Invalid credentials"));
+
+        }
+
     }
 }
