@@ -21,8 +21,9 @@ namespace Groundforce.Services.Data.Services
         public PhotoRepository(IOptions<CloudinarySettings> cloudinaryConfig, IConfiguration configuration )
         {
             _appConfig = configuration;
-
             _cloudinaryConfig = cloudinaryConfig;
+
+            // setup the account object
             Account account = new Account(
                 _cloudinaryConfig.Value.CloudName,
                 _cloudinaryConfig.Value.ApiKey,
@@ -33,13 +34,14 @@ namespace Groundforce.Services.Data.Services
 
         public ImageUploadResult UploadPix(IFormFile Picture)
         {
-            var pictureSizeCheck = true;
+            // validate the pix size and extension type using settings from appsettings
+            var pictureSizeCheck = false;
             var listOfExtensions = _appConfig.GetSection("PhotoSettings:Extensions").Get<List<string>>();
             for (int i = 0; i < listOfExtensions.Count; i++)
             {
-                if (!Picture.FileName.EndsWith(listOfExtensions[i]))
+                if (Picture.FileName.EndsWith(listOfExtensions[i]))
                 {
-                    pictureSizeCheck = false;
+                    pictureSizeCheck = true;
                     break;
                 }
             }
@@ -49,13 +51,17 @@ namespace Groundforce.Services.Data.Services
             if (Picture == null || Picture.Length > pixSize)
                 throw new Exception("File size should not exceed 2mb");
 
-            if (pictureSizeCheck)
+            if (!pictureSizeCheck)
                 throw new Exception("File format is not supported. Please upload a picture");
 
+
+            /// object to return as result
             var uploadResult = new ImageUploadResult();
 
+            // fetch image as stream of data
             using (var stream = Picture.OpenReadStream())
             {
+                /// set image upload params
                 var uploadParams = new ImageUploadParams()
                 {
                     File = new FileDescription(Picture.Name, stream),
@@ -65,6 +71,7 @@ namespace Groundforce.Services.Data.Services
                                         .Crop("fill")
                                         .Gravity("face")
                 };
+                // upload to cloudinary
                 uploadResult = _cloudinary.Upload(uploadParams);
             }
 

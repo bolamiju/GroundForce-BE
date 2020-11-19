@@ -205,7 +205,7 @@ namespace Groundforce.Services.API.Controllers
 
         // register user
         [HttpPost("register")]
-        public async Task<IActionResult> RegisterAgent(UserToRegisterDTO model)
+        public async Task<IActionResult> Register(UserToRegisterDTO model)
         {
 
             try
@@ -262,6 +262,9 @@ namespace Groundforce.Services.API.Controllers
                     }
                     return BadRequest(ResponseMessage.Message("Bad request", ModelState));
                 }
+
+                createdUser = await _userManager.FindByEmailAsync(model.Email);
+                if (createdUser == null) return BadRequest(ResponseMessage.Message("Bad request", "Could not find newly created user"));
 
                 // create agent
                 if (convetedList.Contains("agent"))
@@ -479,7 +482,7 @@ namespace Groundforce.Services.API.Controllers
                 try
                 {
                     // reset user password
-                    var setNewPassword = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPin);
+                    var setNewPassword = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
                     if (setNewPassword.Succeeded)
                         return Ok(ResponseMessage.Message("Success", data: $"Password for {model.Email} is successfully updated"));
                 }

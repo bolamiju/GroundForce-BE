@@ -178,17 +178,21 @@ namespace Groundforce.Services.API.Controllers
             try
             {
                 var authSupportService = new AuthSupportService(_userManager, _agentRepository);
+                user = await _userManager.FindByIdAsync(Picture.Id);
+                if(user == null)
+                    return BadRequest(ResponseMessage.Message("Notfound", errors: $"User with Id: {Picture.Id} was not found"));
+
+                // check if user with id is logged in
+                var loggedInUserId = _userManager.GetUserId(User);
+                if (loggedInUserId != Picture.Id)
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: $"Id: {Picture.Id} does not match loggedIn user Id"));
+
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 return BadRequest(ResponseMessage.Message("Bad request", errors: "Data processing error"));
             }
-
-            // check if user with id is logged in
-            var loggedInUserId = _userManager.GetUserId(User);
-            if (loggedInUserId != Picture.Id)
-                return BadRequest(ResponseMessage.Message($"Id: {Picture.Id} does not match loggedIn user Id"));
 
             try
             {
@@ -206,6 +210,49 @@ namespace Groundforce.Services.API.Controllers
             }
               
         }
+
+
+        //change pin
+        [HttpPatch("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePwdDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ResponseMessage.Message("Bad request", errors: ModelState));
+
+            ApplicationUser user = null;
+            try
+            {
+                // check if user with id is logged in
+                var loggedInUserId = _userManager.GetUserId(User);
+                if (loggedInUserId != model.UserId)
+                    return BadRequest(ResponseMessage.Message("Bad request", $"Id: {model.UserId} does not match loggedIn user Id"));
+
+                // get user
+                user = await _userManager.FindByIdAsync(model.UserId);
+                if (user == null)
+                    return BadRequest(ResponseMessage.Message("Notfound", errors: $"User with Id: {model.UserId} was not found"));
+
+                // change password
+                var updatePwd = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+
+                if (updatePwd.Succeeded) return Ok(ResponseMessage.Message("Success", data: "Password Changed!"));
+
+                foreach (var error in updatePwd.Errors)
+                {
+                    ModelState.AddModelError("", $"{error.Code} - {error.Description}");
+                }
+                return BadRequest(ResponseMessage.Message("Bad request",errors:  ModelState));
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", errors: "Data processing error"));
+            }
+
+        }
+
+
 
 
     }

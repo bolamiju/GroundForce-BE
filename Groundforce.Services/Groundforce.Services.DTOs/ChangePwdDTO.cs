@@ -5,14 +5,13 @@ using System.Text;
 
 namespace Groundforce.Services.DTOs
 {
-    public class ResetPasswordDTO
+    public class ChangePwdDTO
     {
         [Required]
-        [EmailAddress]
-        [DataType(DataType.EmailAddress)]
-        public string Email { get; set; }
+        public string UserId { get; set; }
         [Required]
-        public string Token { get; set; }
+        [RegularExpression(@"^\d{4}$", ErrorMessage = "Verification code must all be digits")]
+        public string CurrentPassword { get; set; }
         [Required]
         [RegularExpression(@"^\d{4}$", ErrorMessage = "Verification code must all be digits")]
         public string NewPassword { get; set; }
