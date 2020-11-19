@@ -253,7 +253,7 @@ namespace Groundforce.Services.API.Controllers
 
 
         //verify user
-        [HttpPatch("verify-user")]
+        [HttpPatch("verify-account")]
         public async Task<IActionResult> VerifyUserAccount([FromForm] UserToVerifyDTO model)
         {
             if (ModelState.IsValid)
