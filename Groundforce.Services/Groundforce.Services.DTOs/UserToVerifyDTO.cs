@@ -10,7 +10,7 @@ namespace Groundforce.Services.DTOs
         [Required]
         public IFormFile Photo { get; set; }
         [Required]
-        public string AccountName { get; set; }
+        public string BankCode { get; set; }
         [Required]
         public string AccountNumber { get; set; }
         [Required]
