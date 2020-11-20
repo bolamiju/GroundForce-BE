@@ -8,24 +8,21 @@ namespace Groundforce.Services.Data.Services
 {
     public interface IMissionRepository
     {
+        int TotalCount { get; set; }
+
         Task<bool> Add<T>(T model) where T : class;
         Task<bool> Update<T>(T model) where T : class;
         Task<bool> Delete<T>(T model) where T : class;
 
         Task<VerificationItem> GetVerificationItemById(string id);
         Task<IEnumerable<VerificationItem>> GetAllVerificationItems();
-        Task<IEnumerable<VerificationItem>> GetVerificationItemsPaginated();
+        Task<IEnumerable<VerificationItem>> GetVerificationItemsPaginated(int page, int per_page);
 
 
-        Task<VerificationItem> GetMissionForAgentById(string id);
-        Task<bool> ChangeAssignedMissionStatus(string status, string missionId);
-        Task<IEnumerable<VerificationItem>> GetAllMissionsForAgent();
-        Task<IEnumerable<VerificationItem>> GetMissionsForAgentPaginated();
-
-
-        Task<VerificationItem> GetVerifiedMissionById(string id);
-        Task<IEnumerable<VerificationItem>> GetAllVerifiedMissions();
-        Task<IEnumerable<VerificationItem>> GetVerifiedMissionsPaginated();
+        Task<Mission> GetMissionByIdForAgent(string agentId, string missionId, string status);
+        Task<bool> ChangeMissionStatus(string status, string missionId);
+        Task<IEnumerable<Mission>> GetMissionsForAgent(string agentId, string status);
+        Task<IEnumerable<Mission>> GetMissionsForAgentPaginated(int page, int per_page, string agentId, string status);
 
     }
 }

@@ -61,7 +61,7 @@ namespace Groundforce.Services.API.Controllers
                 if (user == null)
                     return NotFound(ResponseMessage.Message("Notfound", errors: $"User with id: {id} was not found"));
 
-                if (_userManager.GetUserId(User) != id ||  !User.IsInRole("Admin"))
+                if (_userManager.GetUserId(User) != id &&  !User.IsInRole("Admin"))
                     return Unauthorized(ResponseMessage.Message("Unauthorized", errors: $"User must be logged-in or must have admin role"));
 
                 // construct the object
@@ -253,7 +253,7 @@ namespace Groundforce.Services.API.Controllers
 
 
         //verify user
-        [HttpPatch("verify-user")]
+        [HttpPatch("verify-account")]
         public async Task<IActionResult> VerifyUserAccount([FromForm] UserToVerifyDTO model)
         {
             if (ModelState.IsValid)
