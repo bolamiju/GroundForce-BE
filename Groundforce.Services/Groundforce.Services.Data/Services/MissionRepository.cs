@@ -94,11 +94,33 @@ namespace Groundforce.Services.Data.Services
         }
 
         // get mission for agent by id
-        public async Task<Mission> GetMissionByIdForAgent(string agentId, string missionId, string status)
+        public async Task<Mission> GetMissionByIdForAgent(string agentId, string missionId)
         {
-            var missions = await GetMissionsForAgent(agentId, status);
-            return missions.FirstOrDefault(x => x.MissionId == missionId);
+            return await _ctx.Missions.FirstOrDefaultAsync(x => x.MissionId == missionId && x.FieldAgentId == agentId);
         }
 
+        public async Task<MissionVerified> GetMissionVeriedById(string missionVerifiedId)
+        {
+            return await _ctx.MissionsVerified.FirstOrDefaultAsync(x => x.Id == missionVerifiedId);
+        }
+
+        public async Task<MissionVerified> GetMissionsVeriedByMissionId(string missionId)
+        {
+            return await _ctx.MissionsVerified.FirstOrDefaultAsync(x => x.MissionId == missionId);
+        }
+
+        public async Task<IEnumerable<MissionVerified>> GetMissionsVeried()
+        {
+            var result = await _ctx.MissionsVerified.ToListAsync();
+            TotalCount = result.Count;
+            return result;
+        }
+
+        public async Task<IEnumerable<MissionVerified>> GetMissionsVeriedPaginated(int page, int per_page)
+        {
+            var result = await GetMissionsVeried();
+            var pagedResult = result.Skip(page - 1).Take(per_page);
+            return pagedResult;
+        }
     }
 }
