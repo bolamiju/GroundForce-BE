@@ -33,7 +33,7 @@ namespace Groundforce.Services.API.Controllers
             _logger = logger;
             _userManager = userManager;
             _agentRepository = agentRepository;
-            perPage = Convert.ToInt32(configrutation.GetSection("PhotoSettings:Size").Get<string>());
+            perPage = Convert.ToInt32(configrutation.GetSection("PaginationSettings:PerPage").Get<string>());
         }
 
 
@@ -47,7 +47,7 @@ namespace Groundforce.Services.API.Controllers
             {
                 // ensure model state is valid
                 if (!ModelState.IsValid)
-                return BadRequest(ResponseMessage.Message("Model state error", errors: ModelState));
+                    return BadRequest(ResponseMessage.Message("Model state error", errors: ModelState));
 
                 // generate item id
                 string itemId = "";
@@ -62,12 +62,13 @@ namespace Groundforce.Services.API.Controllers
                 var newItem = new VerificationItem
                 {
                     ItemId = itemId,
+                    ApplicationUserId = _userManager.GetUserId(User),
                     Title = model.Title,
                     Description = model.Description
                 };
 
                 // add item
-                if(!await _missionRepository.Add(model))
+                if(!await _missionRepository.Add(newItem))
                     return BadRequest(ResponseMessage.Message("Failed to added", errors: "Could not add record to data source"));
 
                 return Ok(ResponseMessage.Message("Added successfully", data: new { AddressId = newItem.ItemId }));
@@ -259,18 +260,23 @@ namespace Groundforce.Services.API.Controllers
                 do
                 {
                     misssionId = Guid.NewGuid().ToString();
-                    result = await _missionRepository.GetMissionByIdForAgent(model.FieldAgentId, misssionId);
+                    result = await _missionRepository.GetMissionById(misssionId);
                 } while (result != null);
+
+                // check if verification item is already existing in the missions table
+                if (await _missionRepository.IsVerificationItemAssigned(model.VerificationItemId))
+                    return BadRequest(ResponseMessage.Message("Already exists", errors: "Verification item aready assigned"));
 
                 // construct item
                 var mission = new Mission
                 {
                     MissionId = misssionId,
-                    VerificationItemId = model.VerificationItemId
+                    VerificationItemId = model.VerificationItemId,
+                    FieldAgentId = model.FieldAgentId
                 };
 
                 // add item
-                var result2 = await _missionRepository.Add(model);
+                var result2 = await _missionRepository.Add(mission);
                 if (!result2)
                     return BadRequest(ResponseMessage.Message("Failed to assign", errors: "Could not add record to data source"));
 
@@ -287,34 +293,52 @@ namespace Groundforce.Services.API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut]
-        [Route("edit-mission")]
+        [Route("edit-mission-assined")]
         public async Task<IActionResult> EditMission([FromBody] MissionToEditDTO model)
         {
             // return error if model state is not valid
             if (!ModelState.IsValid)
                 return BadRequest(ResponseMessage.Message("Model state error", errors: ModelState));
 
-            // check if id is not null or empty
-            if (String.IsNullOrWhiteSpace(model.Id))
-                return BadRequest(ResponseMessage.Message("Invalid Id", errors: "Id should not be null or empty or whitespace"));
-
             try
             {
-                // get item using id
-                var mission = await _missionRepository.GetMissionByIdForAgent(model.FieldAgentId, model.Id);
+                // get mission using id
+                var mission = await _missionRepository.GetMissionById(model.Id);
                 if (mission == null)
-                    return NotFound(ResponseMessage.Message("Null result", errors: $"Item with id: {model.Id} was not found"));
+                    return NotFound(ResponseMessage.Message("Null result", errors: $"Mission with Id: {model.Id} is not found"));
 
-                // re-assign values
-                mission.FieldAgentId = model.FieldAgentId;
-                mission.VerificationItemId = model.VerificationItemId;
+                // only pending assignments can be edited
+                if (mission.VerificationStatus != "pending")
+                    return Unauthorized(ResponseMessage.Message("Not allowed", errors: $"Mission has is ongoing"));
+
+                // check if verification item is already existing in the missions table
+                if(mission.VerificationItemId != model.VerificationItemId)
+                {
+                    if (await _missionRepository.IsVerificationItemAssigned(model.VerificationItemId))
+                        return BadRequest(ResponseMessage.Message("Already exists", errors: "Verification item aready assigned"));
+
+                    // re-assign values
+                    await DeleteMission(model.Id);
+                    mission.FieldAgentId = model.FieldAgentId;
+                    mission.VerificationItemId = model.VerificationItemId;
+                    mission.MissionId = Guid.NewGuid().ToString();
+
+                    // update data source
+                    var result = await _missionRepository.Add(mission);
+                    if (!result)
+                        return BadRequest(ResponseMessage.Message("Failed to update", errors: "Could not update record to data source"));
+
+                    return Ok(ResponseMessage.Message("Updated successfully", data: mission.MissionId));
+                }
 
                 // update data source
-                var result = await _missionRepository.Update(mission);
-                if (!result)
+                mission.FieldAgentId = model.FieldAgentId;
+                mission.VerificationItemId = model.VerificationItemId;
+                var res = await _missionRepository.Update(mission);
+                if (!res)
                     return BadRequest(ResponseMessage.Message("Failed to update", errors: "Could not update record to data source"));
 
-                return Ok(ResponseMessage.Message("Updated successfully", data: ""));
+                return Ok(ResponseMessage.Message("Updated successfully", data: mission.MissionId));
 
             }
             catch (Exception e)
@@ -327,21 +351,33 @@ namespace Groundforce.Services.API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete]
-        [Route("{id}/delete-mission")]
-        public async Task<IActionResult> DeleteMission(string id)
+        [Route("{missionId}/delete-mission")]
+        public async Task<IActionResult> DeleteMission(string missionId)
         {
             // check if id is not null or empty
-            if (String.IsNullOrWhiteSpace(id))
+            if (String.IsNullOrWhiteSpace(missionId))
                 return BadRequest(ResponseMessage.Message("Invalid Id", errors: "Id should not be null or empty or whitespace"));
 
             try
             {
-                // get item using id
-                var mission = await _missionRepository.GetVerificationItemById(id);
+                // get mission using id
+                var mission = await _missionRepository.GetMissionById(missionId);
                 if (mission == null)
-                    return NotFound(ResponseMessage.Message("Null result", errors: $"Item with id: {id} was not found"));
+                    return NotFound(ResponseMessage.Message("Null result", errors: $"Mission with Id: {missionId} is not found"));
 
-                // delete data from source
+                // only pending assignments can be deleted
+                if(mission.VerificationStatus != "pending")
+                    return Unauthorized(ResponseMessage.Message("Not allowed", errors: $"Mission has is ongoing"));
+
+                // delete data from MissionVerified table
+                var res = await _missionRepository.GetMissionsVeriedByMissionId(missionId);
+                if (res != null)
+                {
+                    var del = await _missionRepository.Delete(res);
+                    if (!del) throw new Exception($"Failed to delete record in MissionVerified");
+                } 
+
+                // delete data from mission table
                 var result = await _missionRepository.Delete(mission);
                 if (!result)
                     return BadRequest(ResponseMessage.Message("Failed to delte", errors: "Could not update record to data source"));
@@ -358,7 +394,7 @@ namespace Groundforce.Services.API.Controllers
 
         [Authorize(Roles = "Agent")]
         [HttpPatch]
-        [Route("{missionId}/{status}")]
+        [Route("{missionId}/edit-status/{status}")]
         public async Task<IActionResult> UpdateMissionStatus(string missionId, string status)
         {
             if(String.IsNullOrWhiteSpace(missionId) || String.IsNullOrWhiteSpace(status))
@@ -366,17 +402,16 @@ namespace Groundforce.Services.API.Controllers
 
             try
             {
-                // check if mission is assigned to logged-in agent
                 var logginUserId = _userManager.GetUserId(User);
-                if (logginUserId == null) return Unauthorized(ResponseMessage.Message("Access denied", errors: $"User must be logged in"));
-
-                var mission = await _missionRepository.GetMissionByIdForAgent(logginUserId, missionId);
-                if(mission.MissionId != missionId)
-                    return BadRequest(ResponseMessage.Message("Id mismatch", errors: $"Mission with id: {missionId} is not assigned to logged-in user"));
 
                 // check if user's account is verified
                 var user = await _userManager.FindByIdAsync(logginUserId);
                 if (!user.IsVerified) return Unauthorized(ResponseMessage.Message("Unverified Account!", errors: "Unverified account is not authorized to take on task"));
+
+                // check if mission is assigned to logged-in user
+                var mission = await _missionRepository.GetMissionById(missionId);
+                if(mission.FieldAgentId != logginUserId)
+                    return BadRequest(ResponseMessage.Message("Id mismatch", errors: $"Mission with id: {missionId} is not assigned to logged-in user"));
 
                 // update status
                 var result = await _missionRepository.ChangeMissionStatus(status, missionId);
@@ -399,28 +434,39 @@ namespace Groundforce.Services.API.Controllers
         public async Task<IActionResult> GetMissions(string agentId, string status, int page)
         {
             // check if id is not null or empty
-            if (String.IsNullOrWhiteSpace(agentId))
-                return BadRequest(ResponseMessage.Message("Invalid Id", errors: "Id should not be null or empty or whitespace"));
+            if (String.IsNullOrWhiteSpace(agentId) || String.IsNullOrWhiteSpace(status))
+                return BadRequest(ResponseMessage.Message("Invalid credentials", errors: "Id or status should not be null or empty or whitespace"));
 
             try
             {
                 //var loggedInUserId = _userManager.GetUserId(User);
-                var missions = await _missionRepository.GetMissionsForAgentPaginated(page, perPage, agentId, status);
-                if (missions == null) return NotFound(ResponseMessage.Message("Null result", errors: "No result(s) found"));
+                var results = await _missionRepository.GetMissionsPaginated(page, perPage, status);
+                if (results == null) return NotFound(ResponseMessage.Message("Null result", errors: "No result(s) found"));
+
+                // filter only agent's results
+                var agentsMissions = new List<Mission>();
+                foreach (var mission in results)
+                {
+                    if (mission.FieldAgentId == agentId)
+                        agentsMissions.Add(mission);
+                }
 
 
                 // map items fetched to items dto
-                var list = new List<ItemToReturnDTO>();
-                foreach (var result in missions)
+                var list = new List<MissionToReturn>();
+                foreach (var result in agentsMissions)
                 {
-                    var item = new ItemToReturnDTO
+                    var item = new MissionToReturn
                     {
-                        ItemId = result.MissionId,
+                        MissionId = result.MissionId,
+                        ItemId = result.VerificationItemId,
                         Title = result.VerificationItem.Title,
                         Description = result.VerificationItem.Description,
                         AddedBy = null,
                         CreatedAt = result.UpdatedAt
-                    };                    
+                    };
+
+                    list.Add(item);
                 }
 
                 //****************************************************************************************/
@@ -455,6 +501,16 @@ namespace Groundforce.Services.API.Controllers
                 return BadRequest(ResponseMessage.Message("Model state error", errors: ModelState));
             try
             {
+                // check if user's account is verified
+                var user = await _userManager.FindByIdAsync(_userManager.GetUserId(User));
+                if (!user.IsVerified) return Unauthorized(ResponseMessage.Message("Unverified Account!", errors: "Unverified account is not authorized to take on task"));
+
+                // only accepted missions can be verified
+                var mission = await _missionRepository.GetMissionById(model.MissionId);
+                if(mission == null) if (mission == null) 
+                        return NotFound(ResponseMessage.Message("Null result", errors: $"Mission with id: {model.MissionId} was not found"));
+                if(mission.VerificationStatus != "accepted") return Unauthorized(ResponseMessage.Message("Not allowed", errors: "Mission is not accepted yet"));
+
                 // generate item id
                 string Id = "";
                 MissionVerified result = null;
