@@ -231,6 +231,10 @@ namespace Groundforce.Services.API.Controllers
                     response.VerificationCode = emailCode;
                     await _emailVerificationRepository.UpdateEmailVerification(response);
                 }
+                if(response != null && response.IsVerified)
+                {
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: "User is already verified"));
+                }
                 else
                 {
                     // generate email verification id
@@ -261,10 +265,15 @@ namespace Groundforce.Services.API.Controllers
 
             try
             {
+                string baseUrl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
                 var request = new MailRequest
                 {
+                    GroundForceUrl = baseUrl,
                     ToEmail = model.EmailAddress,
-                    Code = emailCode
+                    Content = "Verify Email Template.",
+                    IsHidden = true,
+                    MainHeader = "Your email verification code",
+                    SubHeader = emailCode
                 };
 
                 await _mailService.SendMailAsync(request);
@@ -328,12 +337,19 @@ namespace Groundforce.Services.API.Controllers
 
                 // Use token to genetate password reset link
                 var emailUrl = Url.Action("ResetPassword", "Auth", new { email = model.EmailAddress, token }, Request.Scheme);
-                var forgotPassword = new ForgotPasswordRequest
+                string baseUrl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+                var forgotPassword = new MailRequest
                 {
                     ToEmail = model.EmailAddress,
-                    ResetPasswordLink = emailUrl
+                    Link = emailUrl,
+                    GroundForceUrl = baseUrl,
+                    Content = "Reset Password Email Template.",
+                    IsHidden = false,
+                    ButtonName = "Reset Password",
+                    MainHeader = "You have requested to reset your password",
+                    SubHeader = " A unique link to reset your password has been generated for you. Click here"
                 };
-                await _mailService.SendForgotPasswordEmailAsync(forgotPassword);
+                await _mailService.SendMailAsync(forgotPassword);
                 return Ok(ResponseMessage.Message("Ok", null, "Forgot password reset link was successfully sent"));
             }
             catch (Exception e)
@@ -390,6 +406,12 @@ namespace Groundforce.Services.API.Controllers
 
                 if (phoneNumberIsInRequestTable.Status == "pending")
                     return BadRequest(ResponseMessage.Message("Bad request", errors: "Phone number has not been confirmed yet"));
+
+                var emailIsInEmailVerificationTable = await _emailVerificationRepository.GetEmailVerificationByEmail(model.Email);
+                if (emailIsInEmailVerificationTable == null)
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Email address has not gone through verification yet"));
+                if (emailIsInEmailVerificationTable != null && !emailIsInEmailVerificationTable.IsVerified)
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Email address has not verified yet"));
 
             }
             catch (Exception e)
@@ -457,12 +479,18 @@ namespace Groundforce.Services.API.Controllers
                 {
                     if (successResult)
                     {
-                        var welcomeEMail = new WelcomeRequest
+                        string baseUrl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+                        var request = new MailRequest
                         {
+                            GroundForceUrl = baseUrl,
                             ToEmail = model.Email,
-                            FirstName = model.FirstName
+                            Content = "Welcome Email Template.",
+                            IsHidden = true,
+                            MainHeader = "Welcome to Ground Force",
+                            SubHeader = $"Hello {model.FirstName}, you have successfully registered on our platform. Welcome Onboard!!!"
                         };
-                        await _mailService.SendWelcomeRequestAsync(welcomeEMail);
+
+                        await _mailService.SendMailAsync(request);
                     }
                 }
                 catch (Exception e)
