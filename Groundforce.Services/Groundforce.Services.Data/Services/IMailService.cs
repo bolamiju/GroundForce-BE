@@ -1,11 +1,10 @@
 ﻿using Groundforce.Services.Models;
 using System.Threading.Tasks;
 
-namespace Groundforce.Services.Core
+namespace Groundforce.Services.Data.Services
 {
     public interface IMailService
     {
         Task SendMailAsync(MailRequest mailRequest);
-        Task  SendForgotPasswordEmailAsync(ForgotPasswordRequest request);
     }
 }

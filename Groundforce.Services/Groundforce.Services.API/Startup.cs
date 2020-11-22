@@ -15,8 +15,6 @@ using Groundforce.Services.Data.Services;
 using System.Net;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
-using Groundforce.Services.Core;
-//using Groundforce.Services.Data.Services;
 
 namespace Groundforce.Services.API
 {

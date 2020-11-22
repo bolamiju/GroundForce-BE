@@ -8,24 +8,29 @@ namespace Groundforce.Services.Data.Services
 {
     public interface IMissionRepository
     {
+        int TotalCount { get; set; }
+
         Task<bool> Add<T>(T model) where T : class;
         Task<bool> Update<T>(T model) where T : class;
         Task<bool> Delete<T>(T model) where T : class;
 
         Task<VerificationItem> GetVerificationItemById(string id);
         Task<IEnumerable<VerificationItem>> GetAllVerificationItems();
-        Task<IEnumerable<VerificationItem>> GetVerificationItemsPaginated();
+        Task<IEnumerable<VerificationItem>> GetVerificationItemsPaginated(int page, int per_page);
 
 
-        Task<VerificationItem> GetMissionForAgentById(string id);
-        Task<bool> ChangeAssignedMissionStatus(string status, string missionId);
-        Task<IEnumerable<VerificationItem>> GetAllMissionsForAgent();
-        Task<IEnumerable<VerificationItem>> GetMissionsForAgentPaginated();
+        Task<Mission> GetMissionById(string missionId);
+        Task<bool> ChangeMissionStatus(string status, string missionId);
+        Task<IEnumerable<Mission>> GetMissions(string status);
+        Task<IEnumerable<Mission>> GetMissionsPaginated(int page, int per_page, string status);
+
+        Task<MissionVerified> GetMissionVeriedById(string missionVerifiedId);
+        Task<MissionVerified> GetMissionsVeriedByMissionId(string missionId);
+        Task<IEnumerable<MissionVerified>> GetMissionsVeried();
+        Task<IEnumerable<MissionVerified>> GetMissionsVeriedPaginated(int page, int per_page);
 
 
-        Task<VerificationItem> GetVerifiedMissionById(string id);
-        Task<IEnumerable<VerificationItem>> GetAllVerifiedMissions();
-        Task<IEnumerable<VerificationItem>> GetVerifiedMissionsPaginated();
+        Task<bool> IsVerificationItemAssigned(string id);
 
     }
 }

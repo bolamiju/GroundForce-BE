@@ -61,7 +61,7 @@ namespace Groundforce.Services.API.Controllers
                 if (user == null)
                     return NotFound(ResponseMessage.Message("Notfound", errors: $"User with id: {id} was not found"));
 
-                if (_userManager.GetUserId(User) != id ||  !User.IsInRole("Admin"))
+                if (_userManager.GetUserId(User) != id && !User.IsInRole("Admin"))
                     return Unauthorized(ResponseMessage.Message("Unauthorized", errors: $"User must be logged-in or must have admin role"));
 
                 // construct the object
@@ -253,8 +253,8 @@ namespace Groundforce.Services.API.Controllers
 
 
         //verify user
-        [HttpPatch("verify-user")]
-        public async Task<IActionResult> VerifyUserAccount([FromForm] UserToVerifyDTO model)
+        [HttpPatch("verify-account")]
+        public async Task<IActionResult> VerifyUserAccount([FromBody] UserToVerifyDTO model)
         {
             if (ModelState.IsValid)
             {
@@ -263,17 +263,22 @@ namespace Groundforce.Services.API.Controllers
                 if (user.IsVerified)
                     return BadRequest(ResponseMessage.Message("Bad request", errors: "User is already verified"));
 
+                if (string.IsNullOrWhiteSpace(user.AvatarUrl))
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Photo must be uploaded"));
+
                 var agent = await _agentRepository.GetAgentById(user.Id);
 
-                var uploadResult = _photoRepo.UploadPix(model.Photo);
+                var validateAccountNumber = InputValidator.NUBANAccountValidator(model.BankCode, model.AccountNumber);
 
-                agent.AccountName = model.AccountName;
+                if (!validateAccountNumber) return BadRequest(ResponseMessage.Message("Bad request", errors: "Invalid account number"));
+
+                var accountName = Enum.GetName(typeof(BankCode), Convert.ToInt32(model.BankCode));
+
+                agent.AccountName = accountName;
                 agent.AccountNumber = model.AccountNumber;
                 agent.Religion = model.Religion;
                 agent.AdditionalPhoneNumber = model.AdditionalPhoneNumber;
                 user.Gender = model.Gender;
-                user.AvatarUrl = uploadResult.Url.ToString();
-                user.PublicId = uploadResult.PublicId;
                 user.IsVerified = true;
 
                 if (!await _agentRepository.UpdateAgent(agent))
