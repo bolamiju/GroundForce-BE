@@ -254,7 +254,7 @@ namespace Groundforce.Services.API.Controllers
 
         //verify user
         [HttpPatch("verify-account")]
-        public async Task<IActionResult> VerifyUserAccount([FromForm] UserToVerifyDTO model)
+        public async Task<IActionResult> VerifyUserAccount([FromBody] UserToVerifyDTO model)
         {
             if (ModelState.IsValid)
             {
@@ -263,9 +263,10 @@ namespace Groundforce.Services.API.Controllers
                 if (user.IsVerified)
                     return BadRequest(ResponseMessage.Message("Bad request", errors: "User is already verified"));
 
-                var agent = await _agentRepository.GetAgentById(user.Id);
+                if (string.IsNullOrWhiteSpace(user.AvatarUrl))
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Photo must be uploaded"));
 
-                var uploadResult = _photoRepo.UploadPix(model.Photo);
+                var agent = await _agentRepository.GetAgentById(user.Id);
 
                 var validateAccountNumber = InputValidator.NUBANAccountValidator(model.BankCode, model.AccountNumber);
 
@@ -278,8 +279,6 @@ namespace Groundforce.Services.API.Controllers
                 agent.Religion = model.Religion;
                 agent.AdditionalPhoneNumber = model.AdditionalPhoneNumber;
                 user.Gender = model.Gender;
-                user.AvatarUrl = uploadResult.Url.ToString();
-                user.PublicId = uploadResult.PublicId;
                 user.IsVerified = true;
 
                 if (!await _agentRepository.UpdateAgent(agent))

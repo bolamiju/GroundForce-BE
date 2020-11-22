@@ -254,13 +254,17 @@ namespace Groundforce.Services.API.Controllers
 
             try
             {
+                var agent = await _agentRepository.GetAgentById(model.FieldAgentId);
+                if(agent == null)
+                    return NotFound(ResponseMessage.Message("Null result(s)", errors: $"Agent with Id {model.FieldAgentId} was not found"));
+
                 // generate item id
-                string misssionId = "";
+                string missionId = "";
                 Mission result = null;
                 do
                 {
-                    misssionId = Guid.NewGuid().ToString();
-                    result = await _missionRepository.GetMissionById(misssionId);
+                    missionId = Guid.NewGuid().ToString();
+                    result = await _missionRepository.GetMissionById(missionId);
                 } while (result != null);
 
                 // check if verification item is already existing in the missions table
@@ -270,7 +274,7 @@ namespace Groundforce.Services.API.Controllers
                 // construct item
                 var mission = new Mission
                 {
-                    MissionId = misssionId,
+                    MissionId = missionId,
                     VerificationItemId = model.VerificationItemId,
                     FieldAgentId = model.FieldAgentId
                 };
@@ -280,7 +284,7 @@ namespace Groundforce.Services.API.Controllers
                 if (!result2)
                     return BadRequest(ResponseMessage.Message("Failed to assign", errors: "Could not add record to data source"));
 
-                return Ok(ResponseMessage.Message("Assigned successfully", data: new { misssionId }));
+                return Ok(ResponseMessage.Message("Assigned successfully", data: new { missionId }));
             }
             catch (Exception ex)
             {
@@ -293,7 +297,7 @@ namespace Groundforce.Services.API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut]
-        [Route("edit-mission-assined")]
+        [Route("edit-mission-assigned")]
         public async Task<IActionResult> EditMission([FromBody] MissionToEditDTO model)
         {
             // return error if model state is not valid
@@ -308,8 +312,8 @@ namespace Groundforce.Services.API.Controllers
                     return NotFound(ResponseMessage.Message("Null result", errors: $"Mission with Id: {model.Id} is not found"));
 
                 // only pending assignments can be edited
-                if (mission.VerificationStatus != "pending")
-                    return Unauthorized(ResponseMessage.Message("Not allowed", errors: $"Mission has is ongoing"));
+                if (mission.VerificationStatus == "accepted" || mission.VerificationStatus == "verified")
+                    return Unauthorized(ResponseMessage.Message("Not allowed", errors: $"Mission is ongoing or completed"));
 
                 // check if verification item is already existing in the missions table
                 if(mission.VerificationItemId != model.VerificationItemId)
@@ -540,6 +544,11 @@ namespace Groundforce.Services.API.Controllers
                 if(!result2)
                     return BadRequest(ResponseMessage.Message("Failed to submit", errors: "Could not submit record to data source"));
 
+                if(!await _missionRepository.ChangeMissionStatus("verified", mission.MissionId))
+                {
+                    await _missionRepository.Delete(missionVerified);
+                    throw new Exception("Could not verify mission");
+                }
                 return Ok(ResponseMessage.Message("Submited successfully", data: new { Id }));
             }
             catch(Exception e)
