@@ -17,6 +17,7 @@ namespace Groundforce.Services.Data
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Request> Request { get; set; }
         public DbSet<EmailVerification> EmailVerifications { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -60,6 +61,13 @@ namespace Groundforce.Services.Data
                        .HasOne<ApplicationUser>(e => e.ApplicationUser)
                        .WithOne(e => e.FieldAgent)
                        .HasForeignKey<FieldAgent>(e => e.ApplicationUserId)
+                       .OnDelete(DeleteBehavior.NoAction);
+
+            // Configure Notification & ApplicationUser entity
+            builder.Entity<Notification>()
+                       .HasOne<ApplicationUser>(e => e.ApplicationUser)
+                       .WithOne(e => e.Notification)
+                       .HasForeignKey<Notification>(e => e.ApplicationUserId)
                        .OnDelete(DeleteBehavior.NoAction);
         }
     }

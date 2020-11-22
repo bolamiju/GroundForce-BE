@@ -46,6 +46,7 @@ namespace Groundforce.Services.API
             services.AddScoped<IPhotoRepository, PhotoRepository>();
             services.AddScoped<IMissionRepository, MissionRepository>();
             services.AddScoped<IAgentRepository, AgentRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
             services.AddTransient<IMailService, MailService>();
             //services.AddScoped<IAdminRepository, AdminRepository>();
 
