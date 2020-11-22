@@ -77,26 +77,26 @@ namespace Groundforce.Services.Data.Services
 
 
         // get all missions for agent
-        public async Task<IEnumerable<Mission>> GetMissionsForAgent(string agentId, string status)
+        public async Task<IEnumerable<Mission>> GetMissions(string status)
         {
-            var result = await _ctx.Missions.Where(x => x.FieldAgentId == agentId && x.VerificationStatus == status)
+            var result = await _ctx.Missions.Where(x => x.VerificationStatus == status)
                                             .Include(x => x.VerificationItem).ToListAsync();
             TotalCount = result.Count;
             return result;
         }
 
         // missions for agents
-        public async Task<IEnumerable<Mission>> GetMissionsForAgentPaginated(int page, int per_page, string agentId, string status)
+        public async Task<IEnumerable<Mission>> GetMissionsPaginated(int page, int per_page, string status)
         {
-            var missions = await GetMissionsForAgent(agentId, status);
+            var missions = await GetMissions(status);
             var pagedItems = missions.Skip((page - 1) * per_page).Take(per_page).ToList();
             return pagedItems;
         }
 
         // get mission for agent by id
-        public async Task<Mission> GetMissionByIdForAgent(string agentId, string missionId)
+        public async Task<Mission> GetMissionById(string missionId)
         {
-            return await _ctx.Missions.FirstOrDefaultAsync(x => x.MissionId == missionId && x.FieldAgentId == agentId);
+            return await _ctx.Missions.FirstOrDefaultAsync(x => x.MissionId == missionId);
         }
 
         public async Task<MissionVerified> GetMissionVeriedById(string missionVerifiedId)
@@ -121,6 +121,13 @@ namespace Groundforce.Services.Data.Services
             var result = await GetMissionsVeried();
             var pagedResult = result.Skip(page - 1).Take(per_page);
             return pagedResult;
+        }
+
+        public async Task<bool> IsVerificationItemAssigned(string id)
+        {
+            var result = await _ctx.Missions.FirstOrDefaultAsync(x => x.VerificationItemId == id);
+            if (result == null) return false;
+            return true;
         }
     }
 }

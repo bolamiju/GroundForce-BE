@@ -19,17 +19,18 @@ namespace Groundforce.Services.Data.Services
         Task<IEnumerable<VerificationItem>> GetVerificationItemsPaginated(int page, int per_page);
 
 
-        Task<Mission> GetMissionByIdForAgent(string agentId, string missionId);
+        Task<Mission> GetMissionById(string missionId);
         Task<bool> ChangeMissionStatus(string status, string missionId);
-        Task<IEnumerable<Mission>> GetMissionsForAgent(string agentId, string status);
-        Task<IEnumerable<Mission>> GetMissionsForAgentPaginated(int page, int per_page, string agentId, string status);
+        Task<IEnumerable<Mission>> GetMissions(string status);
+        Task<IEnumerable<Mission>> GetMissionsPaginated(int page, int per_page, string status);
 
         Task<MissionVerified> GetMissionVeriedById(string missionVerifiedId);
         Task<MissionVerified> GetMissionsVeriedByMissionId(string missionId);
-        Task<MissionVerified> GetMissionsVeried();
-        Task<MissionVerified> GetMissionsVeriedPaginated(int page, int per_page);
+        Task<IEnumerable<MissionVerified>> GetMissionsVeried();
+        Task<IEnumerable<MissionVerified>> GetMissionsVeriedPaginated(int page, int per_page);
 
 
+        Task<bool> IsVerificationItemAssigned(string id);
 
     }
 }

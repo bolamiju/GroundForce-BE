@@ -14,11 +14,9 @@ namespace Groundforce.Services.DTOs
         [Required]
         [Display(Name = "Verification Id")]
         public string VerificationItemId { get; set; }
-        public VerificationItem VerificationItem { get; set; }
 
         [Required]
         [Display(Name = "Field agent Id")]
         public string FieldAgentId { get; set; }
-        public FieldAgent FieldAgent { get; set; }
     }
 }

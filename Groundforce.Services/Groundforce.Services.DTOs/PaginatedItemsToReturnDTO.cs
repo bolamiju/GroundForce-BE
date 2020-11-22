@@ -7,11 +7,11 @@ namespace Groundforce.Services.DTOs
     {
         public PageMetaData PageMetaData { get; set; }
 
-        public IEnumerable<ItemToReturnDTO> Data { get; set; }
+        public IEnumerable<object> Data { get; set; }
 
         public PaginatedItemsToReturnDTO()
         {
-            Data = new List<ItemToReturnDTO>();
+            Data = new List<object>();
         }
     }
 }

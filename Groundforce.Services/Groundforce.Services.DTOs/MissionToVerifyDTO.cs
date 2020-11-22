@@ -10,11 +10,9 @@ namespace Groundforce.Services.DTOs
     {
         [Required]
         public string MissionId { get; set; }
-        public Mission Mission { get; set; }
 
         [Required]
         public string BuildingTypeId { get; set; }
-        public BuildingType BuildingType { get; set; }
 
         [Required]
         [MaxLength(150, ErrorMessage ="Landmark must not be more than 150 characters long")]
