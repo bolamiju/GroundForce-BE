@@ -231,7 +231,7 @@ namespace Groundforce.Services.API.Controllers
                     response.VerificationCode = emailCode;
                     await _emailVerificationRepository.UpdateEmailVerification(response);
                 }
-                if(response != null && response.IsVerified)
+                else if(response != null && response.IsVerified)
                 {
                     return BadRequest(ResponseMessage.Message("Bad request", errors: "User is already verified"));
                 }
