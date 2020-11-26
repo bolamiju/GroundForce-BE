@@ -36,6 +36,6 @@ namespace Groundforce.Services.Models
         public ICollection<VerificationItem> VerificationItems { get; set; }
         public ICollection<UserActivity> UserActivities { get; set; }
 
-        public Notification Notification { get; set; }
+        public ICollection<Notification> Notifications { get; set; }
     }
 }

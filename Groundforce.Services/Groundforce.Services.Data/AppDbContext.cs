@@ -62,13 +62,6 @@ namespace Groundforce.Services.Data
                        .WithOne(e => e.FieldAgent)
                        .HasForeignKey<FieldAgent>(e => e.ApplicationUserId)
                        .OnDelete(DeleteBehavior.NoAction);
-
-            // Configure Notification & ApplicationUser entity
-            builder.Entity<Notification>()
-                       .HasOne<ApplicationUser>(e => e.ApplicationUser)
-                       .WithOne(e => e.Notification)
-                       .HasForeignKey<Notification>(e => e.ApplicationUserId)
-                       .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

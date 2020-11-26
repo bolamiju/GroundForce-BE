@@ -9,6 +9,8 @@
     <Compile Remove="Migrations\20201117042944_VerifyEmailMigration.Designer.cs" />
     <Compile Remove="Migrations\20201117092322_ModelRedesignMigration.cs" />
     <Compile Remove="Migrations\20201117092322_ModelRedesignMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201125200124_Notificationrelationship.cs" />
+    <Compile Remove="Migrations\20201125200124_Notificationrelationship.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

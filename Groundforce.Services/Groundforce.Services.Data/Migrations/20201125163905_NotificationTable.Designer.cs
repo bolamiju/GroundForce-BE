@@ -4,14 +4,16 @@ using Groundforce.Services.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Groundforce.Services.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201125163905_NotificationTable")]
+    partial class NotificationTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -342,7 +344,8 @@ namespace Groundforce.Services.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
+                    b.HasIndex("ApplicationUserId")
+                        .IsUnique();
 
                     b.ToTable("Notifications");
                 });
@@ -679,9 +682,9 @@ namespace Groundforce.Services.Data.Migrations
             modelBuilder.Entity("Groundforce.Services.Models.Notification", b =>
                 {
                     b.HasOne("Groundforce.Services.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany("Notifications")
-                        .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithOne("Notification")
+                        .HasForeignKey("Groundforce.Services.Models.Notification", "ApplicationUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
