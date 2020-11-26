@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Groundforce.Services.Data.Migrations
 {
-    public partial class NewMigration : Migration
+    public partial class NewSqliteMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -42,7 +42,7 @@ namespace Groundforce.Services.Data.Migrations
                     AccessFailedCount = table.Column<int>(nullable: false),
                     LastName = table.Column<string>(maxLength: 50, nullable: false),
                     FirstName = table.Column<string>(maxLength: 50, nullable: false),
-                    Gender = table.Column<string>(maxLength: 1, nullable: false),
+                    Gender = table.Column<string>(maxLength: 1, nullable: true),
                     DOB = table.Column<string>(maxLength: 10, nullable: false),
                     IsVerified = table.Column<bool>(nullable: false),
                     IsActive = table.Column<bool>(nullable: false),
@@ -68,6 +68,20 @@ namespace Groundforce.Services.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_BuildingTypes", x => x.TypeId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EmailVerifications",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    EmailAddress = table.Column<string>(nullable: false),
+                    VerificationCode = table.Column<string>(maxLength: 4, nullable: false),
+                    IsVerified = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmailVerifications", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -105,7 +119,7 @@ namespace Groundforce.Services.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     RoleId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -126,7 +140,7 @@ namespace Groundforce.Services.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     UserId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -211,16 +225,16 @@ namespace Groundforce.Services.Data.Migrations
                 columns: table => new
                 {
                     ApplicationUserId = table.Column<string>(nullable: false),
-                    PlaceOfBirth = table.Column<string>(maxLength: 150, nullable: false),
                     State = table.Column<string>(maxLength: 150, nullable: false),
                     LGA = table.Column<string>(maxLength: 150, nullable: false),
-                    HomeAddress = table.Column<string>(maxLength: 200, nullable: false),
+                    ZipCode = table.Column<string>(maxLength: 10, nullable: false),
+                    ResidentialAddress = table.Column<string>(maxLength: 200, nullable: true),
                     Longitude = table.Column<string>(nullable: false),
                     Latitude = table.Column<string>(nullable: false),
-                    Religion = table.Column<string>(maxLength: 25, nullable: false),
+                    Religion = table.Column<string>(maxLength: 25, nullable: true),
                     AdditionalPhoneNumber = table.Column<string>(maxLength: 14, nullable: true),
-                    AccountName = table.Column<string>(maxLength: 100, nullable: false),
-                    AccountNumber = table.Column<string>(maxLength: 10, nullable: false),
+                    AccountName = table.Column<string>(maxLength: 100, nullable: true),
+                    AccountNumber = table.Column<string>(maxLength: 10, nullable: true),
                     CreatedAt = table.Column<DateTime>(nullable: false),
                     UpdatedAt = table.Column<DateTime>(nullable: false)
                 },
@@ -358,16 +372,18 @@ namespace Groundforce.Services.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
-                    MissionId = table.Column<string>(nullable: true),
-                    BuildingTypeId = table.Column<string>(nullable: true),
-                    Landmark = table.Column<string>(maxLength: 150, nullable: true),
-                    BusStop = table.Column<string>(maxLength: 150, nullable: true),
-                    BuildingColor = table.Column<string>(maxLength: 20, nullable: true),
+                    MissionId = table.Column<string>(nullable: false),
+                    BuildingTypeId = table.Column<string>(nullable: false),
+                    Landmark = table.Column<string>(maxLength: 150, nullable: false),
+                    BusStop = table.Column<string>(maxLength: 150, nullable: false),
+                    BuildingColor = table.Column<string>(nullable: false),
                     AddressExists = table.Column<bool>(nullable: false),
-                    TypeOfStructure = table.Column<string>(maxLength: 35, nullable: true),
-                    Longitude = table.Column<string>(nullable: true),
-                    Latitude = table.Column<string>(nullable: true),
-                    Remarks = table.Column<string>(nullable: true)
+                    TypeOfStructure = table.Column<string>(maxLength: 35, nullable: false),
+                    Longitude = table.Column<string>(nullable: false),
+                    Latitude = table.Column<string>(nullable: false),
+                    Remarks = table.Column<string>(nullable: false),
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    UpdatedAt = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -377,7 +393,7 @@ namespace Groundforce.Services.Data.Migrations
                         column: x => x.BuildingTypeId,
                         principalTable: "BuildingTypes",
                         principalColumn: "TypeId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_MissionsVerified_Missions_MissionId",
                         column: x => x.MissionId,
@@ -394,8 +410,7 @@ namespace Groundforce.Services.Data.Migrations
                 name: "RoleNameIndex",
                 table: "AspNetRoles",
                 column: "NormalizedName",
-                unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -421,8 +436,7 @@ namespace Groundforce.Services.Data.Migrations
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
-                unique: true,
-                filter: "[NormalizedUserName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Missions_FieldAgentId",
@@ -444,8 +458,7 @@ namespace Groundforce.Services.Data.Migrations
                 name: "IX_MissionsVerified_MissionId",
                 table: "MissionsVerified",
                 column: "MissionId",
-                unique: true,
-                filter: "[MissionId] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_PointAllocated_FieldAgentId",
@@ -489,6 +502,9 @@ namespace Groundforce.Services.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "EmailVerifications");
 
             migrationBuilder.DropTable(
                 name: "MissionsVerified");

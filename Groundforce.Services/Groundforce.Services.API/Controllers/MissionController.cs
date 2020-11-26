@@ -47,7 +47,7 @@ namespace Groundforce.Services.API.Controllers
             {
                 // ensure model state is valid
                 if (!ModelState.IsValid)
-                    return BadRequest(ResponseMessage.Message("Model state error", errors: ModelState));
+                    return BadRequest(ResponseMessage.Message("Model state error", errors:  ModelState));
 
                 // generate item id
                 string itemId = "";
@@ -69,14 +69,14 @@ namespace Groundforce.Services.API.Controllers
 
                 // add item
                 if(!await _missionRepository.Add(newItem))
-                    return BadRequest(ResponseMessage.Message("Failed to added", errors: "Could not add record to data source"));
+                    return BadRequest(ResponseMessage.Message("Failed to added", errors: new { message = "Could not add record to data source" }));
 
                 return Ok(ResponseMessage.Message("Added successfully", data: new { AddressId = newItem.ItemId }));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return BadRequest(ResponseMessage.Message("Data access error", errors: "Could not access record from data source, error written to log file"));
+                return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
             }
                         
         }
@@ -93,14 +93,14 @@ namespace Groundforce.Services.API.Controllers
 
             // check if id is not null or empty
             if(String.IsNullOrWhiteSpace(model.Id))
-                return BadRequest(ResponseMessage.Message("Invalid Id", errors: "Id should not be null or empty or whitespace"));
+                return BadRequest(ResponseMessage.Message("Invalid Id", errors: new { message = "Id should not be null or empty or whitespace" }));
 
             try
             {
                 // get item using id
                 var item = await _missionRepository.GetVerificationItemById(model.Id);
                 if (item == null)
-                    return NotFound(ResponseMessage.Message("Null result", errors: $"Item with id: {model.Id} was not found"));
+                    return NotFound(ResponseMessage.Message("Null result", errors: new { message = $"Item with id: {model.Id} was not found" }));
 
                 // re-assign values
                 item.Title = model.Title;
@@ -110,15 +110,15 @@ namespace Groundforce.Services.API.Controllers
                 // update data source
                 var result = await _missionRepository.Update(item);
                 if (!result)
-                    return BadRequest(ResponseMessage.Message("Failed to update", errors: "Could not update record to data source"));
+                    return BadRequest(ResponseMessage.Message("Failed to update", errors: new { message = "Could not update record to data source" }));
 
-                return Ok(ResponseMessage.Message("Updated successfully", data: ""));
+                return Ok(ResponseMessage.Message("Updated successfully", data: new { message = "Update was successful" }));
 
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Data access error", errors: "Could not access record from data source, error written to log file"));
+                return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
             }
         }
 
@@ -130,26 +130,26 @@ namespace Groundforce.Services.API.Controllers
         {
             // check if id is not null or empty
             if (String.IsNullOrWhiteSpace(id))
-                return BadRequest(ResponseMessage.Message("Invalid Id", errors: "Id should not be null or empty or whitespace"));
+                return BadRequest(ResponseMessage.Message("Invalid Id", errors: new { message = "Id should not be null or empty or whitespace" }));
 
             try
             {
                 // get item using id
                 var item = await _missionRepository.GetVerificationItemById(id);
                 if (item == null)
-                    return NotFound(ResponseMessage.Message("Null result", errors: $"Item with id: {id} was not found"));
+                    return NotFound(ResponseMessage.Message("Null result", errors: new { message = $"Item with id: {id} was not found" }));
 
                 // delete data from source
                 var result = await _missionRepository.Delete(item);
                 if (!result)
-                    return BadRequest(ResponseMessage.Message("Failed to delte", errors: "Could not update record to data source"));
+                    return BadRequest(ResponseMessage.Message("Failed to delte", errors: new { message = "Could not update record to data source" }));
 
-                return Ok(ResponseMessage.Message("Deleted successfully", data: ""));
+                return Ok(ResponseMessage.Message("Deleted successfully", data: new { message = "Address was deleted sucessfully" }));
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Data access error", errors: "Could not access record from data source, error written to log file"));
+                return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
             }
         }
 
@@ -164,7 +164,7 @@ namespace Groundforce.Services.API.Controllers
                 // fetch all addresses
                 var results = await _missionRepository.GetVerificationItemsPaginated(page, perPage);
                 if(results == null)
-                    return NotFound(ResponseMessage.Message("Null result(s)", errors: $"No items was not found"));
+                    return NotFound(ResponseMessage.Message("Null result(s)", errors: new { message = $"No items was not found" }));
 
 
                 // map items fetched to items dto
@@ -200,7 +200,7 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Data access error", errors: "Could not access record from data source, error written to log file"));
+                return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
             }
         }
 
@@ -212,14 +212,14 @@ namespace Groundforce.Services.API.Controllers
         {
             // check if id is not null or empty
             if (String.IsNullOrWhiteSpace(id))
-                return BadRequest(ResponseMessage.Message("Invalid Id", errors: "Id should not be null or empty or whitespace"));
+                return BadRequest(ResponseMessage.Message("Invalid Id", errors: new { message = "Id should not be null or empty or whitespace" }));
 
             try
             {
                 // get item using id
                 var result = await _missionRepository.GetVerificationItemById(id);
                 if (result == null)
-                    return NotFound(ResponseMessage.Message("Null result", errors: $"Item with id: {id} was not found"));
+                    return NotFound(ResponseMessage.Message("Null result", errors: new { message = $"Item with id: {id} was not found" }));
 
 
                 // map items fetched to items dto
@@ -238,7 +238,7 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Data access error", errors: "Could not access record from data source, error written to log file"));
+                return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
             }
         }
 
@@ -256,7 +256,7 @@ namespace Groundforce.Services.API.Controllers
             {
                 var agent = await _agentRepository.GetAgentById(model.FieldAgentId);
                 if(agent == null)
-                    return NotFound(ResponseMessage.Message("Null result(s)", errors: $"Agent with Id {model.FieldAgentId} was not found"));
+                    return NotFound(ResponseMessage.Message("Null result(s)", errors: new { message = $"Agent with Id {model.FieldAgentId} was not found" }));
 
                 // generate item id
                 string missionId = "";
@@ -269,7 +269,7 @@ namespace Groundforce.Services.API.Controllers
 
                 // check if verification item is already existing in the missions table
                 if (await _missionRepository.IsVerificationItemAssigned(model.VerificationItemId))
-                    return BadRequest(ResponseMessage.Message("Already exists", errors: "Verification item aready assigned"));
+                    return BadRequest(ResponseMessage.Message("Already exists", errors: new { message = "Verification item aready assigned" }));
 
                 // construct item
                 var mission = new Mission
@@ -282,14 +282,14 @@ namespace Groundforce.Services.API.Controllers
                 // add item
                 var result2 = await _missionRepository.Add(mission);
                 if (!result2)
-                    return BadRequest(ResponseMessage.Message("Failed to assign", errors: "Could not add record to data source"));
+                    return BadRequest(ResponseMessage.Message("Failed to assign", errors: new { message = "Could not add record to data source" }));
 
                 return Ok(ResponseMessage.Message("Assigned successfully", data: new { missionId }));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return BadRequest(ResponseMessage.Message("Data access error", errors: "Could not access record from data source, error written to log file"));
+                return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
             }
 
         }
@@ -309,17 +309,17 @@ namespace Groundforce.Services.API.Controllers
                 // get mission using id
                 var mission = await _missionRepository.GetMissionById(model.Id);
                 if (mission == null)
-                    return NotFound(ResponseMessage.Message("Null result", errors: $"Mission with Id: {model.Id} is not found"));
+                    return NotFound(ResponseMessage.Message("Null result", errors: new { message = $"Mission with Id: {model.Id} is not found" }));
 
                 // only pending assignments can be edited
                 if (mission.VerificationStatus == "accepted" || mission.VerificationStatus == "verified")
-                    return Unauthorized(ResponseMessage.Message("Not allowed", errors: $"Mission is ongoing or completed"));
+                    return Unauthorized(ResponseMessage.Message("Not allowed", errors: new { message = $"Mission is ongoing or completed" }));
 
                 // check if verification item is already existing in the missions table
                 if(mission.VerificationItemId != model.VerificationItemId)
                 {
                     if (await _missionRepository.IsVerificationItemAssigned(model.VerificationItemId))
-                        return BadRequest(ResponseMessage.Message("Already exists", errors: "Verification item aready assigned"));
+                        return BadRequest(ResponseMessage.Message("Already exists", errors: new { message = "Verification item aready assigned" }));
 
                     // re-assign values
                     await DeleteMission(model.Id);
@@ -330,9 +330,9 @@ namespace Groundforce.Services.API.Controllers
                     // update data source
                     var result = await _missionRepository.Add(mission);
                     if (!result)
-                        return BadRequest(ResponseMessage.Message("Failed to update", errors: "Could not update record to data source"));
+                        return BadRequest(ResponseMessage.Message("Failed to update", errors: new { message = "Could not update record to data source" }));
 
-                    return Ok(ResponseMessage.Message("Updated successfully", data: mission.MissionId));
+                    return Ok(ResponseMessage.Message("Updated successfully", data: new { message = mission.MissionId }));
                 }
 
                 // update data source
@@ -340,15 +340,15 @@ namespace Groundforce.Services.API.Controllers
                 mission.VerificationItemId = model.VerificationItemId;
                 var res = await _missionRepository.Update(mission);
                 if (!res)
-                    return BadRequest(ResponseMessage.Message("Failed to update", errors: "Could not update record to data source"));
+                    return BadRequest(ResponseMessage.Message("Failed to update", errors: new { message = "Could not update record to data source" }));
 
-                return Ok(ResponseMessage.Message("Updated successfully", data: mission.MissionId));
+                return Ok(ResponseMessage.Message("Updated successfully", data: new { message = mission.MissionId }));
 
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Data access error", errors: "Could not access record from data source, error written to log file"));
+                return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
             }
         }
 
@@ -360,18 +360,18 @@ namespace Groundforce.Services.API.Controllers
         {
             // check if id is not null or empty
             if (String.IsNullOrWhiteSpace(missionId))
-                return BadRequest(ResponseMessage.Message("Invalid Id", errors: "Id should not be null or empty or whitespace"));
+                return BadRequest(ResponseMessage.Message("Invalid Id", errors: new { message = "Id should not be null or empty or whitespace" }));
 
             try
             {
                 // get mission using id
                 var mission = await _missionRepository.GetMissionById(missionId);
                 if (mission == null)
-                    return NotFound(ResponseMessage.Message("Null result", errors: $"Mission with Id: {missionId} is not found"));
+                    return NotFound(ResponseMessage.Message("Null result", errors: new { message = $"Mission with Id: {missionId} is not found" }));
 
                 // only pending assignments can be deleted
                 if(mission.VerificationStatus != "pending")
-                    return Unauthorized(ResponseMessage.Message("Not allowed", errors: $"Mission has is ongoing"));
+                    return Unauthorized(ResponseMessage.Message("Not allowed", errors: new { message = $"Mission has is ongoing" }));
 
                 // delete data from MissionVerified table
                 var res = await _missionRepository.GetMissionsVeriedByMissionId(missionId);
@@ -384,14 +384,14 @@ namespace Groundforce.Services.API.Controllers
                 // delete data from mission table
                 var result = await _missionRepository.Delete(mission);
                 if (!result)
-                    return BadRequest(ResponseMessage.Message("Failed to delte", errors: "Could not update record to data source"));
+                    return BadRequest(ResponseMessage.Message("Failed to delte", errors: new { message = "Could not update record to data source" }));
 
-                return Ok(ResponseMessage.Message("Deleted successfully", data: ""));
+                return Ok(ResponseMessage.Message("Deleted successfully", data: new { message = "Deleted sucessfully" }));
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Data access error", errors: "Could not access record from data source, error written to log file"));
+                return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
             }
         }
 
@@ -402,7 +402,7 @@ namespace Groundforce.Services.API.Controllers
         public async Task<IActionResult> UpdateMissionStatus(string missionId, string status)
         {
             if(String.IsNullOrWhiteSpace(missionId) || String.IsNullOrWhiteSpace(status))
-                return BadRequest(ResponseMessage.Message("Invalid credentials", errors: "Id or status should not be null or empty or whitespace"));
+                return BadRequest(ResponseMessage.Message("Invalid credentials", errors: new { message = "Id or status should not be null or empty or whitespace" }));
 
             try
             {
@@ -410,24 +410,24 @@ namespace Groundforce.Services.API.Controllers
 
                 // check if user's account is verified
                 var user = await _userManager.FindByIdAsync(logginUserId);
-                if (!user.IsVerified) return Unauthorized(ResponseMessage.Message("Unverified Account!", errors: "Unverified account is not authorized to take on task"));
+                if (!user.IsVerified) return Unauthorized(ResponseMessage.Message("Unverified Account!", errors: new { message = "Unverified account is not authorized to take on task" }));
 
                 // check if mission is assigned to logged-in user
                 var mission = await _missionRepository.GetMissionById(missionId);
                 if(mission.FieldAgentId != logginUserId)
-                    return BadRequest(ResponseMessage.Message("Id mismatch", errors: $"Mission with id: {missionId} is not assigned to logged-in user"));
+                    return BadRequest(ResponseMessage.Message("Id mismatch", errors: new { message = $"Mission with id: {missionId} is not assigned to logged-in user" }));
 
                 // update status
                 var result = await _missionRepository.ChangeMissionStatus(status, missionId);
                 if(!result)
-                    return BadRequest(ResponseMessage.Message("Failed to update", errors: "Could not update record to data source"));
+                    return BadRequest(ResponseMessage.Message("Failed to update", errors: new { message = "Could not update record to data source" }));
 
-                return Ok(ResponseMessage.Message("Updated successfully", data: ""));
+                return Ok(ResponseMessage.Message("Updated successfully", data: new { message = "Update was sucessful" }));
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Data access error", errors: "Could not access record from data source, error written to log file"));
+                return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
             }
         }
 
@@ -439,13 +439,13 @@ namespace Groundforce.Services.API.Controllers
         {
             // check if id is not null or empty
             if (String.IsNullOrWhiteSpace(agentId) || String.IsNullOrWhiteSpace(status))
-                return BadRequest(ResponseMessage.Message("Invalid credentials", errors: "Id or status should not be null or empty or whitespace"));
+                return BadRequest(ResponseMessage.Message("Invalid credentials", errors: new { message = "Id or status should not be null or empty or whitespace" }));
 
             try
             {
                 //var loggedInUserId = _userManager.GetUserId(User);
                 var results = await _missionRepository.GetMissionsPaginated(page, perPage, status);
-                if (results == null) return NotFound(ResponseMessage.Message("Null result", errors: "No result(s) found"));
+                if (results == null) return NotFound(ResponseMessage.Message("Null result", errors: new { message = "No result(s) found" }));
 
                 // filter only agent's results
                 var agentsMissions = new List<Mission>();
@@ -490,7 +490,7 @@ namespace Groundforce.Services.API.Controllers
             catch(Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Data access error", errors: "Could not access record from data source, error written to log file"));
+                return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
             }
         }
 
@@ -507,13 +507,13 @@ namespace Groundforce.Services.API.Controllers
             {
                 // check if user's account is verified
                 var user = await _userManager.FindByIdAsync(_userManager.GetUserId(User));
-                if (!user.IsVerified) return Unauthorized(ResponseMessage.Message("Unverified Account!", errors: "Unverified account is not authorized to take on task"));
+                if (!user.IsVerified) return Unauthorized(ResponseMessage.Message("Unverified Account!", errors: new { message = "Unverified account is not authorized to take on task" }));
 
                 // only accepted missions can be verified
                 var mission = await _missionRepository.GetMissionById(model.MissionId);
                 if(mission == null) if (mission == null) 
-                        return NotFound(ResponseMessage.Message("Null result", errors: $"Mission with id: {model.MissionId} was not found"));
-                if(mission.VerificationStatus != "accepted") return Unauthorized(ResponseMessage.Message("Not allowed", errors: "Mission is not accepted yet"));
+                        return NotFound(ResponseMessage.Message("Null result", errors: new { message = $"Mission with id: {model.MissionId} was not found" }));
+                if(mission.VerificationStatus != "accepted") return Unauthorized(ResponseMessage.Message("Not allowed", errors: new { message = "Mission is not accepted yet" }));
 
                 // generate item id
                 string Id = "";
@@ -542,7 +542,7 @@ namespace Groundforce.Services.API.Controllers
 
                 var result2 = await _missionRepository.Add(missionVerified);
                 if(!result2)
-                    return BadRequest(ResponseMessage.Message("Failed to submit", errors: "Could not submit record to data source"));
+                    return BadRequest(ResponseMessage.Message("Failed to submit", errors: new { message = "Could not submit record to data source" }));
 
                 if(!await _missionRepository.ChangeMissionStatus("verified", mission.MissionId))
                 {
@@ -554,7 +554,7 @@ namespace Groundforce.Services.API.Controllers
             catch(Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Data access error", errors: "Could not access record from data source, error written to log file"));
+                return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
             }
         }
     }

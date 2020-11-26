@@ -54,15 +54,15 @@ namespace Groundforce.Services.API.Controllers
             try
             {
                 // validate and ensure that the user is an active user
-                if (string.IsNullOrWhiteSpace(id)) return BadRequest(ResponseMessage.Message("Bad request",errors: "Invalid Id"));
+                if (string.IsNullOrWhiteSpace(id)) return BadRequest(ResponseMessage.Message("Bad request",errors: new { message = "Invalid Id" }));
 
                 var user = await _userManager.FindByIdAsync(id);
 
                 if (user == null)
-                    return NotFound(ResponseMessage.Message("Notfound", errors: $"User with id: {id} was not found"));
+                    return NotFound(ResponseMessage.Message("Notfound", errors: new { message = $"User with id: {id} was not found" }));
 
                 if (_userManager.GetUserId(User) != id && !User.IsInRole("Admin"))
-                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: $"User must be logged-in or must have admin role"));
+                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: new { message = $"User must be logged-in or must have admin role" }));
 
                 // construct the object
                 var appUser = new 
@@ -83,7 +83,7 @@ namespace Groundforce.Services.API.Controllers
                 if (await _userManager.IsInRoleAsync(user,"agent"))
                 {
                     var agent = await _agentRepository.GetAgentById(id);
-                    if (agent == null) return NotFound(ResponseMessage.Message("Notfound", errors: "User's extended details not found"));
+                    if (agent == null) return NotFound(ResponseMessage.Message("Notfound", errors: new { message = "User's extended details not found" }));
 
                     var profile = new UserToReturnDTO
                     {
@@ -109,7 +109,7 @@ namespace Groundforce.Services.API.Controllers
             catch(Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Data processing error"));
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Data processing error" }));
             }
         }
 
@@ -124,10 +124,10 @@ namespace Groundforce.Services.API.Controllers
                 var user = await _userManager.FindByIdAsync(model.Id);
 
                 if (user == null)
-                    return NotFound(ResponseMessage.Message("Notfound", errors: $"User with id: {model.Id} was not found"));
+                    return NotFound(ResponseMessage.Message("Notfound", errors: new { message = $"User with id: {model.Id} was not found" }));
 
                 if (_userManager.GetUserId(User) != model.Id)
-                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: $"User must be logged-in"));
+                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: new { message = $"User must be logged-in" }));
 
 
                 user.FirstName = model.FirstName;
@@ -140,14 +140,14 @@ namespace Groundforce.Services.API.Controllers
                 if (await _userManager.IsInRoleAsync(user, "agent"))
                 {
                     var agent = await _agentRepository.GetAgentById(model.Id);
-                    if (agent == null) return NotFound(ResponseMessage.Message("Notfound", errors: "User's extended details not found"));
+                    if (agent == null) return NotFound(ResponseMessage.Message("Notfound", errors: new { message = "User's extended details not found" }));
                     
                     agent.AdditionalPhoneNumber = model.AdditionalPhoneNumber;
                     agent.Religion = model.Religion;
 
                     var res = await _agentRepository.UpdateAgent(agent);
                     if(!res)
-                        return NotFound(ResponseMessage.Message("Bad request", errors: "Failed to update user's extended details"));
+                        return NotFound(ResponseMessage.Message("Bad request", errors: new { message = "Failed to update user's extended details" }));
                 }
 
                 // update user
@@ -159,10 +159,10 @@ namespace Groundforce.Services.API.Controllers
                     {
                         ModelState.AddModelError("", err.Description);
                     }
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to update user"));
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Failed to update user" }));
                 }
 
-                return Ok(ResponseMessage.Message("Success", data: "Updated Successfully!"));
+                return Ok(ResponseMessage.Message("Success", data: new { message = "Updated Successfully!" }));
 
             }
             return BadRequest(ModelState);
@@ -180,17 +180,17 @@ namespace Groundforce.Services.API.Controllers
                 var authSupportService = new AuthSupportService(_userManager, _agentRepository);
                 user = await _userManager.FindByIdAsync(Picture.Id);
                 if(user == null)
-                    return BadRequest(ResponseMessage.Message("Notfound", errors: $"User with Id: {Picture.Id} was not found"));
+                    return BadRequest(ResponseMessage.Message("Notfound", errors: new { message = $"User with Id: {Picture.Id} was not found" }));
 
                 // check if user with id is logged in
                 if (_userManager.GetUserId(User) != Picture.Id)
-                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: $"User must be logged-in"));
+                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: new { message = $"User must be logged-in" }));
 
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Data processing error"));
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Data processing error" }));
             }
 
             try
@@ -205,7 +205,7 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", e.Message));
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = e.Message }));
             }
               
         }
@@ -216,7 +216,7 @@ namespace Groundforce.Services.API.Controllers
         public async Task<IActionResult> ChangePassword([FromBody] ChangePwdDTO model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ResponseMessage.Message("Bad request", errors: ModelState));
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = ModelState }));
 
             ApplicationUser user = null;
             try
@@ -224,29 +224,29 @@ namespace Groundforce.Services.API.Controllers
                 // check if user with id is logged in
                 var loggedInUserId = _userManager.GetUserId(User);
                 if (loggedInUserId != model.UserId)
-                    return BadRequest(ResponseMessage.Message("Bad request", $"Id: {model.UserId} does not match loggedIn user Id"));
+                    return BadRequest(ResponseMessage.Message("Bad request",errors: new { message = $"Id: {model.UserId} does not match loggedIn user Id" }));
 
                 // get user
                 user = await _userManager.FindByIdAsync(model.UserId);
                 if (user == null)
-                    return BadRequest(ResponseMessage.Message("Notfound", errors: $"User with Id: {model.UserId} was not found"));
+                    return BadRequest(ResponseMessage.Message("Notfound", errors: new { message = $"User with Id: {model.UserId} was not found" }));
 
                 // change password
                 var updatePwd = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
 
-                if (updatePwd.Succeeded) return Ok(ResponseMessage.Message("Success", data: "Password Changed!"));
+                if (updatePwd.Succeeded) return Ok(ResponseMessage.Message("Success", data: new { message = "Password Changed!" }));
 
                 foreach (var error in updatePwd.Errors)
                 {
                     ModelState.AddModelError("", $"{error.Code} - {error.Description}");
                 }
-                return BadRequest(ResponseMessage.Message("Bad request",errors:  ModelState));
+                return BadRequest(ResponseMessage.Message("Bad request",errors: new { message = ModelState }));
 
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Data processing error"));
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Data processing error" }));
             }
 
         }
@@ -261,16 +261,16 @@ namespace Groundforce.Services.API.Controllers
                 var user = await _userManager.GetUserAsync(User);
 
                 if (user.IsVerified)
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "User is already verified"));
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "User is already verified" }));
 
                 if (string.IsNullOrWhiteSpace(user.AvatarUrl))
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Photo must be uploaded"));
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Photo must be uploaded" }));
 
                 var agent = await _agentRepository.GetAgentById(user.Id);
 
                 var validateAccountNumber = InputValidator.NUBANAccountValidator(model.BankCode, model.AccountNumber);
 
-                if (!validateAccountNumber) return BadRequest(ResponseMessage.Message("Bad request", errors: "Invalid account number"));
+                if (!validateAccountNumber) return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Invalid account number" }));
 
                 var accountName = Enum.GetName(typeof(BankCode), Convert.ToInt32(model.BankCode));
 
@@ -282,7 +282,7 @@ namespace Groundforce.Services.API.Controllers
                 user.IsVerified = true;
 
                 if (!await _agentRepository.UpdateAgent(agent))
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to update user"));
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Failed to update user" }));
 
                 var update = await _userManager.UpdateAsync(user);
                 if (!update.Succeeded)
@@ -291,12 +291,12 @@ namespace Groundforce.Services.API.Controllers
                     {
                         ModelState.AddModelError("", err.Description);
                     }
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to update user"));
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Failed to update user" }));
                 }
 
-                return Ok(ResponseMessage.Message("Success", data: "Updated Successfully!"));
+                return Ok(ResponseMessage.Message("Success", data: new { message = "Updated Successfully!" }));
             }
-            return BadRequest(ResponseMessage.Message("Invalid model state", errors: ModelState));
+            return BadRequest(ResponseMessage.Message("Invalid model state", errors: new { message = ModelState }));
         }
 
 
@@ -306,11 +306,11 @@ namespace Groundforce.Services.API.Controllers
         public async Task<IActionResult> DeleteUser(string Id)
         {
             if (String.IsNullOrWhiteSpace(Id))
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Invalid Id"));
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Invalid Id" }));
 
             var user = await _userManager.FindByIdAsync(Id);
             if (user == null)
-                return NotFound(ResponseMessage.Message("Notfound", $"User with id {Id} was not found"));
+                return NotFound(ResponseMessage.Message("Notfound", new { message = $"User with id {Id} was not found" }));
 
             FieldAgent agent = null;
             try
@@ -323,7 +323,7 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return BadRequest(ResponseMessage.Message("Failed to delete user!"));
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Could not access data" }));
             }
 
             try
@@ -336,7 +336,7 @@ namespace Groundforce.Services.API.Controllers
                 {
                     foreach (var err in result.Errors)
                         ModelState.AddModelError("", err.Description);
-                    return BadRequest(ResponseMessage.Message("", errors: ModelState));
+                    return BadRequest(ResponseMessage.Message("", errors: new { message = ModelState }));
                 }
 
                 if (!await _requestRepository.DeleteRequestByPhone(user.PhoneNumber))
@@ -346,9 +346,9 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return BadRequest(ResponseMessage.Message("Failed to delete user!"));
+                return BadRequest(ResponseMessage.Message("", errors: new { message = "Failed to delete user!" }));
             }
-            return Ok(ResponseMessage.Message("User deleted!"));
+            return Ok(ResponseMessage.Message("Deleted successfully", data: new { message = "User deleted!" }));
         }
 
 

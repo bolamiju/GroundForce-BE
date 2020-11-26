@@ -15,5 +15,7 @@ RUN dotnet publish -c Release -o publish
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /app
 EXPOSE 5000
+COPY --from=build /app/Groundforce.Services.API/gforce.db .
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "Groundforce.Services.API.dll"]
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet Groundforce.Services.API.dll
+#ENTRYPOINT ["dotnet", "Groundforce.Services.API.dll"]
