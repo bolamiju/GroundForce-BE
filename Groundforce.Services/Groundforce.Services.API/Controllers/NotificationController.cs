@@ -68,36 +68,36 @@ namespace Groundforce.Services.API.Controllers
                 var addNotification = await _notificationRepository.AddNotification(createNotification);
                 if (addNotification)
                 {
-                    return Ok(ResponseMessage.Message("Success", data: $"Notification with id {NotifID} has been created"));
+                    return Ok(ResponseMessage.Message("Success", data: new { message = $"Notification with id {NotifID} has been created" }));
                 }
-                return BadRequest(ResponseMessage.Message("Bad Request", errors: $"Failed to create notification"));
+                return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Failed to create notification" }));
             }
-            return BadRequest(ResponseMessage.Message("Bad Request", errors: $"Please enter the correct details"));
+            return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Please enter the correct details" }));
         }
 
         //delete a notification
         [HttpDelete("{NotificationId}/delete-notification")]
         public async Task<IActionResult> DeleteNotification(string NotificationId)
         {
-            if (NotificationId == null) BadRequest(ResponseMessage.Message("Bad Request", errors: "You need to provide a notification Id"));
+            if (NotificationId == null) BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "You need to provide a notification Id" }));
 
             var fetchedNotification = await _notificationRepository.GetNotificationById(NotificationId);
             if (fetchedNotification != null)
             {
                 var notificationToDelete = await _notificationRepository.DeleteNotification(fetchedNotification);
 
-                if (notificationToDelete) return Ok(ResponseMessage.Message("Success", data: $"The {fetchedNotification.Type} notification with id {NotificationId} has been deleted"));
+                if (notificationToDelete) return Ok(ResponseMessage.Message("Success", data: new { message = $"The {fetchedNotification.Type} notification with id {NotificationId} has been deleted" }));
 
-                return BadRequest(ResponseMessage.Message("Bad Request", errors: $"Could not delete the {fetchedNotification.Type} notification with id {NotificationId}. Please try again"));
+                return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = $"Could not delete the {fetchedNotification.Type} notification with id {NotificationId}. Please try again" }));
             }
-            return BadRequest(ResponseMessage.Message("Bad Request", errors: $"Notification with id {NotificationId} does not exists"));
+            return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = $"Notification with id {NotificationId} does not exists" }));
         }
 
         //update a notification
         [HttpPatch("{Id}/edit-notification")]
         public async Task<IActionResult> UpdateNotification(string Id, [FromBody] NotificationDTO UpdateNotification)
         {
-            if (Id == null) BadRequest(ResponseMessage.Message("Bad Request", errors: "You need to provide a notification Id"));
+            if (Id == null) BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "You need to provide a notification Id" }));
 
             var fetchedNotification = await _notificationRepository.GetNotificationById(Id);
             if (fetchedNotification != null)
@@ -108,11 +108,11 @@ namespace Groundforce.Services.API.Controllers
 
                 var notificationToUpdate = await _notificationRepository.UpdateNotification(fetchedNotification);
 
-                if (notificationToUpdate) return Ok(ResponseMessage.Message("Success", data: $"Notification with id {Id} has been updated"));
+                if (notificationToUpdate) return Ok(ResponseMessage.Message("Success", data: new { message = $"Notification with id {Id} has been updated" }));
 
-                return BadRequest(ResponseMessage.Message("Bad Request", errors: $"Could not update notification with id {Id}. Please try again"));
+                return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = $"Could not update notification with id {Id}. Please try again" }));
             }
-            return BadRequest(ResponseMessage.Message("Bad Request", errors: $"Notification with id {Id} was not found"));
+            return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = $"Notification with id {Id} was not found" }));
         }
 
         //get all notifications
@@ -130,11 +130,11 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad Request", errors: "Could not fetch notifications"));
+                return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Could not fetch notifications" }));
             }
 
             if (result.Count() == 0)
-                return Ok(ResponseMessage.Message("Success", data: $"There are no notifications"));
+                return Ok(ResponseMessage.Message("Success", data: new { message = "There are no notifications" }));
 
             foreach (var notification in result)
             {
@@ -155,11 +155,11 @@ namespace Groundforce.Services.API.Controllers
         [Route("{NotificationId}")]
         public async Task<IActionResult> FetchSingleNotification(string NotificationId)
         {
-            if (NotificationId == null) BadRequest(ResponseMessage.Message("Bad Request", errors: "You need to provide a notification Id"));
+            if (NotificationId == null) BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "You need to provide a notification Id" }));
 
             var notificationWithId = await _notificationRepository.GetNotificationById(NotificationId);
             if (notificationWithId == null)
-                return BadRequest(ResponseMessage.Message("Bad Request", errors: $"No such notification with id {NotificationId} exists"));
+                return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = $"No such notification with id {NotificationId} exists" }));
 
             var notificationDTOResult = new NotificationToReturnDTO
             {
@@ -181,7 +181,7 @@ namespace Groundforce.Services.API.Controllers
 
             paginatedResults = await _notificationRepository.GetAllNotificationsPaginated(page, per_page);
             if (paginatedResults == null)
-                return BadRequest(ResponseMessage.Message("Bad Request", errors: "There are no notifications"));
+                return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "There are no notifications" }));
 
             foreach (var notification in paginatedResults)
             {
