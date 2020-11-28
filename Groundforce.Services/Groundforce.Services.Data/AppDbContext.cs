@@ -18,10 +18,17 @@ namespace Groundforce.Services.Data
         public DbSet<Request> Request { get; set; }
         public DbSet<EmailVerification> EmailVerifications { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Survey> Surveys { get; set; }
+        public DbSet<SurveyType> SurveyTypes { get; set; }
+        public DbSet<SurveyQuestion> SurveyQuestions { get; set; }
+        public DbSet<QuestionOption> QuestionOptions { get; set; }
+        public DbSet<UserSurvey> UserSurveys { get; set; }
+        public DbSet<Response> Responses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.Entity<UserSurvey>().HasKey(fas => new { fas.ApplicationUserId, fas.SurveyId });
 
             // Configure Mission & VerificationItem entity
             builder.Entity<Mission>()
