@@ -43,8 +43,8 @@ namespace Groundforce.Services.API.Controllers
         }
 
         //create a notification
-        [HttpPost("{AdminId}")]
-        public async Task<IActionResult> CreateNotification(string AdminId, [FromBody] NotificationDTO newNotification)
+        [HttpPost]
+        public async Task<IActionResult> CreateNotification([FromBody] NotificationDTO newNotification)
         {
             if (ModelState.IsValid)
             {
@@ -56,13 +56,13 @@ namespace Groundforce.Services.API.Controllers
                     result = await _notificationRepository.GetNotificationById(NotifID);
                 } while (result != null);
 
-                var currentUser = _userManager.Users.FirstOrDefault(x => x.Id == AdminId);
+                var currentUser = await _userManager.GetUserAsync(User);
                 var createNotification = new Notification
                 {
                     Id = NotifID,
                     Notifications = newNotification.Description,
                     Type = newNotification.Type,
-                    ApplicationUser = currentUser
+                    ApplicationUserId = currentUser.Id
                 };
 
                 var addNotification = await _notificationRepository.AddNotification(createNotification);
@@ -115,41 +115,6 @@ namespace Groundforce.Services.API.Controllers
             return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = $"Notification with id {Id} was not found" }));
         }
 
-        //get all notifications
-        [HttpGet]
-        [Route("all-notifications")]
-        public async Task<IActionResult> FetchAllNotifications()
-        {
-            IEnumerable<Notification> result;
-            var notificationList = new List<NotificationToReturnDTO>();
-
-            try
-            {
-                result = await _notificationRepository.GetAllNotifications();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Could not fetch notifications" }));
-            }
-
-            if (result.Count() == 0)
-                return Ok(ResponseMessage.Message("Success", data: new { message = "There are no notifications" }));
-
-            foreach (var notification in result)
-            {
-                var notificationDTOResult = new NotificationToReturnDTO
-                {
-                    Id = notification.Id,
-                    Notifications = notification.Notifications,
-                    Type = notification.Type.ToString(),
-                    ApplicationUserId = notification.ApplicationUserId
-                };
-                notificationList.Add(notificationDTOResult);
-            }
-            return Ok(ResponseMessage.Message($"Success", data: notificationList));
-        }
-
         //get a notification by Id
         [HttpGet]
         [Route("{NotificationId}")]
@@ -180,6 +145,33 @@ namespace Groundforce.Services.API.Controllers
             var notificationList = new List<NotificationToReturnDTO>();
 
             paginatedResults = await _notificationRepository.GetAllNotificationsPaginated(page, per_page);
+            if (paginatedResults == null)
+                return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "There are no notifications" }));
+
+            foreach (var notification in paginatedResults)
+            {
+                var notificationDTOResult = new NotificationToReturnDTO
+                {
+                    Id = notification.Id,
+                    Notifications = notification.Notifications,
+                    Type = notification.Type.ToString(),
+                    ApplicationUserId = notification.ApplicationUserId
+                };
+                notificationList.Add(notificationDTOResult);
+            }
+            return Ok(ResponseMessage.Message("Success", data: notificationList));
+        }
+
+        //get all notifications by userId paginated
+        [HttpGet]
+        [Authorize(Roles = "Admin, Agent, Client")]
+        [Route("{userId}/notifications/{page}")]
+        public async Task<IActionResult> FetchNotificationsByUserId(string userId, int page)
+        {
+            IEnumerable<Notification> paginatedResults;
+            var notificationList = new List<NotificationToReturnDTO>();
+
+            paginatedResults = await _notificationRepository.GetNotificationsByUserId(userId, page, per_page);
             if (paginatedResults == null)
                 return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "There are no notifications" }));
 

@@ -30,17 +30,11 @@ namespace Groundforce.Services.Data.Services
             return await _ctx.SaveChangesAsync() > 0;
         }
 
-        public async Task<IEnumerable<Notification>> GetAllNotifications()
+        public async Task<IEnumerable<Notification>> GetAllNotificationsPaginated(int page, int per_page)
         {
             var allNotifications = await _ctx.Notifications.ToListAsync();
             TotalNotifications = allNotifications.Count();
-            return allNotifications;
-        }
-
-        public async Task<IEnumerable<Notification>> GetAllNotificationsPaginated(int page, int per_page)
-        {
-            var allNotifications = await GetAllNotifications();
-            var paginatedNotifications = allNotifications.Skip((page - 1) * per_page).Take(per_page).ToList();
+            var paginatedNotifications = allNotifications.Skip((page - 1) * per_page).Take(per_page).ToList().OrderByDescending(x => x.DateUpdated);
             return paginatedNotifications;
         }
 
@@ -53,6 +47,15 @@ namespace Groundforce.Services.Data.Services
         {
             _ctx.Notifications.Update(updateModel);
             return await _ctx.SaveChangesAsync() > 0;
+        }
+
+        public async Task<List<Notification>> GetNotificationsByUserId(string userId, int page, int per_page)
+        {
+            var allNotifications = await _ctx.Notifications.Where(x => x.ApplicationUserId == userId).ToListAsync();
+            TotalNotifications = allNotifications.Count();
+            var paginatedNotifications = allNotifications.Skip((page - 1) * per_page).Take(per_page).OrderByDescending(x => x.DateUpdated).ToList();
+            
+            return paginatedNotifications;
         }
     }
 }
