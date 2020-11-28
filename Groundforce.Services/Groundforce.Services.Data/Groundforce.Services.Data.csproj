@@ -5,6 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20201117042944_VerifyEmailMigration.cs" />
+    <Compile Remove="Migrations\20201117042944_VerifyEmailMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201117092322_ModelRedesignMigration.cs" />
+    <Compile Remove="Migrations\20201117092322_ModelRedesignMigration.Designer.cs" />
+    <Compile Remove="Migrations\20201125200124_Notificationrelationship.cs" />
+    <Compile Remove="Migrations\20201125200124_Notificationrelationship.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CloudinaryDotNet" Version="1.13.1" />
     <PackageReference Include="MailKit" Version="2.9.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.8" />
