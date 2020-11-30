@@ -47,6 +47,8 @@ namespace Groundforce.Services.API
             services.AddScoped<IAgentRepository, AgentRepository>();
             services.AddScoped<INotificationRepository, NotificationRepository>();
             services.AddTransient<IMailService, MailService>();
+            services.AddScoped(typeof(IAllRepo<>), typeof(AllRepo<>));
+            services.AddScoped<ISurveyRepository, SurveyRepository>();
             //services.AddScoped<IAdminRepository, AdminRepository>();
 
             // Identity service
