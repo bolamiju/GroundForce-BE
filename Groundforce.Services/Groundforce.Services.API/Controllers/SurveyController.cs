@@ -666,7 +666,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
         [Authorize(Roles = "Agent")]
-        [HttpPatch("edit-status")]
+        [HttpPatch("acceptance-status")]
         public async Task<IActionResult>EditStatusUserSurvey([FromBody] UserSurveyDTO model) 
         {
             if (String.IsNullOrWhiteSpace(model.AgentId) || String.IsNullOrWhiteSpace(model.SurveyId))
@@ -718,7 +718,22 @@ namespace Groundforce.Services.API.Controllers
                 }
             }
 
-            foreach(var item in model.Questions)
+            UserSurvey userSurvey;
+            try
+            {
+                userSurvey = await _surveyRepository.GetUserSurveyByUserIdAndSurveyId(model.AgentId, model.SurveyId);
+                if (userSurvey == null)
+                    return NotFound(ResponseMessage.Message("Not found", errors: new { message = "User Survey does not exist" }));
+                if (userSurvey.Status != "accepted")
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "User did not accept this survey" }));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
+            }
+
+            foreach (var item in model.Questions)
             {
                 try
                 {
@@ -749,20 +764,7 @@ namespace Groundforce.Services.API.Controllers
                     return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = $"Failed to add response of survey id = {model.SurveyId}" }));
                 }            
 
-            }
-
-            UserSurvey userSurvey;
-            try
-            {
-                userSurvey = await _surveyRepository.GetUserSurveyByUserIdAndSurveyId(model.AgentId, model.SurveyId);
-                if (userSurvey == null)
-                    return NotFound(ResponseMessage.Message("Not found", "User Survey does not exist"));
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Data access error", errors: "Could not access record from data source, error written to log file"));
-            }
+            }            
 
             userSurvey.Status = "completed";
 
@@ -773,10 +775,10 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: "Failed to update user survey to complete status"));
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Failed to update user survey to complete status" }));
             }
 
-            return Ok(ResponseMessage.Message("Success", data: "User survey updated successfully"));
+            return Ok(ResponseMessage.Message("Success", data: new { message = "User survey updated successfully" }));
         }
 
         [Authorize(Roles = "Admin")]

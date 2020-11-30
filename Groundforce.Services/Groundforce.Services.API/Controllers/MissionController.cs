@@ -398,7 +398,7 @@ namespace Groundforce.Services.API.Controllers
 
         [Authorize(Roles = "Agent")]
         [HttpPatch]
-        [Route("{missionId}/edit-status/{status}")]
+        [Route("{missionId}/acceptance-status/{status}")]
         public async Task<IActionResult> UpdateMissionStatus(string missionId, string status)
         {
             if(String.IsNullOrWhiteSpace(missionId) || String.IsNullOrWhiteSpace(status))
