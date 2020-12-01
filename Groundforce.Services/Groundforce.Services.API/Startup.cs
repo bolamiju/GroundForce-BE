@@ -15,6 +15,7 @@ using Groundforce.Services.Data.Services;
 using System.Net;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Groundforce.Services.Core;
 
 namespace Groundforce.Services.API
 {
@@ -36,7 +37,7 @@ namespace Groundforce.Services.API
 
 
             // db connection string
-            services.AddDbContext<AppDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("DbConnection")));
+            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbConnection")));
             
 
             services.AddScoped<IRequestRepository, RequestRepository>();
@@ -44,7 +45,10 @@ namespace Groundforce.Services.API
             services.AddScoped<IPhotoRepository, PhotoRepository>();
             services.AddScoped<IMissionRepository, MissionRepository>();
             services.AddScoped<IAgentRepository, AgentRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
             services.AddTransient<IMailService, MailService>();
+            services.AddScoped(typeof(IAllRepo<>), typeof(AllRepo<>));
+            services.AddScoped<ISurveyRepository, SurveyRepository>();
             //services.AddScoped<IAdminRepository, AdminRepository>();
 
             // Identity service

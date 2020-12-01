@@ -5,9 +5,15 @@ using System.Threading.Tasks;
 
 namespace Groundforce.Services.Data.Services
 {
-    public interface IAllRepo
+    public interface IAllRepo<T> where T : class
     {
-        Task<T> Add<T>(T param);
-
+        int TotalNumberOfItems { get; set; }
+        Task<IEnumerable<T>> GetAll();
+        Task<IEnumerable<T>> GetPaginated(int page, int per_page);
+        // Task<T> Get(string id); 
+        Task<bool> Add(T entity);
+        Task<bool> AddRange(List<T> entity);
+        Task<bool> Update(T entity);
+        Task<bool> Delete(T entity);
     }
 }

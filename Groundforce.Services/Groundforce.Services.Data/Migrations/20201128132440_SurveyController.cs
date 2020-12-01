@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Groundforce.Services.Data.Migrations
 {
-    public partial class NewSqliteMigration : Migration
+    public partial class SurveyController : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -115,11 +115,25 @@ namespace Groundforce.Services.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SurveyTypes",
+                columns: table => new
+                {
+                    SurveyTypeId = table.Column<string>(nullable: false),
+                    Type = table.Column<string>(nullable: false),
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    UpdatedAt = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SurveyTypes", x => x.SurveyTypeId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     RoleId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -140,7 +154,7 @@ namespace Groundforce.Services.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -249,6 +263,28 @@ namespace Groundforce.Services.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Notifications",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    Notifications = table.Column<string>(nullable: false),
+                    Type = table.Column<int>(nullable: false),
+                    DateCreated = table.Column<DateTime>(nullable: false),
+                    DateUpdated = table.Column<DateTime>(nullable: false),
+                    ApplicationUserId = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notifications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Notifications_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserActivity",
                 columns: table => new
                 {
@@ -287,6 +323,34 @@ namespace Groundforce.Services.Data.Migrations
                         column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Surveys",
+                columns: table => new
+                {
+                    SurveyId = table.Column<string>(nullable: false),
+                    Topic = table.Column<string>(nullable: false),
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    UpdatedAt = table.Column<DateTime>(nullable: false),
+                    ApplicationUserId = table.Column<string>(nullable: true),
+                    SurveyTypeId = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Surveys", x => x.SurveyId);
+                    table.ForeignKey(
+                        name: "FK_Surveys_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Surveys_SurveyTypes_SurveyTypeId",
+                        column: x => x.SurveyTypeId,
+                        principalTable: "SurveyTypes",
+                        principalColumn: "SurveyTypeId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -368,6 +432,52 @@ namespace Groundforce.Services.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SurveyQuestions",
+                columns: table => new
+                {
+                    SurveyQuestionId = table.Column<string>(nullable: false),
+                    Question = table.Column<string>(nullable: true),
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    UpdatedAt = table.Column<DateTime>(nullable: false),
+                    SurveyId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SurveyQuestions", x => x.SurveyQuestionId);
+                    table.ForeignKey(
+                        name: "FK_SurveyQuestions_Surveys_SurveyId",
+                        column: x => x.SurveyId,
+                        principalTable: "Surveys",
+                        principalColumn: "SurveyId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserSurveys",
+                columns: table => new
+                {
+                    ApplicationUserId = table.Column<string>(nullable: false),
+                    SurveyId = table.Column<string>(nullable: false),
+                    Status = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserSurveys", x => new { x.ApplicationUserId, x.SurveyId });
+                    table.ForeignKey(
+                        name: "FK_UserSurveys_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserSurveys_Surveys_SurveyId",
+                        column: x => x.SurveyId,
+                        principalTable: "Surveys",
+                        principalColumn: "SurveyId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "MissionsVerified",
                 columns: table => new
                 {
@@ -401,6 +511,75 @@ namespace Groundforce.Services.Data.Migrations
                         principalColumn: "MissionId");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "QuestionOptions",
+                columns: table => new
+                {
+                    QuestionOptionId = table.Column<string>(nullable: false),
+                    Option = table.Column<string>(nullable: true),
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    UpdatedAt = table.Column<DateTime>(nullable: false),
+                    SurveyQuestionId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QuestionOptions", x => x.QuestionOptionId);
+                    table.ForeignKey(
+                        name: "FK_QuestionOptions_SurveyQuestions_SurveyQuestionId",
+                        column: x => x.SurveyQuestionId,
+                        principalTable: "SurveyQuestions",
+                        principalColumn: "SurveyQuestionId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Responses",
+                columns: table => new
+                {
+                    ResponseId = table.Column<string>(nullable: false),
+                    ApplicationUserId = table.Column<string>(nullable: false),
+                    SurveyId = table.Column<string>(nullable: false),
+                    SurveyQuestionId = table.Column<string>(nullable: false),
+                    QuestionOptionId = table.Column<string>(nullable: false),
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    UserSurveyApplicationUserId = table.Column<string>(nullable: true),
+                    UserSurveySurveyId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Responses", x => x.ResponseId);
+                    table.ForeignKey(
+                        name: "FK_Responses_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Responses_QuestionOptions_QuestionOptionId",
+                        column: x => x.QuestionOptionId,
+                        principalTable: "QuestionOptions",
+                        principalColumn: "QuestionOptionId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Responses_Surveys_SurveyId",
+                        column: x => x.SurveyId,
+                        principalTable: "Surveys",
+                        principalColumn: "SurveyId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Responses_SurveyQuestions_SurveyQuestionId",
+                        column: x => x.SurveyQuestionId,
+                        principalTable: "SurveyQuestions",
+                        principalColumn: "SurveyQuestionId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Responses_UserSurveys_UserSurveyApplicationUserId_UserSurveySurveyId",
+                        columns: x => new { x.UserSurveyApplicationUserId, x.UserSurveySurveyId },
+                        principalTable: "UserSurveys",
+                        principalColumns: new[] { "ApplicationUserId", "SurveyId" },
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -410,7 +589,8 @@ namespace Groundforce.Services.Data.Migrations
                 name: "RoleNameIndex",
                 table: "AspNetRoles",
                 column: "NormalizedName",
-                unique: true);
+                unique: true,
+                filter: "[NormalizedName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -436,7 +616,8 @@ namespace Groundforce.Services.Data.Migrations
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
-                unique: true);
+                unique: true,
+                filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Missions_FieldAgentId",
@@ -461,6 +642,11 @@ namespace Groundforce.Services.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Notifications_ApplicationUserId",
+                table: "Notifications",
+                column: "ApplicationUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PointAllocated_FieldAgentId",
                 table: "PointAllocated",
                 column: "FieldAgentId");
@@ -471,6 +657,51 @@ namespace Groundforce.Services.Data.Migrations
                 column: "PointId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_QuestionOptions_SurveyQuestionId",
+                table: "QuestionOptions",
+                column: "SurveyQuestionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Responses_ApplicationUserId",
+                table: "Responses",
+                column: "ApplicationUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Responses_QuestionOptionId",
+                table: "Responses",
+                column: "QuestionOptionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Responses_SurveyId",
+                table: "Responses",
+                column: "SurveyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Responses_SurveyQuestionId",
+                table: "Responses",
+                column: "SurveyQuestionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Responses_UserSurveyApplicationUserId_UserSurveySurveyId",
+                table: "Responses",
+                columns: new[] { "UserSurveyApplicationUserId", "UserSurveySurveyId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SurveyQuestions_SurveyId",
+                table: "SurveyQuestions",
+                column: "SurveyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Surveys_ApplicationUserId",
+                table: "Surveys",
+                column: "ApplicationUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Surveys_SurveyTypeId",
+                table: "Surveys",
+                column: "SurveyTypeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Transactions_FieldAgentId",
                 table: "Transactions",
                 column: "FieldAgentId");
@@ -479,6 +710,11 @@ namespace Groundforce.Services.Data.Migrations
                 name: "IX_UserActivity_ApplicationUserId",
                 table: "UserActivity",
                 column: "ApplicationUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserSurveys_SurveyId",
+                table: "UserSurveys",
+                column: "SurveyId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VerificationItems_ApplicationUserId",
@@ -510,10 +746,16 @@ namespace Groundforce.Services.Data.Migrations
                 name: "MissionsVerified");
 
             migrationBuilder.DropTable(
+                name: "Notifications");
+
+            migrationBuilder.DropTable(
                 name: "PointAllocated");
 
             migrationBuilder.DropTable(
                 name: "Request");
+
+            migrationBuilder.DropTable(
+                name: "Responses");
 
             migrationBuilder.DropTable(
                 name: "Transactions");
@@ -534,13 +776,28 @@ namespace Groundforce.Services.Data.Migrations
                 name: "Points");
 
             migrationBuilder.DropTable(
+                name: "QuestionOptions");
+
+            migrationBuilder.DropTable(
+                name: "UserSurveys");
+
+            migrationBuilder.DropTable(
                 name: "FieldAgents");
 
             migrationBuilder.DropTable(
                 name: "VerificationItems");
 
             migrationBuilder.DropTable(
+                name: "SurveyQuestions");
+
+            migrationBuilder.DropTable(
+                name: "Surveys");
+
+            migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "SurveyTypes");
         }
     }
 }
