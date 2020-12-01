@@ -4,8 +4,8 @@ using System.Text;
 
 namespace Groundforce.Services.DTOs
 {
-    public class ResponseMessageDTO
+    public class LoginTokenDTO
     {
-        public string Message { get; set; }
+        public object token { get; set; }
     }
 }

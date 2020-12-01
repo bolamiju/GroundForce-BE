@@ -300,7 +300,7 @@ namespace Groundforce.Services.API.Controllers
             return BadRequest(ResponseMessage.Message("Invalid model state", errors: new { message = ModelState }));
         }
 
-
+        #region DELETE USER. ONLY FOR DEVELOPMENT PURPOSE
         //remove user
         [HttpDelete("{Id}")]
         [Authorize(Roles = "Admin")]
@@ -352,7 +352,7 @@ namespace Groundforce.Services.API.Controllers
             return Ok(ResponseMessage.Message("Deleted successfully", data: new { message = "User deleted!" }));
         }
 
-
+        #endregion
 
     }
 }
