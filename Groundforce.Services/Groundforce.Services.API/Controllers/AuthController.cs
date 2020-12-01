@@ -478,7 +478,8 @@ namespace Groundforce.Services.API.Controllers
                     }
 
                     //  log-in the registered user
-                    loginToken.token = JwtTokenConfig.GetToken(createdUser, _config, model.Roles);
+                    loginToken.Id = createdUser.Id;
+                    loginToken.Token = JwtTokenConfig.GetToken(createdUser, _config, model.Roles);
                 }
 
                 //try
@@ -512,7 +513,7 @@ namespace Groundforce.Services.API.Controllers
                 return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Data processing error" }));
             }
 
-            return Ok(ResponseMessage.Message("Success! User created", data: new { loginToken.token }));
+            return Ok(ResponseMessage.Message("Success! User created", data: new { loginToken }));
 
         }
 
