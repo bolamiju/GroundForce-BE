@@ -12,6 +12,9 @@ namespace Groundforce.Services.Models
         public string SurveyTypeId { get; set; }
         [Required]
         public string Type { get; set; }
+        public string AddedBy { get; set; }
+        public string UpdatedBy { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 

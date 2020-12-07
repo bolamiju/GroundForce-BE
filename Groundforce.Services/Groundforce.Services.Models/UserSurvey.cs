@@ -10,6 +10,8 @@ namespace Groundforce.Services.Models
         [Display(Name = "User Id")]
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
+        public string AddedBy { get; set; }
+        public string UpdatedBy { get; set; }
         [Display(Name = "Survey Id")]
         public string SurveyId { get; set; }
         public Survey Survey { get; set; }

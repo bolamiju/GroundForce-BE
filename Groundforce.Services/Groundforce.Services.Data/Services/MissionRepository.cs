@@ -41,13 +41,14 @@ namespace Groundforce.Services.Data.Services
         }
 
         // update assigned mission status to accepted/declined
-        public async Task<bool> ChangeMissionStatus(string status, string missionId)
+        public async Task<bool> ChangeMissionStatus(string status, string missionId, string userId)
         {
             var mission =  _ctx.Missions.FirstOrDefault(x => x.MissionId == missionId);
             if (mission == null)
                 throw new Exception($"Mission with {missionId} not found");
 
             mission.VerificationStatus = status;
+            mission.UpdatedBy = userId;
             _ctx.Update(mission);
             return await _ctx.SaveChangesAsync() > 0;
         }

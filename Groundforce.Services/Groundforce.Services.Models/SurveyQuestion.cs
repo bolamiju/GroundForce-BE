@@ -8,7 +8,9 @@ namespace Groundforce.Services.Models
     public class SurveyQuestion
     {
         public string SurveyQuestionId { get; set; } 
-        public string Question { get; set; } 
+        public string Question { get; set; }
+        public string AddedBy { get; set; }
+        public string UpdatedBy { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 

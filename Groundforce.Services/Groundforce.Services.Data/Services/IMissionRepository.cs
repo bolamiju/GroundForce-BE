@@ -20,7 +20,7 @@ namespace Groundforce.Services.Data.Services
 
 
         Task<Mission> GetMissionById(string missionId);
-        Task<bool> ChangeMissionStatus(string status, string missionId);
+        Task<bool> ChangeMissionStatus(string status, string missionId, string userId);
         Task<IEnumerable<Mission>> GetMissions(string status);
         Task<IEnumerable<Mission>> GetMissionsPaginated(int page, int per_page, string status);
 

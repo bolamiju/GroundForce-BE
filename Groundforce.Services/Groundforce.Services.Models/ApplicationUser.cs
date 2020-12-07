@@ -34,7 +34,6 @@ namespace Groundforce.Services.Models
 
         public FieldAgent FieldAgent { get; set; }
         public ICollection<VerificationItem> VerificationItems { get; set; }
-        public ICollection<UserActivity> UserActivities { get; set; }
 
         public ICollection<Notification> Notifications { get; set; }
     }

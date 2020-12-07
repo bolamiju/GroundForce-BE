@@ -5,6 +5,7 @@ namespace Groundforce.Services.Models
 {
     public class Mission
     {
+        // AddedBy UpdatedBy
         [Key]
         [Required]
         public string MissionId { get; set; }
@@ -17,6 +18,9 @@ namespace Groundforce.Services.Models
         [Required]
         public string FieldAgentId { get; set; }
         public FieldAgent FieldAgent { get; set; }
+
+        public string AddedBy { get; set; }
+        public string UpdatedBy { get; set; }
 
         public string VerificationStatus { get; set; } = "pending"; // pending, accepted, declined, verified
 

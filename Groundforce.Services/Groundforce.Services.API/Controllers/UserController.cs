@@ -34,8 +34,7 @@ namespace Groundforce.Services.API.Controllers
 
         public UserController(ILogger<UserController> logger, UserManager<ApplicationUser> userManager, 
             IOptions<CloudinarySettings> cloudinaryConfig, IAgentRepository agentRepository,
-                                 IRequestRepository requestRepository,
-                                 IPhotoRepository photoRepository)
+                                 IRequestRepository requestRepository, IPhotoRepository photoRepository)
         {
             _userManager = userManager;
             _cloudinaryConfig = cloudinaryConfig;
@@ -234,7 +233,10 @@ namespace Groundforce.Services.API.Controllers
                 // change password
                 var updatePwd = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
 
-                if (updatePwd.Succeeded) return Ok(ResponseMessage.Message("Success", data: new { message = "Password Changed!" }));
+                if (updatePwd.Succeeded)
+                {
+                    return Ok(ResponseMessage.Message("Success", data: new { message = "Password Changed!" }));
+                }
 
                 foreach (var error in updatePwd.Errors)
                 {

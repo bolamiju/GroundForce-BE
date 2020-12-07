@@ -84,20 +84,21 @@ namespace Groundforce.Services.API.Controllers
             var surveyType = new SurveyType
             {
                 SurveyTypeId = surveyTypeId,
-                Type = model.Type
+                Type = model.Type,
+                AddedBy = user.Id,
+                UpdatedBy = user.Id
             };
 
             try
             {
                 await _surveyTypeRepository.Add(surveyType);
+                return Ok(ResponseMessage.Message("Success", data: new { id = surveyType.SurveyTypeId }));
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Failed to add survey type" }));
             }
-
-            return Ok(ResponseMessage.Message("Success", data: new { id = surveyType.SurveyTypeId })); 
         }
 
         [Authorize(Roles = "Admin")]
@@ -135,18 +136,18 @@ namespace Groundforce.Services.API.Controllers
 
             surveyType.Type = model.Type;
             surveyType.UpdatedAt = DateTime.Now;
+            surveyType.UpdatedBy = user.Id;
 
             try
             {
                 await _surveyTypeRepository.Update(surveyType);
+                return Ok(ResponseMessage.Message("Success", data: new { message = "Survey Type Updated Successfully" }));
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Failed to update survey type" }));
             }
-
-            return Ok(ResponseMessage.Message("Success", data: new { message = "Survey Type Updated Successfully" }));
         }
 
         [Authorize(Roles = "Admin")]
@@ -172,14 +173,13 @@ namespace Groundforce.Services.API.Controllers
             try
             {
                 await _surveyTypeRepository.Delete(surveyType);
+                return Ok(ResponseMessage.Message("Success", data: new { message = "Survey type deleted!!!" }));
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Survey type could not be deleted" }));
             }
-
-            return Ok(ResponseMessage.Message("Success", data: new { message = "Survey type deleted!!!" }));
         }
         #endregion
 
@@ -207,7 +207,8 @@ namespace Groundforce.Services.API.Controllers
                 var newSurvey = new Survey
                 {
                     SurveyId = surveyId,
-                    ApplicationUserId = LoggedInUser.Id,
+                    AddedBy = LoggedInUser.Id,
+                    UpdatedBy = LoggedInUser.Id,
                     SurveyTypeId = surveyToAdd.SurveyTypeId,
                     Topic = surveyToAdd.Topic
                 };
@@ -216,14 +217,13 @@ namespace Groundforce.Services.API.Controllers
                 try
                 {
                     await _surveyCrudRepo.Add(newSurvey);
+                    return Ok(ResponseMessage.Message("Survey added!", data: new { id = newSurvey.SurveyId })); 
                 }
                 catch (DbException de)
                 {
                     _logger.LogError(de.Message);
                     return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
                 }
-
-                return Ok(ResponseMessage.Message("Survey added!", data: new { id = newSurvey.SurveyId })); 
             }
 
             return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Invalid model state", ModelState }));
@@ -268,7 +268,7 @@ namespace Groundforce.Services.API.Controllers
                 }
 
                 survey.SurveyId = surveyToUpdate.SurveyId;
-                survey.ApplicationUserId = loggedInUser.Id;
+                survey.UpdatedBy = loggedInUser.Id;
                 survey.SurveyTypeId = surveyToUpdate.SurveyTypeId;
                 survey.Topic = surveyToUpdate.Topic;
                 survey.UpdatedAt = DateTime.Now;
@@ -294,6 +294,9 @@ namespace Groundforce.Services.API.Controllers
             if (string.IsNullOrWhiteSpace(surveyId))
                 return BadRequest(ResponseMessage.Message("Invalid Id", errors: new { message = "Survey Id should not be null or empty or whitespace" }));
 
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Could not access user" }));
+
             Survey survey;
             try
             {
@@ -307,10 +310,16 @@ namespace Groundforce.Services.API.Controllers
                 return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
             }
 
-            if (!await _surveyCrudRepo.Delete(survey))
+            try
+            {
+                await _surveyCrudRepo.Delete(survey);
+                return Ok(ResponseMessage.Message("Success", data: new { message = "Survey deleted!!!" }));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
                 return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Failed to delete survey!" }));
-
-            return Ok(ResponseMessage.Message("Success", data: new { message = "Survey deleted!" }));
+            }
         }
         #endregion
 
@@ -323,6 +332,9 @@ namespace Groundforce.Services.API.Controllers
             {
                 if (string.IsNullOrWhiteSpace(model.SurveyId))
                     return BadRequest(ResponseMessage.Message("Invalid Id", errors: new { message = "Survey Id should not be null or empty or whitespace" }));
+
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null) return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Could not access user" }));
 
                 // generate survey question id
                 string surveyQuestionId;
@@ -338,7 +350,9 @@ namespace Groundforce.Services.API.Controllers
                 {
                     SurveyQuestionId = surveyQuestionId,
                     Question = model.Question,
-                    SurveyId = model.SurveyId
+                    SurveyId = model.SurveyId,
+                    AddedBy = user.Id,
+                    UpdatedBy = user.Id
                 };
 
                 List<QuestionOption> options = new List<QuestionOption>();
@@ -368,14 +382,13 @@ namespace Groundforce.Services.API.Controllers
                 {
                     await _surveyQuestionCrudRepo.Add(newSurveyQuestion);
                     await _questionOptionRepository.AddRange(options);
+                    return Ok(ResponseMessage.Message("Survey Question Added", data: new { id = newSurveyQuestion.SurveyQuestionId }));
                 }
                 catch (Exception de)
                 {
                     _logger.LogError(de.Message);
                     return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
                 }
-
-                return Ok(ResponseMessage.Message("Survey Question Added", data: new { id = newSurveyQuestion.SurveyQuestionId }));
             }
 
             return BadRequest(ResponseMessage.Message("Bad Request", errors: "Invalid model state", ModelState));
@@ -389,6 +402,9 @@ namespace Groundforce.Services.API.Controllers
             {
                 if (string.IsNullOrWhiteSpace(model.QuestionId) || string.IsNullOrWhiteSpace(model.SurveyId))
                     return BadRequest(ResponseMessage.Message("Invalid Id", errors: new { message = "Survey Question and Survey Ids should not be null or empty or whitespace" }));
+
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null) return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Could not access user" }));
 
                 SurveyQuestion surveyQuestion;
                 try
@@ -407,6 +423,7 @@ namespace Groundforce.Services.API.Controllers
                     surveyQuestion.SurveyId = model.SurveyId;
                     surveyQuestion.Question = model.Question;
                     surveyQuestion.UpdatedAt = DateTime.Now;
+                    surveyQuestion.UpdatedBy = user.Id;
 
                     List<QuestionOption> options = new List<QuestionOption>();
                     foreach (var option in model.Options)
@@ -432,7 +449,6 @@ namespace Groundforce.Services.API.Controllers
 
                     await _surveyQuestionCrudRepo.Update(surveyQuestion);
                     await _questionOptionRepository.AddRange(options);
-
                     return Ok(ResponseMessage.Message("Success", data: new { message = "Survey Question Updated" }));
                 }
                 catch (Exception de)
@@ -452,6 +468,9 @@ namespace Groundforce.Services.API.Controllers
             if (string.IsNullOrWhiteSpace(questionId))
                 return BadRequest(ResponseMessage.Message("Invalid Id", errors: new { message = "Survey Question Id should not be null or empty or whitespace" }));
 
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Could not access user" }));
+
             SurveyQuestion surveyQuestion;
             try
             {
@@ -468,7 +487,6 @@ namespace Groundforce.Services.API.Controllers
 
                 //delete question
                 await _surveyQuestionCrudRepo.Delete(surveyQuestion);
-
                 return Ok(ResponseMessage.Message("Success", data: new { message = "Survey question deleted!" }));
             }
             catch (Exception de)
@@ -596,23 +614,27 @@ namespace Groundforce.Services.API.Controllers
             if (String.IsNullOrWhiteSpace(agentId) || String.IsNullOrWhiteSpace(surveyId))
                 return BadRequest(ResponseMessage.Message("Invalid credentials", errors: new { message = "Agent id or survey id should not be null or empty or whitespace" }));
 
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Could not access user" }));
+
             var userSurvey = new UserSurvey
             {
                 ApplicationUserId = agentId,
-                SurveyId = surveyId
+                SurveyId = surveyId, 
+                AddedBy = user.Id,
+                UpdatedBy = user.Id
             };
 
             try
             {
                 await _userSurveyRepository.Add(userSurvey);
+                return Ok(ResponseMessage.Message("Success", data: new { userId = userSurvey.ApplicationUserId, surveyId = userSurvey.SurveyId }));
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = $"Failed to assign survey id = {surveyId} to agent id = {agentId}" }));
             }
-
-            return Ok(ResponseMessage.Message("Success", data: new { userId = userSurvey.ApplicationUserId, surveyId = userSurvey.SurveyId }));
         }
 
         [Authorize(Roles = "Admin")]
@@ -621,6 +643,9 @@ namespace Groundforce.Services.API.Controllers
         {
             if (String.IsNullOrWhiteSpace(agentId) || String.IsNullOrWhiteSpace(surveyId))
                 return BadRequest(ResponseMessage.Message("Invalid credentials", errors: new { message = "Agent id or survey id should not be null or empty or whitespace" }));
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Could not access user" }));
 
             UserSurvey userSurvey;
             try
@@ -651,18 +676,19 @@ namespace Groundforce.Services.API.Controllers
                 {
                     ApplicationUserId = model.NewAgentId,
                     Status = "pending",
-                    SurveyId = surveyId
+                    SurveyId = surveyId,
+                    AddedBy = user.Id,
+                    UpdatedBy = user.Id
                 };
 
                 await _userSurveyRepository.Add(newUserSurvey);
+                return Ok(ResponseMessage.Message("Success", data: new { message = $"Survey id {surveyId} reassigned successfully to user id {model.NewAgentId}" }));
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Failed to reassign user survey" }));
             }
-
-            return Ok(ResponseMessage.Message("Success", data: new { message = $"Survey id {surveyId} reassigned successfully to user id {agentId}" }));
         }
 
         [Authorize(Roles = "Agent")]
@@ -674,6 +700,9 @@ namespace Groundforce.Services.API.Controllers
 
             if (model.Status != "accepted" && model.Status != "declined")
                 return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Invalid status type given" }));
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Could not access user" }));
 
             UserSurvey userSurvey;
             try
@@ -689,18 +718,18 @@ namespace Groundforce.Services.API.Controllers
             }
 
             userSurvey.Status = model.Status;
+            userSurvey.UpdatedBy = user.Id;
 
             try
             {
                 await _userSurveyRepository.Update(userSurvey);
+                return Ok(ResponseMessage.Message("Success", data: new { message = $"Status of survey id = {model.SurveyId} updated successfully" }));
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = $"Failed to update status of survey id = {model.SurveyId}" }));
             }
-
-            return Ok(ResponseMessage.Message("Success", data: new { message = $"Status of survey id = {model.SurveyId} updated successfully" }));
         }
 
         [Authorize(Roles = "Agent")]
@@ -717,6 +746,9 @@ namespace Groundforce.Services.API.Controllers
                     return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Option id or question id should not be null or empty or whitespace" }));
                 }
             }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Could not access user" }));
 
             UserSurvey userSurvey;
             try
@@ -771,14 +803,13 @@ namespace Groundforce.Services.API.Controllers
             try
             {
                 await _userSurveyRepository.Update(userSurvey);
+                return Ok(ResponseMessage.Message("Success", data: new { message = "User survey updated successfully" }));
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Failed to update user survey to complete status" }));
             }
-
-            return Ok(ResponseMessage.Message("Success", data: new { message = "User survey updated successfully" }));
         }
 
         [Authorize(Roles = "Admin")]
@@ -820,10 +851,10 @@ namespace Groundforce.Services.API.Controllers
                 {
                     Topic = userSurvey.Survey.Topic,
                     Status = userSurvey.Status,
-                    ApplicationUserId = userSurvey.Survey.ApplicationUserId,
+                    ApplicationUserId = userSurvey.Survey.AddedBy,
                     SurveyId = userSurvey.SurveyId
                 })
-                                       .ToList();
+                .ToList();
 
                 var userSurveys = new PaginatedUserSurveyToReturnDTO
                 {

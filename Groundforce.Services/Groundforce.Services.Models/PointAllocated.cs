@@ -14,6 +14,9 @@ namespace Groundforce.Services.Models
         public string FieldAgentId { get; set; }
         public FieldAgent FieldAgent { get; set; }
 
+        public string AddedBy { get; set; }
+        public string UpdatedBy { get; set; }
+
         [Required]
         public string PointsId { get; set; }
         public Point Point { get; set; }

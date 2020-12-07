@@ -3,6 +3,9 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using SendGrid;
+using SendGrid.Helpers.Mail;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -10,10 +13,10 @@ namespace Groundforce.Services.Data.Services
 {
     public class MailService : IMailService
     {
-        private readonly MailSettings _mailSettings;
-        public MailService(IOptions<MailSettings> mailSettings)
+        private readonly SendGridSettings _sendGridSettings;
+        public MailService(IOptions<SendGridSettings> sendGridSettings)
         {
-            _mailSettings = mailSettings.Value;
+            _sendGridSettings = sendGridSettings.Value;
         }
 
         public async Task SendMailAsync(MailRequest request)
@@ -22,7 +25,7 @@ namespace Groundforce.Services.Data.Services
             StreamReader str = new StreamReader(FilePath);
             string MailText = str.ReadToEnd();
             str.Close();
-            MailText = MailText.Replace("[GroundForceUrl]", request.GroundForceUrl).Replace("[GroundForceLogo]", _mailSettings.GroundForceLogo)
+            MailText = MailText.Replace("[GroundForceUrl]", request.GroundForceUrl).Replace("[GroundForceLogo]", _sendGridSettings.GroundForceLogo)
                 .Replace("[MainHeader]", request.MainHeader).Replace("[SubHeader]", request.SubHeader).Replace("[Content]", request.Content);
             if (request.IsHidden)
             {
@@ -32,18 +35,22 @@ namespace Groundforce.Services.Data.Services
             {
                 MailText = MailText.Replace("[ButtonName]", request.ButtonName).Replace("[Link]", request.Link).Replace("[Hidden]", "show");
             }
-            var email = new MimeMessage();
-            email.Sender = MailboxAddress.Parse(_mailSettings.Mail);
-            email.To.Add(MailboxAddress.Parse(request.ToEmail));
-            email.Subject = $"Ground Force";
-            var builder = new BodyBuilder();
-            builder.HtmlBody = MailText;
-            email.Body = builder.ToMessageBody();
-            using var smtp = new SmtpClient();
-            smtp.Connect(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
-            smtp.Authenticate(_mailSettings.Mail, _mailSettings.Password);
-            await smtp.SendAsync(email);
-            smtp.Disconnect(true);
+
+            var apiKey = _sendGridSettings.APIKey;
+            var client = new SendGridClient(apiKey);
+            var from = new EmailAddress(_sendGridSettings.Mail, _sendGridSettings.DisplayName);
+            var subject = _sendGridSettings.DisplayName;
+            var to = new EmailAddress(request.ToEmail);
+            var plainTextContent = MailText;
+            var htmlContent = MailText;
+            var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+            var response = await client.SendEmailAsync(msg);
+
+            if (response.StatusCode.ToString().ToLower() == "accepted")
+            {
+                return;
+            }
+            throw new Exception();
         }
     }
 }
