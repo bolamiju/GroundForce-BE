@@ -474,7 +474,7 @@ namespace Groundforce.Services.API.Controllers
 
                     //  log-in the registered user
                     loginToken.Id = createdUser.Id;
-                    loginToken.token = JwtTokenConfig.GetToken(createdUser, _config, model.Roles);
+                    loginToken.Token = JwtTokenConfig.GetToken(createdUser, _config, model.Roles);
                 }
 
                 try
