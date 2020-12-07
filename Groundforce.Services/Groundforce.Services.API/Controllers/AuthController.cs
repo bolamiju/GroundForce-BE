@@ -474,7 +474,7 @@ namespace Groundforce.Services.API.Controllers
 
                     //  log-in the registered user
                     loginToken.Id = createdUser.Id;
-                    loginToken.token = JwtTokenConfig.GetToken(createdUser, _config, model.Roles);
+                    loginToken.Token = JwtTokenConfig.GetToken(createdUser, _config, model.Roles);
                 }
 
                 try
@@ -540,7 +540,7 @@ namespace Groundforce.Services.API.Controllers
                 {
                     LoginTokenDTO loginToken = new LoginTokenDTO();
                     loginToken.Id = user.Id;
-                    loginToken.token = JwtTokenConfig.GetToken(user, _config, userRoles);
+                    loginToken.Token = JwtTokenConfig.GetToken(user, _config, userRoles);
                     return Ok(ResponseMessage.Message("Success", data: new { loginToken }));
                 }
             }
