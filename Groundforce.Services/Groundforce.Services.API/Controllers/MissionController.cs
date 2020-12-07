@@ -42,16 +42,18 @@ namespace Groundforce.Services.API.Controllers
         [Route("add-address")]
         public async Task<IActionResult> AddAddress([FromBody] ItemToAddDTO model)
         {
-
             try
             {
                 // ensure model state is valid
                 if (!ModelState.IsValid)
                     return BadRequest(ResponseMessage.Message("Model state error", errors:  ModelState));
 
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null) return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Could not access user" }));
+
                 // generate item id
                 string itemId = "";
-                VerificationItem result = null;
+                VerificationItem result;
                 do
                 {
                     itemId = Guid.NewGuid().ToString();
@@ -62,14 +64,15 @@ namespace Groundforce.Services.API.Controllers
                 var newItem = new VerificationItem
                 {
                     ItemId = itemId,
-                    ApplicationUserId = _userManager.GetUserId(User),
+                    ApplicationUserId = user.Id,
+                    UpdatedBy = user.Id,
                     Title = model.Title,
                     Description = model.Description
                 };
 
                 // add item
                 if(!await _missionRepository.Add(newItem))
-                    return BadRequest(ResponseMessage.Message("Failed to added", errors: new { message = "Could not add record to data source" }));
+                    return BadRequest(ResponseMessage.Message("Failed to add", errors: new { message = "Could not add record to data source" }));
 
                 return Ok(ResponseMessage.Message("Added successfully", data: new { AddressId = newItem.ItemId }));
             }
@@ -78,7 +81,6 @@ namespace Groundforce.Services.API.Controllers
                 _logger.LogError(ex.Message);
                 return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
             }
-                        
         }
 
 
@@ -95,6 +97,9 @@ namespace Groundforce.Services.API.Controllers
             if(String.IsNullOrWhiteSpace(model.Id))
                 return BadRequest(ResponseMessage.Message("Invalid Id", errors: new { message = "Id should not be null or empty or whitespace" }));
 
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Could not access user" }));
+
             try
             {
                 // get item using id
@@ -105,6 +110,8 @@ namespace Groundforce.Services.API.Controllers
                 // re-assign values
                 item.Title = model.Title;
                 item.Description = model.Description;
+                item.UpdatedBy = user.Id;
+                item.UpdatedAt = DateTime.Now;
 
 
                 // update data source
@@ -132,6 +139,9 @@ namespace Groundforce.Services.API.Controllers
             if (String.IsNullOrWhiteSpace(id))
                 return BadRequest(ResponseMessage.Message("Invalid Id", errors: new { message = "Id should not be null or empty or whitespace" }));
 
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Could not access user" }));
+
             try
             {
                 // get item using id
@@ -142,7 +152,7 @@ namespace Groundforce.Services.API.Controllers
                 // delete data from source
                 var result = await _missionRepository.Delete(item);
                 if (!result)
-                    return BadRequest(ResponseMessage.Message("Failed to delte", errors: new { message = "Could not update record to data source" }));
+                    return BadRequest(ResponseMessage.Message("Failed to delete", errors: new { message = "Could not update record to data source" }));
 
                 return Ok(ResponseMessage.Message("Deleted successfully", data: new { message = "Address was deleted sucessfully" }));
             }
@@ -176,7 +186,6 @@ namespace Groundforce.Services.API.Controllers
                         ItemId = result.ItemId,
                         Title = result.Title,
                         Description = result.Description,
-                        AddedBy = null,
                         CreatedAt = result.UpdatedAt
                     };
 
@@ -228,7 +237,6 @@ namespace Groundforce.Services.API.Controllers
                     ItemId = result.ItemId,
                     Title = result.Title,
                     Description = result.Description,
-                    AddedBy = null,
                     CreatedAt = result.UpdatedAt
                 };
 
@@ -251,6 +259,9 @@ namespace Groundforce.Services.API.Controllers
             // return error if model state is not valid
             if (!ModelState.IsValid)
                 return BadRequest(ResponseMessage.Message("Model state error", errors: ModelState));
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Could not access user" }));
 
             try
             {
@@ -276,7 +287,9 @@ namespace Groundforce.Services.API.Controllers
                 {
                     MissionId = missionId,
                     VerificationItemId = model.VerificationItemId,
-                    FieldAgentId = model.FieldAgentId
+                    FieldAgentId = model.FieldAgentId,
+                    AddedBy = user.Id,
+                    UpdatedBy = user.Id
                 };
 
                 // add item
@@ -291,7 +304,6 @@ namespace Groundforce.Services.API.Controllers
                 _logger.LogError(ex.Message);
                 return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
             }
-
         }
 
 
@@ -303,6 +315,9 @@ namespace Groundforce.Services.API.Controllers
             // return error if model state is not valid
             if (!ModelState.IsValid)
                 return BadRequest(ResponseMessage.Message("Model state error", errors: ModelState));
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Could not access user" }));
 
             try
             {
@@ -326,6 +341,8 @@ namespace Groundforce.Services.API.Controllers
                     mission.FieldAgentId = model.FieldAgentId;
                     mission.VerificationItemId = model.VerificationItemId;
                     mission.MissionId = Guid.NewGuid().ToString();
+                    mission.AddedBy = user.Id;
+                    mission.UpdatedBy = user.Id;
 
                     // update data source
                     var result = await _missionRepository.Add(mission);
@@ -338,6 +355,7 @@ namespace Groundforce.Services.API.Controllers
                 // update data source
                 mission.FieldAgentId = model.FieldAgentId;
                 mission.VerificationItemId = model.VerificationItemId;
+                mission.UpdatedBy = user.Id;
                 var res = await _missionRepository.Update(mission);
                 if (!res)
                     return BadRequest(ResponseMessage.Message("Failed to update", errors: new { message = "Could not update record to data source" }));
@@ -362,6 +380,9 @@ namespace Groundforce.Services.API.Controllers
             if (String.IsNullOrWhiteSpace(missionId))
                 return BadRequest(ResponseMessage.Message("Invalid Id", errors: new { message = "Id should not be null or empty or whitespace" }));
 
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Could not access user" }));
+
             try
             {
                 // get mission using id
@@ -384,7 +405,7 @@ namespace Groundforce.Services.API.Controllers
                 // delete data from mission table
                 var result = await _missionRepository.Delete(mission);
                 if (!result)
-                    return BadRequest(ResponseMessage.Message("Failed to delte", errors: new { message = "Could not update record to data source" }));
+                    return BadRequest(ResponseMessage.Message("Failed to delete", errors: new { message = "Could not update record to data source" }));
 
                 return Ok(ResponseMessage.Message("Deleted successfully", data: new { message = "Deleted sucessfully" }));
             }
@@ -418,7 +439,7 @@ namespace Groundforce.Services.API.Controllers
                     return BadRequest(ResponseMessage.Message("Id mismatch", errors: new { message = $"Mission with id: {missionId} is not assigned to logged-in user" }));
 
                 // update status
-                var result = await _missionRepository.ChangeMissionStatus(status, missionId);
+                var result = await _missionRepository.ChangeMissionStatus(status, missionId, logginUserId);
                 if(!result)
                     return BadRequest(ResponseMessage.Message("Failed to update", errors: new { message = "Could not update record to data source" }));
 
@@ -457,16 +478,15 @@ namespace Groundforce.Services.API.Controllers
 
 
                 // map items fetched to items dto
-                var list = new List<MissionToReturn>();
+                var list = new List<MissionToReturnDTO>();
                 foreach (var result in agentsMissions)
                 {
-                    var item = new MissionToReturn
+                    var item = new MissionToReturnDTO
                     {
                         MissionId = result.MissionId,
                         ItemId = result.VerificationItemId,
                         Title = result.VerificationItem.Title,
                         Description = result.VerificationItem.Description,
-                        AddedBy = null,
                         CreatedAt = result.UpdatedAt
                     };
 
@@ -511,7 +531,7 @@ namespace Groundforce.Services.API.Controllers
 
                 // only accepted missions can be verified
                 var mission = await _missionRepository.GetMissionById(model.MissionId);
-                if(mission == null) if (mission == null) 
+                if(mission == null)
                         return NotFound(ResponseMessage.Message("Null result", errors: new { message = $"Mission with id: {model.MissionId} was not found" }));
                 if(mission.VerificationStatus != "accepted") return Unauthorized(ResponseMessage.Message("Not allowed", errors: new { message = "Mission is not accepted yet" }));
 
@@ -544,11 +564,12 @@ namespace Groundforce.Services.API.Controllers
                 if(!result2)
                     return BadRequest(ResponseMessage.Message("Failed to submit", errors: new { message = "Could not submit record to data source" }));
 
-                if(!await _missionRepository.ChangeMissionStatus("verified", mission.MissionId))
+                if(!await _missionRepository.ChangeMissionStatus("verified", mission.MissionId, user.Id))
                 {
                     await _missionRepository.Delete(missionVerified);
                     throw new Exception("Could not verify mission");
                 }
+
                 return Ok(ResponseMessage.Message("Submited successfully", data: new { Id }));
             }
             catch(Exception e)

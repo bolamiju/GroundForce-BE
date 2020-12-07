@@ -17,5 +17,8 @@ namespace Groundforce.Services.Models
         [Required]
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
+
+        public string AddedBy { get; set; }
+        public string UpdatedBy { get; set; }
     }
 }

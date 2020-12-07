@@ -8,7 +8,6 @@ namespace Groundforce.Services.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         public DbSet<FieldAgent> FieldAgents { get; set; }
         public DbSet<VerificationItem> VerificationItems { get; set; }
-        public DbSet<UserActivity> UserActivity { get; set; }
         public DbSet<Mission> Missions { get; set; }
         public DbSet<MissionVerified> MissionsVerified { get; set; }
         public DbSet<BuildingType> BuildingTypes { get; set; }

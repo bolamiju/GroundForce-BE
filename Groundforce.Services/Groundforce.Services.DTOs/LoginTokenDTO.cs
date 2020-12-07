@@ -6,6 +6,7 @@ namespace Groundforce.Services.DTOs
 {
     public class LoginTokenDTO
     {
+        public string Id { get; set; }
         public object token { get; set; }
     }
 }

@@ -228,6 +228,9 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<string>("MissionId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AddedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -237,6 +240,9 @@ namespace Groundforce.Services.Data.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("VerificationItemId")
                         .IsRequired()
@@ -323,6 +329,9 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AddedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ApplicationUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -339,6 +348,9 @@ namespace Groundforce.Services.Data.Migrations
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -371,6 +383,9 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AddedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FieldAgentId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -380,6 +395,9 @@ namespace Groundforce.Services.Data.Migrations
 
                     b.Property<string>("PointsId")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -491,8 +509,8 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<string>("SurveyId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("AddedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -508,9 +526,10 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("SurveyId");
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("ApplicationUserId");
+                    b.HasKey("SurveyId");
 
                     b.HasIndex("SurveyTypeId");
 
@@ -521,6 +540,9 @@ namespace Groundforce.Services.Data.Migrations
                 {
                     b.Property<string>("SurveyQuestionId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AddedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -534,6 +556,9 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("SurveyQuestionId");
 
                     b.HasIndex("SurveyId");
@@ -546,6 +571,9 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<string>("SurveyTypeId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AddedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -555,6 +583,9 @@ namespace Groundforce.Services.Data.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("SurveyTypeId");
 
@@ -568,6 +599,9 @@ namespace Groundforce.Services.Data.Migrations
 
                     b.Property<decimal>("ActualAmount")
                         .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("AddedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -589,33 +623,14 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("FieldAgentId");
 
                     b.ToTable("Transactions");
-                });
-
-            modelBuilder.Entity("Groundforce.Services.Models.UserActivity", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(20)")
-                        .HasMaxLength(20);
-
-                    b.Property<string>("RecordId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.ToTable("UserActivity");
                 });
 
             modelBuilder.Entity("Groundforce.Services.Models.UserSurvey", b =>
@@ -626,7 +641,13 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<string>("SurveyId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AddedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ApplicationUserId", "SurveyId");
@@ -643,6 +664,7 @@ namespace Groundforce.Services.Data.Migrations
 
                     b.Property<string>("ApplicationUserId")
                         .IsRequired()
+                        .HasColumnName("AddedBy")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -660,6 +682,9 @@ namespace Groundforce.Services.Data.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ItemId");
 
@@ -893,17 +918,13 @@ namespace Groundforce.Services.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Groundforce.Services.Models.UserSurvey", null)
+                    b.HasOne("Groundforce.Services.Models.UserSurvey", "UserSurvey")
                         .WithMany("Responses")
                         .HasForeignKey("UserSurveyApplicationUserId", "UserSurveySurveyId");
                 });
 
             modelBuilder.Entity("Groundforce.Services.Models.Survey", b =>
                 {
-                    b.HasOne("Groundforce.Services.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId");
-
                     b.HasOne("Groundforce.Services.Models.SurveyType", "SurveyType")
                         .WithMany("Surveys")
                         .HasForeignKey("SurveyTypeId")
@@ -925,13 +946,6 @@ namespace Groundforce.Services.Data.Migrations
                         .HasForeignKey("FieldAgentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Groundforce.Services.Models.UserActivity", b =>
-                {
-                    b.HasOne("Groundforce.Services.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany("UserActivities")
-                        .HasForeignKey("ApplicationUserId");
                 });
 
             modelBuilder.Entity("Groundforce.Services.Models.UserSurvey", b =>

@@ -15,8 +15,8 @@ namespace Groundforce.Services.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
-        public string ApplicationUserId { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
+        public string AddedBy { get; set; }
+        public string UpdatedBy { get; set; }
 
         [Required]
         [Display(Name = "Survey Type Id")]

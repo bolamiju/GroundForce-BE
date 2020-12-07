@@ -168,7 +168,8 @@ namespace Groundforce.Services.Data
                             ItemId = itemId,
                             Title = agent.FieldAgent.Missions.ToList()[0].VerificationItem.Title,
                             Description = agent.FieldAgent.Missions.ToList()[0].VerificationItem.Description,
-                            ApplicationUserId = listOfUsers[0].Id
+                            ApplicationUserId = listOfUsers[0].Id,
+                            UpdatedBy = listOfUsers[0].Id
                         };
 
                         ctx.VerificationItems.Add(item);
