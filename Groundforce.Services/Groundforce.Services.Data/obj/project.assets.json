@@ -1711,10 +1711,7 @@
         },
         "runtime": {
           "bin/placeholder/Groundforce.Services.DTOs.dll": {}
-        },
-        "frameworkReferences": [
-          "Microsoft.AspNetCore.App"
-        ]
+        }
       },
       "Groundforce.Services.Models/1.0.0": {
         "type": "project",
@@ -6396,19 +6393,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Kufreabasi Ita\\.nuget\\packages\\": {}
+    "C:\\Users\\hp\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Data\\Groundforce.Services.Data.csproj",
+      "projectUniqueName": "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Data\\Groundforce.Services.Data.csproj",
       "projectName": "Groundforce.Services.Data",
-      "projectPath": "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Data\\Groundforce.Services.Data.csproj",
-      "packagesPath": "C:\\Users\\Kufreabasi Ita\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Data\\obj\\",
+      "projectPath": "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Data\\Groundforce.Services.Data.csproj",
+      "packagesPath": "C:\\Users\\hp\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Data\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Kufreabasi Ita\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\hp\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -6420,13 +6417,12 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
-          "targetAlias": "netcoreapp3.1",
           "projectReferences": {
-            "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.DTOs\\Groundforce.Services.DTOs.csproj": {
-              "projectPath": "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.DTOs\\Groundforce.Services.DTOs.csproj"
+            "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.DTOs\\Groundforce.Services.DTOs.csproj": {
+              "projectPath": "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.DTOs\\Groundforce.Services.DTOs.csproj"
             },
-            "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj": {
-              "projectPath": "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj"
+            "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj": {
+              "projectPath": "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj"
             }
           }
         }
@@ -6439,7 +6435,6 @@
     },
     "frameworks": {
       "netcoreapp3.1": {
-        "targetAlias": "netcoreapp3.1",
         "dependencies": {
           "CloudinaryDotNet": {
             "target": "Package",
@@ -6494,7 +6489,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.100\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.401\\RuntimeIdentifierGraph.json"
       }
     }
   }

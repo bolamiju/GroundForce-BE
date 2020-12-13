@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Test\\Groundforce.Services.Test.csproj": {}
+    "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Test\\Groundforce.Services.Test.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Test\\Groundforce.Services.Test.csproj": {
+    "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Test\\Groundforce.Services.Test.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Test\\Groundforce.Services.Test.csproj",
+        "projectUniqueName": "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Test\\Groundforce.Services.Test.csproj",
         "projectName": "Groundforce.Services.Test",
-        "projectPath": "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Test\\Groundforce.Services.Test.csproj",
-        "packagesPath": "C:\\Users\\Kufreabasi Ita\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Test\\obj\\",
+        "projectPath": "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Test\\Groundforce.Services.Test.csproj",
+        "packagesPath": "C:\\Users\\hp\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Test\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Kufreabasi Ita\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\hp\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -26,7 +26,6 @@
         },
         "frameworks": {
           "netcoreapp3.1": {
-            "targetAlias": "netcoreapp3.1",
             "projectReferences": {}
           }
         },
@@ -38,7 +37,6 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
-          "targetAlias": "netcoreapp3.1",
           "dependencies": {
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
@@ -79,7 +77,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.401\\RuntimeIdentifierGraph.json"
         }
       }
     }

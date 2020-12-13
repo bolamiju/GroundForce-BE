@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj": {}
+    "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj": {
+    "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj",
+        "projectUniqueName": "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj",
         "projectName": "Groundforce.Services.Models",
-        "projectPath": "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj",
-        "packagesPath": "C:\\Users\\Kufreabasi Ita\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Kufreabasi Ita\\Desktop\\Coding\\Decagon Training\\Tasks\\Submitted Tasks\\GForce Project\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\obj\\",
+        "projectPath": "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj",
+        "packagesPath": "C:\\Users\\hp\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\hp\\source\\repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Kufreabasi Ita\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\hp\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -26,7 +26,6 @@
         },
         "frameworks": {
           "netstandard2.0": {
-            "targetAlias": "netstandard2.0",
             "projectReferences": {}
           }
         },
@@ -38,7 +37,6 @@
       },
       "frameworks": {
         "netstandard2.0": {
-          "targetAlias": "netstandard2.0",
           "dependencies": {
             "Microsoft.Extensions.Identity.Stores": {
               "target": "Package",
@@ -65,7 +63,7 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.401\\RuntimeIdentifierGraph.json"
         }
       }
     }
