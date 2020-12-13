@@ -17,44 +17,26 @@ namespace Groundforce.Services.Core
             _ctx = ctx;
         }
         //method to verify the phone number before sending OTP
-        public async Task<PhoneNumberStatus> CheckPhoneNumber(string phoneNumber, string Id)
+        public async Task CheckPhoneNumber(Request model)
         {
-            if (string.IsNullOrEmpty(phoneNumber)) return PhoneNumberStatus.InvalidRequest; 
-            //get the number from the database
-            var model = _ctx.Request.FirstOrDefault(user => user.PhoneNumber == phoneNumber);
-
-            if (model != null)
+            if (model.Status == "confirmed")
             {
-                if (model.IsConfirmed)
-                {
-                    return PhoneNumberStatus.Verified;
-                }
-                if (model.RequestAttempt < 4)
-                {
-                    model.RequestAttempt += 1;
-                    model.UpdatedAt = DateTime.Now;
-                    await _ctx.SaveChangesAsync();
-                    return PhoneNumberStatus.ValidRequest;
-                }
+                throw new Exception("Number is already confirmed");
+            }
+            
+            if (model.Status == "blocked")
+            {
+                throw new Exception("Number is blocked due to attempts out of limit, please contact admin");
+            }
 
-                model.IsBlock = true;
+            if (model.RequestAttempt >= 4)
+            {
+                model.Status = "blocked";
                 model.UpdatedAt = DateTime.Now;
                 await _ctx.SaveChangesAsync();
-                return PhoneNumberStatus.Blocked;
-
+                throw new Exception("Number is blocked due to attempts out of limit, please contact admin"); ;
             }
-            //adds number to the database
-            await _ctx.AddAsync(new Request()
-            {
-                RequestId = Id,
-                PhoneNumber = phoneNumber,
-                RequestAttempt = 1
-            });
-
-            await _ctx.SaveChangesAsync();
-
-
-            return PhoneNumberStatus.ValidRequest;
+            
         }
     }
 }

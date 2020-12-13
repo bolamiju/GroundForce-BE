@@ -1,4 +1,5 @@
 ﻿using Groundforce.Services.Models;
+using System.Collections.Generic;
 
 namespace Groundforce.Common.Utilities.Helpers
 {
@@ -15,6 +16,17 @@ namespace Groundforce.Common.Utilities.Helpers
                 TotalPages = total_page
             };
             return result;
+        }
+
+        public static List<string> ListToLowerCase(List<string> list)
+        {
+            // convert roles from model to small letters
+            var roles = new List<string>();
+            foreach (var role in list)
+            {
+                roles.Add(role.ToLower());
+            }
+            return roles;
         }
     }
 }

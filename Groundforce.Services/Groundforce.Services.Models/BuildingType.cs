@@ -14,15 +14,11 @@ namespace Groundforce.Services.Models
         public string TypeId { get; set; }
 
         [Required]
+        [MaxLength(35)]
         public string TypeName { get; set; }
-
-        [Required]
-        [Display(Name = "Admin Id")]
-        public string AdminId { get; set; }
-        public Admin Admin { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
-        public ICollection<Mission> Missions { get; set; }
+        public ICollection<MissionVerified> MissionsVerified { get; set; }
     }
 }

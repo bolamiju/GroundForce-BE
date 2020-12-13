@@ -7,19 +7,16 @@ namespace Groundforce.Services.DTOs
     public class UserToEditDTO
     {
         [Required]
+        public string Id { get; set; }
+
+        [Required]
+        public string FirstName { get; set; }
+
+        [Required]
+        public string LastName { get; set; }
+        public string DOB { get; set; }
         public string Gender { get; set; }
-
-        //emailAddress
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
-
-        //additional Phonenumber
-        [Required]
         public string AdditionalPhoneNumber { get; set; }
-
-        //Religion
-        [Required]
         public string Religion { get; set; }
     }
 

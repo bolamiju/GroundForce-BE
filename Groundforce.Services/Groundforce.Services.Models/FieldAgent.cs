@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace Groundforce.Services.Models
 {
@@ -10,20 +8,48 @@ namespace Groundforce.Services.Models
     {
         [Key]
         [Required]
-        public string FieldAgentId { get; set; }
-
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
 
+        [Required]
+        [MaxLength(150)]
+        public string State { get; set; }
 
+        [Required]
+        [MaxLength(150)]
+        public string LGA { get; set; }
+
+        [Required]
+        [MaxLength(10)]
+        public string ZipCode { get; set; }
+
+
+        [MaxLength(200)]
+        public string ResidentialAddress { get; set; }
+
+        [Required]
         public string Longitude { get; set; }
 
+        [Required]
         public string Latitude { get; set; }
 
+
+        [MaxLength(25)]
         public string Religion { get; set; }
 
+        [MaxLength(14)]
         public string AdditionalPhoneNumber { get; set; }
-        public BankAccount BankAccounts { get; set; }
+
+
+        [MaxLength(100)]
+        public string AccountName { get; set; }
+
+
+        [MaxLength(10)]
+        public string AccountNumber { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         public ICollection<Mission> Missions { get; set; }
         public ICollection<PointAllocated> PointsAllocated { get; set; }

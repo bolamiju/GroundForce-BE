@@ -6,11 +6,12 @@ namespace Groundforce.Common.Utilities
 {
     public enum PhoneNumberStatus
     {
-        Verified,
-        ValidRequest,
-        Blocked,
-        InvalidRequest,
-        Approved,
-        Pending
+        verified,
+        blocked,
+        invalidRequest,
+        approved,
+        pending,
+        limitReached,
+        confirmed
     }
 }

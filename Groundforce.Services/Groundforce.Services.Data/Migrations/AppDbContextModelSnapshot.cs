@@ -19,23 +19,6 @@ namespace Groundforce.Services.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Groundforce.Services.Models.Admin", b =>
-                {
-                    b.Property<string>("AdminId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("AdminId");
-
-                    b.HasIndex("ApplicationUserId")
-                        .IsUnique()
-                        .HasFilter("[ApplicationUserId] IS NOT NULL");
-
-                    b.ToTable("Admins");
-                });
-
             modelBuilder.Entity("Groundforce.Services.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -43,9 +26,6 @@ namespace Groundforce.Services.Data.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
-
-                    b.Property<bool>("Active")
-                        .HasColumnType("bit");
 
                     b.Property<string>("AvatarUrl")
                         .HasColumnType("nvarchar(max)");
@@ -59,8 +39,8 @@ namespace Groundforce.Services.Data.Migrations
 
                     b.Property<string>("DOB")
                         .IsRequired()
-                        .HasColumnType("nvarchar(50)")
-                        .HasMaxLength(50);
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(256)")
@@ -75,16 +55,14 @@ namespace Groundforce.Services.Data.Migrations
                         .HasMaxLength(50);
 
                     b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(1)")
+                        .HasMaxLength(1);
 
-                    b.Property<string>("HomeAddress")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("LGA")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -114,18 +92,10 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("PlaceOfBirth")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("PublicId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("State")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -151,47 +121,9 @@ namespace Groundforce.Services.Data.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("Groundforce.Services.Models.BankAccount", b =>
-                {
-                    b.Property<string>("AccountId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("AccountName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AccountNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FieldAgentId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("AccountId");
-
-                    b.HasIndex("FieldAgentId")
-                        .IsUnique();
-
-                    b.ToTable("BankAccounts");
-                });
-
             modelBuilder.Entity("Groundforce.Services.Models.BuildingType", b =>
                 {
                     b.Property<string>("TypeId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("AdminId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -199,60 +131,94 @@ namespace Groundforce.Services.Data.Migrations
 
                     b.Property<string>("TypeName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(35)")
+                        .HasMaxLength(35);
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("TypeId");
 
-                    b.HasIndex("AdminId");
-
                     b.ToTable("BuildingTypes");
                 });
 
-            modelBuilder.Entity("Groundforce.Services.Models.Client", b =>
+            modelBuilder.Entity("Groundforce.Services.Models.EmailVerification", b =>
                 {
-                    b.Property<string>("ClientId")
+                    b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("EmailAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("ClientId");
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("bit");
 
-                    b.HasIndex("ApplicationUserId")
-                        .IsUnique()
-                        .HasFilter("[ApplicationUserId] IS NOT NULL");
+                    b.Property<string>("VerificationCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(4)")
+                        .HasMaxLength(4);
 
-                    b.ToTable("Clients");
+                    b.HasKey("Id");
+
+                    b.ToTable("EmailVerifications");
                 });
 
             modelBuilder.Entity("Groundforce.Services.Models.FieldAgent", b =>
                 {
-                    b.Property<string>("FieldAgentId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("AdditionalPhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ApplicationUserId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AccountName")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("AccountNumber")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("AdditionalPhoneNumber")
+                        .HasColumnType("nvarchar(14)")
+                        .HasMaxLength(14);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LGA")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(150)")
+                        .HasMaxLength(150);
+
                     b.Property<string>("Latitude")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Longitude")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Religion")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(25)")
+                        .HasMaxLength(25);
 
-                    b.HasKey("FieldAgentId");
+                    b.Property<string>("ResidentialAddress")
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
 
-                    b.HasIndex("ApplicationUserId")
-                        .IsUnique()
-                        .HasFilter("[ApplicationUserId] IS NOT NULL");
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(150)")
+                        .HasMaxLength(150);
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ZipCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.HasKey("ApplicationUserId");
 
                     b.ToTable("FieldAgents");
                 });
@@ -262,19 +228,7 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<string>("MissionId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<bool>("AddressExists")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("AdminId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("BuildingColor")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BuildingTypeId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("BusStop")
+                    b.Property<string>("AddedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -284,39 +238,20 @@ namespace Groundforce.Services.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<bool>("IsAccepted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsVerified")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Landmark")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Latitude")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Longitude")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Remarks")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TypeOfStructure")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("VerificationItemId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("VerificationStatus")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("MissionId");
-
-                    b.HasIndex("AdminId");
-
-                    b.HasIndex("BuildingTypeId");
 
                     b.HasIndex("FieldAgentId");
 
@@ -326,27 +261,119 @@ namespace Groundforce.Services.Data.Migrations
                     b.ToTable("Missions");
                 });
 
+            modelBuilder.Entity("Groundforce.Services.Models.MissionVerified", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("AddressExists")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("BuildingColor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BuildingTypeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("BusStop")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(150)")
+                        .HasMaxLength(150);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Landmark")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(150)")
+                        .HasMaxLength(150);
+
+                    b.Property<string>("Latitude")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Longitude")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MissionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Remarks")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TypeOfStructure")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(35)")
+                        .HasMaxLength(35);
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BuildingTypeId");
+
+                    b.HasIndex("MissionId")
+                        .IsUnique();
+
+                    b.ToTable("MissionsVerified");
+                });
+
+            modelBuilder.Entity("Groundforce.Services.Models.Notification", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AddedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notifications")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("Groundforce.Services.Models.Point", b =>
                 {
                     b.Property<string>("PointId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("AdminId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<decimal>("AmountAttached")
-                        .HasColumnType("decimal(18,4)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal>("PointNumber")
+                        .HasColumnType("decimal(18,4)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("PointId");
-
-                    b.HasIndex("AdminId");
 
                     b.ToTable("Points");
                 });
@@ -356,33 +383,54 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("AdminId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("AddedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FieldAgentId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("PointId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("PointsId")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FieldAgentId");
+
+                    b.HasIndex("PointId");
+
+                    b.ToTable("PointAllocated");
+                });
+
+            modelBuilder.Entity("Groundforce.Services.Models.QuestionOption", b =>
+                {
+                    b.Property<string>("QuestionOptionId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Option")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SurveyQuestionId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.HasKey("QuestionOptionId");
 
-                    b.HasIndex("AdminId");
+                    b.HasIndex("SurveyQuestionId");
 
-                    b.HasIndex("FieldAgentId");
-
-                    b.HasIndex("PointsId");
-
-                    b.ToTable("PointAllocated");
+                    b.ToTable("QuestionOptions");
                 });
 
             modelBuilder.Entity("Groundforce.Services.Models.Request", b =>
@@ -393,12 +441,6 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsBlock")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsConfirmed")
-                        .HasColumnType("bit");
-
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -406,12 +448,148 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<int>("RequestAttempt")
                         .HasColumnType("int");
 
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("RequestId");
 
                     b.ToTable("Request");
+                });
+
+            modelBuilder.Entity("Groundforce.Services.Models.Response", b =>
+                {
+                    b.Property<string>("ResponseId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("QuestionOptionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SurveyId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SurveyQuestionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserSurveyApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserSurveySurveyId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ResponseId");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("QuestionOptionId");
+
+                    b.HasIndex("SurveyId");
+
+                    b.HasIndex("SurveyQuestionId");
+
+                    b.HasIndex("UserSurveyApplicationUserId", "UserSurveySurveyId");
+
+                    b.ToTable("Responses");
+                });
+
+            modelBuilder.Entity("Groundforce.Services.Models.Survey", b =>
+                {
+                    b.Property<string>("SurveyId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AddedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SurveyTypeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Topic")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SurveyId");
+
+                    b.HasIndex("SurveyTypeId");
+
+                    b.ToTable("Surveys");
+                });
+
+            modelBuilder.Entity("Groundforce.Services.Models.SurveyQuestion", b =>
+                {
+                    b.Property<string>("SurveyQuestionId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AddedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Question")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SurveyId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SurveyQuestionId");
+
+                    b.HasIndex("SurveyId");
+
+                    b.ToTable("SurveyQuestions");
+                });
+
+            modelBuilder.Entity("Groundforce.Services.Models.SurveyType", b =>
+                {
+                    b.Property<string>("SurveyTypeId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AddedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SurveyTypeId");
+
+                    b.ToTable("SurveyTypes");
                 });
 
             modelBuilder.Entity("Groundforce.Services.Models.Transaction", b =>
@@ -422,9 +600,8 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<decimal>("ActualAmount")
                         .HasColumnType("decimal(18,4)");
 
-                    b.Property<string>("AdminId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("AddedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -443,20 +620,41 @@ namespace Groundforce.Services.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("AdminId");
+                    b.HasKey("Id");
 
                     b.HasIndex("FieldAgentId");
 
                     b.ToTable("Transactions");
+                });
+
+            modelBuilder.Entity("Groundforce.Services.Models.UserSurvey", b =>
+                {
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SurveyId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AddedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ApplicationUserId", "SurveyId");
+
+                    b.HasIndex("SurveyId");
+
+                    b.ToTable("UserSurveys");
                 });
 
             modelBuilder.Entity("Groundforce.Services.Models.VerificationItem", b =>
@@ -466,18 +664,27 @@ namespace Groundforce.Services.Data.Migrations
 
                     b.Property<string>("ApplicationUserId")
                         .IsRequired()
+                        .HasColumnName("AddedBy")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ItemName")
+                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(250)")
                         .HasMaxLength(250);
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ItemId");
 
@@ -617,57 +824,17 @@ namespace Groundforce.Services.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("Groundforce.Services.Models.Admin", b =>
-                {
-                    b.HasOne("Groundforce.Services.Models.ApplicationUser", "ApplicationUser")
-                        .WithOne("Admin")
-                        .HasForeignKey("Groundforce.Services.Models.Admin", "ApplicationUserId");
-                });
-
-            modelBuilder.Entity("Groundforce.Services.Models.BankAccount", b =>
-                {
-                    b.HasOne("Groundforce.Services.Models.FieldAgent", "FieldAgent")
-                        .WithOne("BankAccounts")
-                        .HasForeignKey("Groundforce.Services.Models.BankAccount", "FieldAgentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Groundforce.Services.Models.BuildingType", b =>
-                {
-                    b.HasOne("Groundforce.Services.Models.Admin", "Admin")
-                        .WithMany("BuildingTypes")
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Groundforce.Services.Models.Client", b =>
-                {
-                    b.HasOne("Groundforce.Services.Models.ApplicationUser", "ApplicationUser")
-                        .WithOne("Client")
-                        .HasForeignKey("Groundforce.Services.Models.Client", "ApplicationUserId");
-                });
-
             modelBuilder.Entity("Groundforce.Services.Models.FieldAgent", b =>
                 {
                     b.HasOne("Groundforce.Services.Models.ApplicationUser", "ApplicationUser")
                         .WithOne("FieldAgent")
-                        .HasForeignKey("Groundforce.Services.Models.FieldAgent", "ApplicationUserId");
+                        .HasForeignKey("Groundforce.Services.Models.FieldAgent", "ApplicationUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Groundforce.Services.Models.Mission", b =>
                 {
-                    b.HasOne("Groundforce.Services.Models.Admin", "Admin")
-                        .WithMany("Missions")
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Groundforce.Services.Models.BuildingType", "BuildingType")
-                        .WithMany("Missions")
-                        .HasForeignKey("BuildingTypeId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("Groundforce.Services.Models.FieldAgent", "FieldAgent")
                         .WithMany("Missions")
                         .HasForeignKey("FieldAgentId")
@@ -681,23 +848,32 @@ namespace Groundforce.Services.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Groundforce.Services.Models.Point", b =>
+            modelBuilder.Entity("Groundforce.Services.Models.MissionVerified", b =>
                 {
-                    b.HasOne("Groundforce.Services.Models.Admin", "Admin")
-                        .WithMany("Points")
-                        .HasForeignKey("AdminId")
+                    b.HasOne("Groundforce.Services.Models.BuildingType", "BuildingType")
+                        .WithMany("MissionsVerified")
+                        .HasForeignKey("BuildingTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Groundforce.Services.Models.Mission", "Mission")
+                        .WithOne("MissionVerified")
+                        .HasForeignKey("Groundforce.Services.Models.MissionVerified", "MissionId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Groundforce.Services.Models.Notification", b =>
+                {
+                    b.HasOne("Groundforce.Services.Models.ApplicationUser", "ApplicationUser")
+                        .WithMany("Notifications")
+                        .HasForeignKey("ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("Groundforce.Services.Models.PointAllocated", b =>
                 {
-                    b.HasOne("Groundforce.Services.Models.Admin", "Admin")
-                        .WithMany("PointsAllocated")
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("Groundforce.Services.Models.FieldAgent", "FieldAgent")
                         .WithMany("PointsAllocated")
                         .HasForeignKey("FieldAgentId")
@@ -706,22 +882,83 @@ namespace Groundforce.Services.Data.Migrations
 
                     b.HasOne("Groundforce.Services.Models.Point", "Point")
                         .WithMany("PointsAllocated")
-                        .HasForeignKey("PointsId")
+                        .HasForeignKey("PointId");
+                });
+
+            modelBuilder.Entity("Groundforce.Services.Models.QuestionOption", b =>
+                {
+                    b.HasOne("Groundforce.Services.Models.SurveyQuestion", "SurveyQuestion")
+                        .WithMany("QuestionOptions")
+                        .HasForeignKey("SurveyQuestionId");
+                });
+
+            modelBuilder.Entity("Groundforce.Services.Models.Response", b =>
+                {
+                    b.HasOne("Groundforce.Services.Models.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Groundforce.Services.Models.QuestionOption", "QuestionOption")
+                        .WithMany()
+                        .HasForeignKey("QuestionOptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Groundforce.Services.Models.Survey", "Survey")
+                        .WithMany()
+                        .HasForeignKey("SurveyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Groundforce.Services.Models.SurveyQuestion", "SurveyQuestion")
+                        .WithMany()
+                        .HasForeignKey("SurveyQuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Groundforce.Services.Models.UserSurvey", "UserSurvey")
+                        .WithMany("Responses")
+                        .HasForeignKey("UserSurveyApplicationUserId", "UserSurveySurveyId");
+                });
+
+            modelBuilder.Entity("Groundforce.Services.Models.Survey", b =>
+                {
+                    b.HasOne("Groundforce.Services.Models.SurveyType", "SurveyType")
+                        .WithMany("Surveys")
+                        .HasForeignKey("SurveyTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Groundforce.Services.Models.SurveyQuestion", b =>
+                {
+                    b.HasOne("Groundforce.Services.Models.Survey", "Survey")
+                        .WithMany("Questions")
+                        .HasForeignKey("SurveyId");
+                });
+
             modelBuilder.Entity("Groundforce.Services.Models.Transaction", b =>
                 {
-                    b.HasOne("Groundforce.Services.Models.Admin", "Admin")
-                        .WithMany("Transactions")
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Groundforce.Services.Models.FieldAgent", "FieldAgent")
                         .WithMany("Transactions")
                         .HasForeignKey("FieldAgentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Groundforce.Services.Models.UserSurvey", b =>
+                {
+                    b.HasOne("Groundforce.Services.Models.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Groundforce.Services.Models.Survey", "Survey")
+                        .WithMany("UserSurveys")
+                        .HasForeignKey("SurveyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

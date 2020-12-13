@@ -7,67 +7,67 @@ namespace Groundforce.Services.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         public DbSet<FieldAgent> FieldAgents { get; set; }
-        public DbSet<Client> Clients { get; set; }
         public DbSet<VerificationItem> VerificationItems { get; set; }
-        public DbSet<Admin> Admins { get; set; }
         public DbSet<Mission> Missions { get; set; }
-        public DbSet<BankAccount> BankAccounts { get; set; }
+        public DbSet<MissionVerified> MissionsVerified { get; set; }
         public DbSet<BuildingType> BuildingTypes { get; set; }
         public DbSet<Point> Points { get; set; }
         public DbSet<PointAllocated> PointAllocated { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Request> Request { get; set; }
+        public DbSet<EmailVerification> EmailVerifications { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Survey> Surveys { get; set; }
+        public DbSet<SurveyType> SurveyTypes { get; set; }
+        public DbSet<SurveyQuestion> SurveyQuestions { get; set; }
+        public DbSet<QuestionOption> QuestionOptions { get; set; }
+        public DbSet<UserSurvey> UserSurveys { get; set; }
+        public DbSet<Response> Responses { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            // Configure FieldAgent & AssignedAddresses entity
-            builder.Entity<Mission>()
-                       .HasOne<FieldAgent>(e => e.FieldAgent)
-                       .WithMany(e => e.Missions)
-                       .HasForeignKey(e => e.FieldAgentId)
-                       .OnDelete(DeleteBehavior.Cascade);
-            // Configure Mission & Admin entity
-            builder.Entity<Mission>()
-                       .HasOne<Admin>(e => e.Admin)
-                       .WithMany(e => e.Missions)
-                       .HasForeignKey(e => e.AdminId)
-                       .OnDelete(DeleteBehavior.NoAction);
-            // Configure Mission & BuildingType entity
-            builder.Entity<Mission>()
-                       .HasOne<BuildingType>(e => e.BuildingType)
-                       .WithMany(e => e.Missions)
-                       .HasForeignKey(e => e.BuildingTypeId)
-                       .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<UserSurvey>().HasKey(fas => new { fas.ApplicationUserId, fas.SurveyId });
+
             // Configure Mission & VerificationItem entity
             builder.Entity<Mission>()
-                       .HasOne<VerificationItem>(e => e.VerificationItem)
-                       .WithOne(e => e.Mission)
-                       .HasForeignKey<Mission>(e => e.VerificationItemId)
-                       .OnDelete(DeleteBehavior.NoAction);
+                      .HasOne<VerificationItem>(e => e.VerificationItem)
+                      .WithOne(e => e.Mission)
+                      .HasForeignKey<Mission>(e => e.VerificationItemId)
+                      .OnDelete(DeleteBehavior.NoAction);
             // Configure VerificationItem & Mission entity
             builder.Entity<VerificationItem>()
                        .HasOne<Mission>(e => e.Mission)
                        .WithOne(e => e.VerificationItem)
                        .HasForeignKey<Mission>(e => e.VerificationItemId)
                        .OnDelete(DeleteBehavior.NoAction);
-            // Configure PointAllocated & FieldAgent entity
-            builder.Entity<PointAllocated>()
-                       .HasOne<FieldAgent>(e => e.FieldAgent)
-                       .WithMany(e => e.PointsAllocated)
-                       .HasForeignKey(e => e.FieldAgentId)
-                       .OnDelete(DeleteBehavior.Cascade);
-            // Configure PointAllocated & Admin entity
-            builder.Entity<PointAllocated>()
-                       .HasOne<Admin>(e => e.Admin)
-                       .WithMany(e => e.PointsAllocated)
-                       .HasForeignKey(e => e.AdminId)
+
+            // Configure Mission & MissionVerified entity
+            builder.Entity<Mission>()
+                      .HasOne<MissionVerified>(e => e.MissionVerified)
+                      .WithOne(e => e.Mission)
+                      .HasForeignKey<MissionVerified>(e => e.MissionId)
+                      .OnDelete(DeleteBehavior.NoAction);
+            // Configure MissionVerified & Mission entity
+            builder.Entity<MissionVerified>()
+                       .HasOne<Mission>(e => e.Mission)
+                       .WithOne(e => e.MissionVerified)
+                       .HasForeignKey<MissionVerified>(e => e.MissionId)
                        .OnDelete(DeleteBehavior.NoAction);
-            // Configure PointAllocated & Point entity
-            builder.Entity<PointAllocated>()
-                       .HasOne<Point>(e => e.Point)
-                       .WithMany(e => e.PointsAllocated)
-                       .HasForeignKey(e => e.PointsId)
-                       .OnDelete(DeleteBehavior.Cascade);
+
+
+            // Configure ApplicaitonUser & FieldAgent entity
+            builder.Entity<ApplicationUser>()
+                      .HasOne<FieldAgent>(e => e.FieldAgent)
+                      .WithOne(e => e.ApplicationUser)
+                      .HasForeignKey<FieldAgent>(e => e.ApplicationUserId)
+                      .OnDelete(DeleteBehavior.NoAction);
+            // Configure FieldAgent & ApplicationUser entity
+            builder.Entity<FieldAgent>()
+                       .HasOne<ApplicationUser>(e => e.ApplicationUser)
+                       .WithOne(e => e.FieldAgent)
+                       .HasForeignKey<FieldAgent>(e => e.ApplicationUserId)
+                       .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

@@ -1,0 +1,34 @@
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.Data.deps.json
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.Data.runtimeconfig.json
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.Data.runtimeconfig.dev.json
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.Data.dll
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.Data.pdb
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.DTOs.dll
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.Models.dll
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.DTOs.pdb
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.Models.pdb
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\obj\Debug\netcoreapp3.1\Groundforce.Services.Data.csprojAssemblyReference.cache
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\obj\Debug\netcoreapp3.1\Groundforce.Services.Data.AssemblyInfoInputs.cache
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\obj\Debug\netcoreapp3.1\Groundforce.Services.Data.AssemblyInfo.cs
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\obj\Debug\netcoreapp3.1\Groundforce.Services.Data.csproj.CoreCompileInputs.cache
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\obj\Debug\netcoreapp3.1\Groundforce.Services.Data.csproj.CopyComplete
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\obj\Debug\netcoreapp3.1\Groundforce.Services.Data.dll
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\obj\Debug\netcoreapp3.1\Groundforce.Services.Data.pdb
+C:\Users\Kufreabasi Ita\Desktop\Coding\Decagon Training\Tasks\Submitted Tasks\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\obj\Debug\netcoreapp3.1\Groundforce.Services.Data.genruntimeconfig.cache
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.Data.deps.json
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.Data.runtimeconfig.json
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.Data.runtimeconfig.dev.json
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.Data.dll
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.Data.pdb
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.DTOs.dll
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.Models.dll
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.DTOs.pdb
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\bin\Debug\netcoreapp3.1\Groundforce.Services.Models.pdb
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\obj\Debug\netcoreapp3.1\Groundforce.Services.Data.csprojAssemblyReference.cache
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\obj\Debug\netcoreapp3.1\Groundforce.Services.Data.AssemblyInfoInputs.cache
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\obj\Debug\netcoreapp3.1\Groundforce.Services.Data.AssemblyInfo.cs
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\obj\Debug\netcoreapp3.1\Groundforce.Services.Data.csproj.CoreCompileInputs.cache
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\obj\Debug\netcoreapp3.1\Groundforce.Services.Data.csproj.CopyComplete
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\obj\Debug\netcoreapp3.1\Groundforce.Services.Data.dll
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\obj\Debug\netcoreapp3.1\Groundforce.Services.Data.pdb
+C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Services.Data\obj\Debug\netcoreapp3.1\Groundforce.Services.Data.genruntimeconfig.cache

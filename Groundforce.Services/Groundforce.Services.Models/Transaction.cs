@@ -15,33 +15,25 @@ namespace Groundforce.Services.Models
         public string Id { get; set; }
 
         [Required]
-        public string Status { get; set; }
+        public string FieldAgentId { get; set; }
+        public FieldAgent FieldAgent { get; set; }
+
+        public string AddedBy { get; set; }
+        public string UpdatedBy { get; set; }
 
         [Required]
         public string Reference { get; set; }
 
         [Required]
-        [Display(Name = "Paid Amount")]
         public int PaidAmount { get; set; }
 
         [Required]
-        [Display(Name = "Paid At")]
         public DateTime PaidAt { get; set; }
 
         [Required]
-        [Display(Name = "Actual Amount")]
         [Column(TypeName = "decimal(18,4)")]
         public decimal ActualAmount { get; set; }
 
-        [Required]
-        [Display(Name = "Field Agent Id")]
-        public string FieldAgentId { get; set; }
-        public FieldAgent FieldAgent { get; set; }
-
-        [Required]
-        [Display(Name = "Admin Id")]
-        public string AdminId { get; set; }
-        public Admin Admin { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;

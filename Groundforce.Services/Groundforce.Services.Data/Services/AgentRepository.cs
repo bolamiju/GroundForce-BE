@@ -26,7 +26,7 @@ namespace Groundforce.Services.Data.Services
 
         public async Task<FieldAgent> GetAgentById(string Id)
         {
-            return await _ctx.FieldAgents.FirstOrDefaultAsync(x => x.ApplicationUserId == Id || x.FieldAgentId == Id);
+            return await _ctx.FieldAgents.FirstOrDefaultAsync(x => x.ApplicationUserId == Id);
         }
 
         public async Task<bool> UpdateAgent(FieldAgent model)

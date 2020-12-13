@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.9.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Groundforce.Common.Utilities\Groundforce.Common.Utilities.csproj" />
     <ProjectReference Include="..\Groundforce.Services.Data\Groundforce.Services.Data.csproj" />
     <ProjectReference Include="..\Groundforce.Services.DTOs\Groundforce.Services.DTOs.csproj" />

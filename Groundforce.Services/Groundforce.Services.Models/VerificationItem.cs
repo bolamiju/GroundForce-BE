@@ -14,13 +14,19 @@ namespace Groundforce.Services.Models
         public string ItemId { get; set; }
 
         [Required]
-        [MaxLength(250, ErrorMessage = "Address must not be more than 250 characters")]
-        [Display(Name = "Address")]
-        public string ItemName { get; set; }
-
-        [Required(ErrorMessage ="Required to provide whom address is added by")]
+        [Column("AddedBy")]
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
+
+        public string UpdatedBy { get; set; }
+
+        [Required]
+        [MaxLength(20)]
+        public string Title { get; set; }
+
+        [Required]
+        [MaxLength(250)]
+        public string Description { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;

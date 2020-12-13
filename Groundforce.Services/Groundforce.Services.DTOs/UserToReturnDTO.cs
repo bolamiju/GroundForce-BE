@@ -13,7 +13,7 @@ namespace Groundforce.Services.DTOs
         public string Religion { get; set; }
         public string Email { get; set; }  
         public string AdditionalPhoneNumber { get; set; }
-        public string HomeAddress { get; set; }
+        public string ResidentialAddress { get; set; }
         public string BankName { get; set; }
         public string AccountNumber { get; set; }
         public string AvatarUrl { get; set; }

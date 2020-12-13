@@ -12,6 +12,10 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using Groundforce.Services.Data;
 using Groundforce.Services.Data.Services;
+using System.Net;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using Groundforce.Services.Core;
 
 namespace Groundforce.Services.API
 {
@@ -33,14 +37,19 @@ namespace Groundforce.Services.API
 
 
             // db connection string
-            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbConnection")));
+            services.AddDbContext<AppDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("DbConnection")));
+            
 
             services.AddScoped<IRequestRepository, RequestRepository>();
-            services.AddScoped<IVerificationItemRepository, VerificationItemRepository>();
-            //services.AddScoped<IMission, MissionRepository>();
+            services.AddScoped<IEmailVerificationRepository, EmailVerificationRepository>();
+            services.AddScoped<IPhotoRepository, PhotoRepository>();
+            services.AddScoped<IMissionRepository, MissionRepository>();
             services.AddScoped<IAgentRepository, AgentRepository>();
-            services.AddScoped<IBankRepository, BankRepository>();
-            services.AddScoped<IAdminRepository, AdminRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddTransient<IMailService, MailService>();
+            services.AddScoped(typeof(IAllRepo<>), typeof(AllRepo<>));
+            services.AddScoped<ISurveyRepository, SurveyRepository>();
+            //services.AddScoped<IAdminRepository, AdminRepository>();
 
             // Identity service
             services.AddIdentity<ApplicationUser, IdentityRole>(option =>
@@ -58,6 +67,9 @@ namespace Groundforce.Services.API
 
             //register cloudinary
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
+
+            //register sendGrid
+            services.Configure<SendGridSettings>(Configuration.GetSection("SendGridSettings"));
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
@@ -118,6 +130,21 @@ namespace Groundforce.Services.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler(builder =>
+                {
+                    builder.Run(async context => {
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        var err = context.Features.Get<IExceptionHandlerFeature>();
+
+                        if (err != null)
+                        {
+                            await context.Response.WriteAsync($"{err.Error.Source} {err.Error.StackTrace} {err.Error.Message}");
+                        }
+                    });
+                });
             }
 
             //app.UseHttpsRedirection();

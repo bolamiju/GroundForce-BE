@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
@@ -6,69 +7,71 @@ namespace Groundforce.Services.DTOs
 {
     public class UserToRegisterDTO
     {
-        //lastname
         [Required]
         [MaxLength(50, ErrorMessage = "Last name must not be more than 50 characters")]
         [Display(Name = "Last name")]
         public string LastName { get; set; }
 
-        //firstname
         [Required]
         [MaxLength(50, ErrorMessage = "First name must not be more than 50 characters")]
         [Display(Name = "First name")]
         public string FirstName { get; set; }
+<<<<<<< HEAD
         public string PhoneNumber { get; set; }
 
         //additional Phonenumber
         public string AdditionalPhoneNumber { get; set; }
+=======
+>>>>>>> deployment-git
 
-        //gender
-        [Required]
+        [MaxLength(1, ErrorMessage ="Max length 1")]
+        [RegularExpression(@"\w{1}", ErrorMessage = "Gender should be a single character eg: m or f")]
         public string Gender { get; set; }
 
-        //emailAddress
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
-
-        //DOB which is Date Of Birth
         [Required]
         [Display(Name = "Date of birth")]
         [ValidateDOBRange(18, 120, ErrorMessage = "Ensure date format is dd/mm/yyyy and age is between 18 - 120")]
         public string DOB { get; set; }
 
-        //Religion
         [Required]
-        public string Religion { get; set; }
+        [Display(Name = "Phone number")]
+        [MaxLength(14, ErrorMessage = "Phone number must not be 14 characters")]
+        [RegularExpression(@"^\+\d{3}\d{9,10}$", ErrorMessage = "Must have country-code and must be 13, 14 chars long e.g. +2348050000000")]
+        public string PhoneNumber { get; set; }
 
-        //State
         [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
+        [StringLength(4, ErrorMessage = "Pin must be exactly 4 digits", MinimumLength = 4)]
+        [DataType(DataType.Password)]
+        [RegularExpression(@"^\d{4}$", ErrorMessage = "Pin must all be digits")]
+        public string Password { get; set; }
+
+        [MaxLength(150, ErrorMessage = "State must not be 150 characters")]
+        public string ResidentialAddress { get; set; }
+
+        [MaxLength(150, ErrorMessage = "State must not be 150 characters")]
         public string State { get; set; }
 
-        //PlaceOfBirth
-        [Required]
-        [Display(Name = "Place of Birth")]
-        public string PlaceOfBirth { get; set; }
-
-        //LGA
-        [Required]
-        [Display(Name = "Local Government Area")]
+        [MaxLength(150, ErrorMessage = "State must not be 150 characters")]
         public string LGA { get; set; }
 
-        //HomeAdress
-        [Required]
-        [Display(Name = "Home address")]
-        public string HomeAddress { get; set; }
+        [MaxLength(10, ErrorMessage = "State must not be 10 characters")]
+        public string ZipCode { get; set; }
 
-        //BankName
-        [Required]
-        [Display(Name = "Bank name")]
-        public string BankName { get; set; }
+        public string Longitude { get; set; }
 
-        //AccountNumber
-        [Required]
-        [Display(Name = "Account number")]
-        public string AccountNumber { get; set; }
+        public string Latitude { get; set; }
+
+        public List<string> Roles { get; set; }
+
+
+        public UserToRegisterDTO()
+        {
+            Roles = new List<string>();
+        }
 
 
     }

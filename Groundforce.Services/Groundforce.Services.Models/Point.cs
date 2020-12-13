@@ -13,14 +13,8 @@ namespace Groundforce.Services.Models
         public string PointId { get; set; }
 
         [Required]
-        [Display(Name = "Amount Attached")]
         [Column(TypeName = "decimal(18,4)")]
-        public decimal AmountAttached { get; set; }
-
-        [Required]
-        [Display(Name = "Admin Id")]
-        public string AdminId { get; set; }
-        public Admin Admin { get; set; }
+        public decimal PointNumber { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;

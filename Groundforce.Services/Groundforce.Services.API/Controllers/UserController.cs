@@ -16,6 +16,7 @@ using Groundforce.Services.Data.Services;
 using System.Collections.Generic;
 using System.Linq;
 using Groundforce.Services.Core;
+using Microsoft.Extensions.Configuration;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -25,173 +26,130 @@ namespace Groundforce.Services.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly AppDbContext _ctx;
         private readonly ILogger<UserController> _logger;
         private readonly IOptions<CloudinarySettings> _cloudinaryConfig;
         private readonly IAgentRepository _agentRepository;
-        private readonly IBankRepository _bankRepository;
         private readonly IRequestRepository _requestRepository;
-        private readonly IAdminRepository _adminRepository;
+        private readonly IPhotoRepository _photoRepo;
 
         public UserController(ILogger<UserController> logger, UserManager<ApplicationUser> userManager, 
-            AppDbContext ctx, IOptions<CloudinarySettings> cloudinaryConfig, IAgentRepository agentRepository,
-                                 IAdminRepository adminRepository, IBankRepository bankRepository,
-                                 IRequestRepository requestRepository)
+            IOptions<CloudinarySettings> cloudinaryConfig, IAgentRepository agentRepository,
+                                 IRequestRepository requestRepository, IPhotoRepository photoRepository)
         {
             _userManager = userManager;
-            _ctx = ctx;
             _cloudinaryConfig = cloudinaryConfig;
             _agentRepository = agentRepository;
             _logger = logger;
-            _adminRepository = adminRepository;
-            _bankRepository = bankRepository;
             _requestRepository = requestRepository;
+            _photoRepo = photoRepository;
         }
-               
-        //updates user picture
-        [HttpPatch]
-        [Route("{Id}/picture")]
-        [Authorize(Roles = "Agent")]
-        public async Task<IActionResult> UpdatePicture(string Id, [FromForm] PhotoToUploadDTO Picture)
-        {
-            ApplicationUser user = null;
-            try
-            {
-                var authSupportService = new AuthSupportService(_userManager, _agentRepository, _bankRepository);
-                user = await authSupportService.verifyUser(Id);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(ResponseMessage.Message(e.Message));
-            }
-
-            // check if user with id is logged in
-            var loggedInUserId = _userManager.GetUserId(User);
-            if (loggedInUserId != Id)
-                return BadRequest(ResponseMessage.Message($"Id: {Id} does not match loggedIn user Id"));
-
-            var picture = Picture.Photo;
-            var pictureSizeCheck = picture.FileName.EndsWith(".jpg") || picture.FileName.EndsWith(".jpeg") || picture.FileName.EndsWith(".png");
-
-            if (picture != null && picture.Length < 2097152)
-            {
-                if (pictureSizeCheck)
-                {
-                    try
-                    {
-                        var managePhoto = new ManagePhoto(_cloudinaryConfig);
-                        var uplResult = managePhoto.UploadAvatar(picture);
-                        user.AvatarUrl = uplResult.Url.ToString();
-                        user.PublicId = uplResult.PublicId;
-                        await _userManager.UpdateAsync(user);
-
-                        return Ok(ResponseMessage.Message("Picture upload was successful!", new { user.AvatarUrl, user.PublicId }));
-                    }
-                    catch (Exception)
-                    {
-                        return BadRequest(ResponseMessage.Message("Picture not successfully uploaded"));
-                    }
-                }
-                return BadRequest(ResponseMessage.Message("File format is not supported. Please upload a picture"));
-            }
-            return BadRequest(ResponseMessage.Message("File size should not exceed 2mb"));
-        }
+        
 
         // Gets user by Id.
         [HttpGet]
-        [Route("{Id}")]
-        [Authorize(Roles = "Agent, Admin")]
-        public async Task<IActionResult> Get(string Id)
+        [Route("{id}")]
+        public async Task<IActionResult> Get(string id)
         {
-            if (string.IsNullOrWhiteSpace(Id)) return BadRequest(ResponseMessage.Message("Invalid Id"));
-
-            var user = await _userManager.FindByIdAsync(Id);
-
-
-            if (user == null)
-                return NotFound(ResponseMessage.Message("User not found"));
-
-            if (!user.Active)
-                return Unauthorized(ResponseMessage.Message("Not an active account"));
-
-
-            // Returns the field agent by userId
-            var agent = await _ctx.FieldAgents.FirstOrDefaultAsync(a => a.ApplicationUserId == Id);
-            if (agent == null) return NotFound(ResponseMessage.Message("User's extended details not found"));
-
-            //  Returns the bank account of that particular field agent using the fieldAgentID
-            var bank = await _ctx.BankAccounts.FirstOrDefaultAsync(a => a.FieldAgentId == agent.FieldAgentId);
-            if (bank == null) return NotFound(ResponseMessage.Message("User's bank details not found"));
-
-            var profile = new UserToReturnDTO
+            try
             {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                DOB = user.DOB,
-                Gender = user.Gender,
-                Religion = agent.Religion,
-                Email = user.Email,
-                AdditionalPhoneNumber = agent.AdditionalPhoneNumber,
-                HomeAddress = user.HomeAddress,
-                BankName = bank.AccountName,
-                AccountNumber = bank.AccountNumber,
-                AvatarUrl = user.AvatarUrl,
-                PublicId = user.PublicId
-            };
+                // validate and ensure that the user is an active user
+                if (string.IsNullOrWhiteSpace(id)) return BadRequest(ResponseMessage.Message("Bad request",errors: new { message = "Invalid Id" }));
 
-            return Ok(profile);
+                var user = await _userManager.FindByIdAsync(id);
+
+                if (user == null)
+                    return NotFound(ResponseMessage.Message("Notfound", errors: new { message = $"User with id: {id} was not found" }));
+
+                if (_userManager.GetUserId(User) != id && !User.IsInRole("Admin"))
+                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: new { message = $"User must be logged-in or must have admin role" }));
+
+                // construct the object
+                var appUser = new 
+                {
+                    user.Id,
+                    user.FirstName,
+                    user.LastName,
+                    user.DOB,
+                    user.Gender,
+                    user.Email,
+                    user.AvatarUrl,
+                    user.PublicId,
+                    user.UpdatedAt,
+                };
+
+                // Returns the field agent by userId
+                //var userRoles = await _userManager.GetRolesAsync(user);
+                if (await _userManager.IsInRoleAsync(user,"agent"))
+                {
+                    var agent = await _agentRepository.GetAgentById(id);
+                    if (agent == null) return NotFound(ResponseMessage.Message("Notfound", errors: new { message = "User's extended details not found" }));
+
+                    var profile = new UserToReturnDTO
+                    {
+                        Id = appUser.Id,
+                        FirstName = appUser.FirstName,
+                        LastName = appUser.LastName,
+                        DOB = appUser.DOB,
+                        Gender = appUser.Gender,
+                        Religion = agent.Religion,
+                        Email = appUser.Email,
+                        AdditionalPhoneNumber = agent.AdditionalPhoneNumber,
+                        ResidentialAddress = agent.ResidentialAddress,
+                        BankName = agent.AccountName,
+                        AccountNumber = agent.AccountNumber,
+                        AvatarUrl = appUser.AvatarUrl,
+                        PublicId = appUser.PublicId
+                    };
+                    return Ok(ResponseMessage.Message("User found", data: profile));
+                }
+
+                return Ok(ResponseMessage.Message("User found", data: appUser));
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Data processing error" }));
+            }
         }
+
 
         // edit field agent
         [HttpPut]
-        [Route("{Id}")]
-        [Authorize(Roles ="Agent")]
-        public async Task<IActionResult> EditUser([FromBody] UserToEditDTO model, string Id)
+        public async Task<IActionResult> EditUser([FromBody] UserToEditDTO model)
         {
             if (ModelState.IsValid)
             {
-                bool response = InputValidator.PhoneNumberValidator(model.AdditionalPhoneNumber);
-                if (!response)
-                {
-                    return BadRequest(ResponseMessage.Message("Additional phone number is invalid. Must have country-code and must be 13, 14 chars long e.g. +2348050000000"));
-                }
+                // validate and ensure that the user is an active user
+                var user = await _userManager.FindByIdAsync(model.Id);
 
-                var editParams = new Dictionary<string, string>();
-                editParams.Add("Gender", model.Gender);
-                editParams.Add("Religion", model.Religion);
+                if (user == null)
+                    return NotFound(ResponseMessage.Message("Notfound", errors: new { message = $"User with id: {model.Id} was not found" }));
 
-                string output = InputValidator.WordInputValidator(editParams);
-
-                if (output.Length > 0)
-                {
-                    return BadRequest(ResponseMessage.Message("Invalid input: " + output));
-                }
-
-                ApplicationUser user = null;
-                try
-                {
-                    var authSupportService = new AuthSupportService(_userManager, _agentRepository, _bankRepository);
-                    user = await authSupportService.verifyUser(Id);
-                }
-                catch (Exception e)
-                {
-                    return BadRequest(ResponseMessage.Message(e.Message));
-                }
+                if (_userManager.GetUserId(User) != model.Id)
+                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: new { message = $"User must be logged-in" }));
 
 
-                // check if user with id is logged in
-                var loggedInUserId = _userManager.GetUserId(User);
-                if (loggedInUserId != Id)
-                    return BadRequest(ResponseMessage.Message($"Id: {Id} does not match loggedIn user Id"));
-
-
-                //update application user
-                user.Email = model.Email;
-                user.UserName = model.Email;
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.DOB = model.DOB;
                 user.Gender = model.Gender;
 
 
+                // update user extended details if user is an agent
+                if (await _userManager.IsInRoleAsync(user, "agent"))
+                {
+                    var agent = await _agentRepository.GetAgentById(model.Id);
+                    if (agent == null) return NotFound(ResponseMessage.Message("Notfound", errors: new { message = "User's extended details not found" }));
+                    
+                    agent.AdditionalPhoneNumber = model.AdditionalPhoneNumber;
+                    agent.Religion = model.Religion;
+
+                    var res = await _agentRepository.UpdateAgent(agent);
+                    if(!res)
+                        return NotFound(ResponseMessage.Message("Bad request", errors: new { message = "Failed to update user's extended details" }));
+                }
+
+                // update user
                 var result = await _userManager.UpdateAsync(user);
 
                 if (!result.Succeeded)
@@ -200,95 +158,162 @@ namespace Groundforce.Services.API.Controllers
                     {
                         ModelState.AddModelError("", err.Description);
                     }
-                    return BadRequest(ResponseMessage.Message("Failed to update user"));
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Failed to update user" }));
                 }
 
-                string fieldAgentId;
-                try
-                {
-                    //update field agent
-                    var agent = await _agentRepository.GetAgentById(Id);
-                    agent.AdditionalPhoneNumber = model.AdditionalPhoneNumber;
-                    agent.Religion = model.Religion;
-                    fieldAgentId = agent.FieldAgentId;
-                    if(!await _agentRepository.UpdateAgent(agent))
-                    {
-                        return BadRequest(ResponseMessage.Message("Failed to update agent"));
-                    }
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e.Message);
-                    return BadRequest(ResponseMessage.Message("Failed to update additional details"));
-                }
-
-                return Ok(ResponseMessage.Message("Updated Successfully!"));
+                return Ok(ResponseMessage.Message("Success", data: new { message = "Updated Successfully!" }));
 
             }
             return BadRequest(ModelState);
         }
 
 
-        //change pin
-        [HttpPatch("{Id}/change-password")]
-        [Authorize(Roles = "Agent")]
-        public async Task<IActionResult> ChangePassword(string Id, [FromBody] ResetUserPwdDTO userToUpdate)
+        //updates user picture
+        [HttpPatch]
+        [Route("picture")]
+        public async Task<IActionResult> UpdatePicture([FromForm] PhotoToUploadDTO Picture)
         {
-            bool response = InputValidator.PinValidator(userToUpdate.CurrentPwd);
-            if (!response)
+            ApplicationUser user = null;
+            try
             {
-                return BadRequest(ResponseMessage.Message("Current password should be 4 digits"));
+                var authSupportService = new AuthSupportService(_userManager, _agentRepository);
+                user = await _userManager.FindByIdAsync(Picture.Id);
+                if(user == null)
+                    return BadRequest(ResponseMessage.Message("Notfound", errors: new { message = $"User with Id: {Picture.Id} was not found" }));
+
+                // check if user with id is logged in
+                if (_userManager.GetUserId(User) != Picture.Id)
+                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: new { message = $"User must be logged-in" }));
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Data processing error" }));
             }
 
-            response = InputValidator.PinValidator(userToUpdate.NewPwd);
-            if (!response)
+            try
             {
-                return BadRequest(ResponseMessage.Message("New password should be 4 digits"));
+                var uplResult = _photoRepo.UploadPix(Picture.Photo);
+                user.AvatarUrl = uplResult.Url.ToString();
+                user.PublicId = uplResult.PublicId;
+                await _userManager.UpdateAsync(user);
+
+                return Ok(ResponseMessage.Message("Picture upload was successful!", data: new { user.AvatarUrl, user.PublicId }));
             }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = e.Message }));
+            }
+              
+        }
+
+
+        //change pin
+        [HttpPatch("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePwdDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = ModelState }));
 
             ApplicationUser user = null;
             try
             {
-                var authSupportService = new AuthSupportService(_userManager, _agentRepository, _bankRepository);
-                user = await authSupportService.verifyUser(Id);
-            }catch(Exception e)
-            {
-                return BadRequest(ResponseMessage.Message(e.Message));
-            }
+                // check if user with id is logged in
+                var loggedInUserId = _userManager.GetUserId(User);
+                if (loggedInUserId != model.UserId)
+                    return BadRequest(ResponseMessage.Message("Bad request",errors: new { message = $"Id: {model.UserId} does not match loggedIn user Id" }));
 
-            // check if user with id is logged in
-            var loggedInUserId = _userManager.GetUserId(User);
-            if (loggedInUserId != Id)
-                return BadRequest(ResponseMessage.Message($"Id: {Id} does not match loggedIn user Id"));
+                // get user
+                user = await _userManager.FindByIdAsync(model.UserId);
+                if (user == null)
+                    return BadRequest(ResponseMessage.Message("Notfound", errors: new { message = $"User with Id: {model.UserId} was not found" }));
 
-            if (ModelState.IsValid)
-            {
+                // change password
+                var updatePwd = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
 
-                var updatePwd = await _userManager.ChangePasswordAsync(user, userToUpdate.CurrentPwd, userToUpdate.NewPwd);
-
-                if (updatePwd.Succeeded) return Ok(ResponseMessage.Message("Password Changed!"));
+                if (updatePwd.Succeeded)
+                {
+                    return Ok(ResponseMessage.Message("Success", data: new { message = "Password Changed!" }));
+                }
 
                 foreach (var error in updatePwd.Errors)
                 {
                     ModelState.AddModelError("", $"{error.Code} - {error.Description}");
                 }
+                return BadRequest(ResponseMessage.Message("Bad request",errors: new { message = ModelState }));
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Data processing error" }));
             }
 
-            return BadRequest(ModelState);
         }
 
 
+        //verify user
+        [HttpPatch("verify-account")]
+        [Authorize(Roles = "Agent")]
+        public async Task<IActionResult> VerifyUserAccount([FromBody] UserToVerifyDTO model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.GetUserAsync(User);
+
+                if (user.IsVerified)
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "User is already verified" }));
+
+                if (string.IsNullOrWhiteSpace(user.AvatarUrl))
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Photo must be uploaded" }));
+
+                var agent = await _agentRepository.GetAgentById(user.Id);
+
+                var validateAccountNumber = InputValidator.NUBANAccountValidator(model.BankCode, model.AccountNumber);
+
+                if (!validateAccountNumber) return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Invalid account number" }));
+
+                var accountName = Enum.GetName(typeof(BankCode), Convert.ToInt32(model.BankCode));
+
+                agent.AccountName = accountName;
+                agent.AccountNumber = model.AccountNumber;
+                agent.Religion = model.Religion;
+                agent.AdditionalPhoneNumber = model.AdditionalPhoneNumber;
+                user.Gender = model.Gender;
+                user.IsVerified = true;
+
+                if (!await _agentRepository.UpdateAgent(agent))
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Failed to update user" }));
+
+                var update = await _userManager.UpdateAsync(user);
+                if (!update.Succeeded)
+                {
+                    foreach (var err in update.Errors)
+                    {
+                        ModelState.AddModelError("", err.Description);
+                    }
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Failed to update user" }));
+                }
+
+                return Ok(ResponseMessage.Message("Success", data: new { message = "Updated Successfully!" }));
+            }
+            return BadRequest(ResponseMessage.Message("Invalid model state", errors: new { message = ModelState }));
+        }
+
+        #region DELETE USER. ONLY FOR DEVELOPMENT PURPOSE
         //remove user
         [HttpDelete("{Id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(string Id)
         {
-            if (Id == null)
-                BadRequest(ResponseMessage.Message("You need to provide user Id"));
+            if (String.IsNullOrWhiteSpace(Id))
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Invalid Id" }));
 
             var user = await _userManager.FindByIdAsync(Id);
             if (user == null)
-                NotFound($"User with id {Id} was not found");
+                return NotFound(ResponseMessage.Message("Notfound", new { message = $"User with id {Id} was not found" }));
 
             FieldAgent agent = null;
             try
@@ -301,23 +326,11 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return BadRequest(ResponseMessage.Message("Failed to delete user!"));
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Could not access data" }));
             }
 
-            List<BankAccount> bankDetails = new List<BankAccount>();
             try
             {
-                // get bank details
-                bankDetails = await _bankRepository.GetBankDetailsByAgent(agent.FieldAgentId);
-                if (bankDetails == null)
-                    throw new Exception($"Bank with field agent id {agent.FieldAgentId} was not found");
-
-                foreach (var detail in bankDetails)
-                {
-                    if (!await _bankRepository.DdeleteBankDetail(detail))
-                        throw new Exception("Could not delete bank record");
-                }
-
                 if (!await _agentRepository.DeleteAgent(agent))
                     throw new Exception("Could not delete agent record");
 
@@ -326,7 +339,7 @@ namespace Groundforce.Services.API.Controllers
                 {
                     foreach (var err in result.Errors)
                         ModelState.AddModelError("", err.Description);
-                    return BadRequest(ModelState);
+                    return BadRequest(ResponseMessage.Message("", errors: new { message = ModelState }));
                 }
 
                 if (!await _requestRepository.DeleteRequestByPhone(user.PhoneNumber))
@@ -336,11 +349,12 @@ namespace Groundforce.Services.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return BadRequest(ResponseMessage.Message("Failed to delete user!"));
+                return BadRequest(ResponseMessage.Message("", errors: new { message = "Failed to delete user!" }));
             }
-            return Ok(ResponseMessage.Message("User deleted!"));
+            return Ok(ResponseMessage.Message("Deleted successfully", data: new { message = "User deleted!" }));
         }
 
+        #endregion
 
     }
 }
