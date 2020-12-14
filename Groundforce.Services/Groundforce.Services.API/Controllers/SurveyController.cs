@@ -53,24 +53,12 @@ namespace Groundforce.Services.API.Controllers
 
         #region SURVEY TYPE ROUTE
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost("add-survey-type")]
         public async Task<IActionResult> AddSurveyType([FromBody] SurveyTypeDTO model)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Could not access user" }));
-
-            var regParams = new Dictionary<string, string>
-            {
-                { "Type", model.Type }
-            };
-
-            string output = InputValidator.WordInputValidator(regParams);
-
-            if (output.Length > 0)
-            {
-                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Invalid input: " + output }));
-            }
 
             // generate survey type id
             string surveyTypeId;
@@ -101,24 +89,12 @@ namespace Groundforce.Services.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPatch("edit-survey-type")]
         public async Task<IActionResult> EditSurveyType([FromBody] UpdateSurveyTypeDTO model)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Could not access user" }));
-
-            var regParams = new Dictionary<string, string>
-            {
-                { "Type", model.Type }
-            };
-
-            string output = InputValidator.WordInputValidator(regParams);
-
-            if (output.Length > 0)
-            {
-                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Invalid input: " + output }));
-            }
 
             SurveyType surveyType;
 
@@ -150,7 +126,7 @@ namespace Groundforce.Services.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpDelete("delete-survey-type/{typeId}")]
         public async Task<IActionResult> DeleteSurveyType(string typeId)
         {
@@ -184,7 +160,7 @@ namespace Groundforce.Services.API.Controllers
         #endregion
 
         #region SURVEY ROUTE
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost("add-survey")]
         public async Task<IActionResult> AddSurvey([FromBody] SurveyDTO surveyToAdd)
         {
@@ -229,7 +205,7 @@ namespace Groundforce.Services.API.Controllers
             return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Invalid model state", ModelState }));
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPatch("edit-survey")]
         public async Task<IActionResult> EditSurvey([FromBody] UpdateSurveyDTO surveyToUpdate)
         {
@@ -287,7 +263,7 @@ namespace Groundforce.Services.API.Controllers
             return BadRequest(ResponseMessage.Message("Invalid model state", errors: ModelState));
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpDelete("{surveyId}/delete-survey")]
         public async Task<IActionResult> DeleteSurvey(string surveyId)
         {
@@ -324,7 +300,7 @@ namespace Groundforce.Services.API.Controllers
         #endregion
 
         #region SURVEY QUESTION ROUTE
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost("add-question")]
         public async Task<IActionResult> AddSurveyQuestion([FromBody] SurveyQuestionDTO model)
         {
@@ -394,7 +370,7 @@ namespace Groundforce.Services.API.Controllers
             return BadRequest(ResponseMessage.Message("Bad Request", errors: "Invalid model state", ModelState));
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPatch("edit-question")]
         public async Task<IActionResult> EditSurveyQuestion([FromBody] UpdateSurveyQuestionDTO model)
         {
@@ -461,7 +437,7 @@ namespace Groundforce.Services.API.Controllers
             return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Invalid model state" }, ModelState));
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpDelete("{questionId}/delete-question")]
         public async Task<IActionResult> DeleteSurveyQuestion(string questionId)
         {
@@ -496,7 +472,7 @@ namespace Groundforce.Services.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpGet("questions/{page}")]
         public async Task<IActionResult> GetAllSurveyQuestions(int page = 1)
         {
@@ -552,7 +528,7 @@ namespace Groundforce.Services.API.Controllers
             return Ok(ResponseMessage.Message("Survey questions found", data: pagedSurveyQuestions));
         }
 
-        [Authorize(Roles = "Admin, Agent")]
+        [Authorize(Roles = "admin, agent")]
         [HttpGet("question/{questionId}")]
         public async Task<IActionResult> GetSurveyQuestion(string questionId)
         {
@@ -607,7 +583,7 @@ namespace Groundforce.Services.API.Controllers
         #endregion
 
         #region USER SURVEY ROUTE
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost("{surveyId}/assign-survey/{agentId}")]
         public async Task<IActionResult> AssignUserSurvey(string agentId, string surveyId)
         {
@@ -627,6 +603,9 @@ namespace Groundforce.Services.API.Controllers
 
             try
             {
+                if(await _surveyRepository.GetUserSurveyByUserIdAndSurveyId(agentId, surveyId) != null)
+                    return BadRequest(ResponseMessage.Message("BadRequest", errors: new { message = $"survey {surveyId} has already been assigned to this user" }));
+
                 await _userSurveyRepository.Add(userSurvey);
                 return Ok(ResponseMessage.Message("Success", data: new { userId = userSurvey.ApplicationUserId, surveyId = userSurvey.SurveyId }));
             }
@@ -637,7 +616,7 @@ namespace Groundforce.Services.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPatch("{surveyId}/reassign-agent/{agentId}")]
         public async Task<IActionResult> ReassignUserSurvey(string agentId, string surveyId, [FromBody] ReassignUserSurveyDTO model)
         {
@@ -691,7 +670,7 @@ namespace Groundforce.Services.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Agent")]
+        [Authorize(Roles = "agent")]
         [HttpPatch("acceptance-status")]
         public async Task<IActionResult>EditStatusUserSurvey([FromBody] UserSurveyDTO model) 
         {
@@ -732,7 +711,7 @@ namespace Groundforce.Services.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Agent")]
+        [Authorize(Roles = "agent")]
         [HttpPost("submit-survey")]
         public async Task<IActionResult> SubmitSurvey(ResponseUserSurveyDTO model)
         {
@@ -812,7 +791,7 @@ namespace Groundforce.Services.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpGet("{agentId}/{status}/{page}")]
         public async Task<IActionResult> GetUserSurveyForAgent(string agentId, string status, int page)
         {

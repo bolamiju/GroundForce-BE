@@ -57,7 +57,7 @@ namespace Groundforce.Services.API.Controllers
         [HttpPost("verify-phone")]
         public async Task<IActionResult> VerifyPhone([FromBody] PhoneNumberToVerifyDTO model)
         {
-            if (String.IsNullOrWhiteSpace(model.PhoneNumber)) return BadRequest(ResponseMessage.Message("Bad request", errors: new { message ="Invalid request credential" }));
+            if (String.IsNullOrWhiteSpace(model.PhoneNumber)) return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Invalid request credential" }));
 
             Request number = null;
             try
@@ -202,192 +202,192 @@ namespace Groundforce.Services.API.Controllers
 
         }
 
-        [HttpPost("verify-email")]
-        public async Task<IActionResult> VerifyEmail([FromForm] EmailToVerifyDTO model)
-        {
-            string emailCode;
-            try
-            {                
-                var response = await _emailVerificationRepository.GetEmailVerificationByEmail(model.EmailAddress);
-                if (response != null && response.IsVerified)
-                {
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "User is already verified" }));
-                }
+        //[HttpPost("verify-email")]
+        //public async Task<IActionResult> VerifyEmail([FromForm] EmailToVerifyDTO model)
+        //{
+        //    string emailCode;
+        //    try
+        //    {                
+        //        var response = await _emailVerificationRepository.GetEmailVerificationByEmail(model.EmailAddress);
+        //        if (response != null && response.IsVerified)
+        //        {
+        //            return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "User is already verified" }));
+        //        }
 
-                emailCode = Guid.NewGuid().ToString();
-                emailCode = Regex.Replace(emailCode, @"\D", "");
+        //        emailCode = Guid.NewGuid().ToString();
+        //        emailCode = Regex.Replace(emailCode, @"\D", "");
 
-                if (emailCode.Length > 4) emailCode = emailCode.Remove(4);
-                else if (emailCode.Length < 4)
-                {
-                    while (emailCode.Length != 4)
-                    {
-                        Random rd = new Random();
-                        emailCode += rd.Next(0, 9);
-                    }
-                }
+        //        if (emailCode.Length > 4) emailCode = emailCode.Remove(4);
+        //        else if (emailCode.Length < 4)
+        //        {
+        //            while (emailCode.Length != 4)
+        //            {
+        //                Random rd = new Random();
+        //                emailCode += rd.Next(0, 9);
+        //            }
+        //        }
 
-                int.TryParse(emailCode, out int code);
+        //        int.TryParse(emailCode, out int code);
 
-                if (response != null)
-                {
-                    response.VerificationCode = emailCode;
-                    await _emailVerificationRepository.UpdateEmailVerification(response);
-                }
-                else
-                {
-                    // generate email verification id
-                    string emailVerificatioinId;
-                    EmailVerification result;
-                    do
-                    {
-                        emailVerificatioinId = Guid.NewGuid().ToString();
-                        result = await _emailVerificationRepository.GetEmailVerificationById(emailVerificatioinId);
-                    } while (result != null);
+        //        if (response != null)
+        //        {
+        //            response.VerificationCode = emailCode;
+        //            await _emailVerificationRepository.UpdateEmailVerification(response);
+        //        }
+        //        else
+        //        {
+        //            // generate email verification id
+        //            string emailVerificatioinId;
+        //            EmailVerification result;
+        //            do
+        //            {
+        //                emailVerificatioinId = Guid.NewGuid().ToString();
+        //                result = await _emailVerificationRepository.GetEmailVerificationById(emailVerificatioinId);
+        //            } while (result != null);
 
-                    var email = new EmailVerification
-                    {
-                        Id = emailVerificatioinId,
-                        EmailAddress = model.EmailAddress,
-                        VerificationCode = emailCode
-                    };
+        //            var email = new EmailVerification
+        //            {
+        //                Id = emailVerificatioinId,
+        //                EmailAddress = model.EmailAddress,
+        //                VerificationCode = emailCode
+        //            };
 
-                    await _emailVerificationRepository.AddEmailVerification(email);
-                }
+        //            await _emailVerificationRepository.AddEmailVerification(email);
+        //        }
 
-            }
-            catch (DbException de)
-            {
-                _logger.LogError(de.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Failed to add email verification" }));
-            }
+        //    }
+        //    catch (DbException de)
+        //    {
+        //        _logger.LogError(de.Message);
+        //        return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Failed to add email verification" }));
+        //    }
 
-            try
-            {
-                string baseUrl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-                var request = new MailRequest
-                {
-                    GroundForceUrl = baseUrl,
-                    ToEmail = model.EmailAddress,
-                    Content = "Verify Email Template.",
-                    IsHidden = true,
-                    MainHeader = "Your email verification code",
-                    SubHeader = emailCode
-                };
+        //    try
+        //    {
+        //        string baseUrl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+        //        var request = new MailRequest
+        //        {
+        //            GroundForceUrl = baseUrl,
+        //            ToEmail = model.EmailAddress,
+        //            Content = "Verify Email Template.",
+        //            IsHidden = true,
+        //            MainHeader = "Your email verification code",
+        //            SubHeader = emailCode
+        //        };
 
-                await _mailService.SendMailAsync(request);
+        //        await _mailService.SendMailAsync(request);
 
-                return Ok(ResponseMessage.Message("Ok", data: new { message = "Email successfully sent" }));
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Failed to send email address" }));
-            }
-        }
+        //        return Ok(ResponseMessage.Message("Ok", data: new { message = "Email successfully sent" }));
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e.Message);
+        //        return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Failed to send email address" }));
+        //    }
+        //}
 
-        //confirm email
-        [HttpPost("confirm-email")]
-        public async Task<IActionResult> ConfirmEmail([FromForm] EmailToConfirmDTO email)
-        {
-            if (!ModelState.IsValid) return BadRequest(ResponseMessage.Message("Wrong input", errors: new { message = "Please enter a valid email address" }));
-            EmailVerification result;
+        ////confirm email
+        //[HttpPost("confirm-email")]
+        //public async Task<IActionResult> ConfirmEmail([FromForm] EmailToConfirmDTO email)
+        //{
+        //    if (!ModelState.IsValid) return BadRequest(ResponseMessage.Message("Wrong input", errors: new { message = "Please enter a valid email address" }));
+        //    EmailVerification result;
 
-            try
-            {
-                result = await _emailVerificationRepository.GetEmailVerificationByEmail(email.EmailAddress);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not find the email address" }));
-            }
+        //    try
+        //    {
+        //        result = await _emailVerificationRepository.GetEmailVerificationByEmail(email.EmailAddress);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e.Message);
+        //        return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not find the email address" }));
+        //    }
 
-            if (result == null) return BadRequest(ResponseMessage.Message("Email does not exist", errors: new { message = email.EmailAddress }));
+        //    if (result == null) return BadRequest(ResponseMessage.Message("Email does not exist", errors: new { message = email.EmailAddress }));
 
-            if (result.VerificationCode == email.VerificationCode)
-            {
-                try
-                {
-                    result.IsVerified = true;
-                    await _emailVerificationRepository.UpdateEmailVerification(result);
-                    return Ok(ResponseMessage.Message("Success.", data: new { message = "Email has been successfully confirmed" }));
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e.Message);
-                    return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Could not confirm the email." }));
-                }
-            }
-            return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Code provided does not match" }));
-        }
+        //    if (result.VerificationCode == email.VerificationCode)
+        //    {
+        //        try
+        //        {
+        //            result.IsVerified = true;
+        //            await _emailVerificationRepository.UpdateEmailVerification(result);
+        //            return Ok(ResponseMessage.Message("Success.", data: new { message = "Email has been successfully confirmed" }));
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            _logger.LogError(e.Message);
+        //            return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Could not confirm the email." }));
+        //        }
+        //    }
+        //    return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Code provided does not match" }));
+        //}
 
-        // forgot password route
-        [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromForm] ForgotPasswordDTO model)
-        {
-            var user = await _userManager.FindByEmailAsync(model.EmailAddress);
-            if (user == null) return NotFound(ResponseMessage.Message("Not Found", errors: new { message = "Email does not exist" }));
+        //// forgot password route
+        //[HttpPost("forgot-password")]
+        //public async Task<IActionResult> ForgotPassword([FromForm] ForgotPasswordDTO model)
+        //{
+        //    var user = await _userManager.FindByEmailAsync(model.EmailAddress);
+        //    if (user == null) return NotFound(ResponseMessage.Message("Not Found", errors: new { message = "Email does not exist" }));
 
-            try
-            {
-                // Use user to generate token
-                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        //    try
+        //    {
+        //        // Use user to generate token
+        //        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-                // Use token to genetate password reset link
-                var emailUrl = Url.Action("ResetPassword", "Auth", new { email = model.EmailAddress, token }, Request.Scheme);
-                string baseUrl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-                var forgotPassword = new MailRequest
-                {
-                    ToEmail = model.EmailAddress,
-                    Link = emailUrl,
-                    GroundForceUrl = baseUrl,
-                    Content = "Reset Password Email Template.",
-                    IsHidden = false,
-                    ButtonName = "Reset Password",
-                    MainHeader = "You have requested to reset your password",
-                    SubHeader = " A unique link to reset your password has been generated for you. Click here"
-                };
-                await _mailService.SendMailAsync(forgotPassword);
-                return Ok(ResponseMessage.Message("Ok", data: new { message = "Forgot password reset link was successfully sent" }));
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Forgot password link failed to send" }));
-            }
-        }
+        //        // Use token to genetate password reset link
+        //        var emailUrl = Url.Action("ResetPassword", "Auth", new { email = model.EmailAddress, token }, Request.Scheme);
+        //        string baseUrl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+        //        var forgotPassword = new MailRequest
+        //        {
+        //            ToEmail = model.EmailAddress,
+        //            Link = emailUrl,
+        //            GroundForceUrl = baseUrl,
+        //            Content = "Reset Password Email Template.",
+        //            IsHidden = false,
+        //            ButtonName = "Reset Password",
+        //            MainHeader = "You have requested to reset your password",
+        //            SubHeader = " A unique link to reset your password has been generated for you. Click here"
+        //        };
+        //        await _mailService.SendMailAsync(forgotPassword);
+        //        return Ok(ResponseMessage.Message("Ok", data: new { message = "Forgot password reset link was successfully sent" }));
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e.Message);
+        //        return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Forgot password link failed to send" }));
+        //    }
+        //}
 
-        //reset password
-        [HttpPatch("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO model)
-        {
-            if (ModelState.IsValid)
-            {
-                //check if the user exists in the table by email
-                var user = _userManager.Users.SingleOrDefault(x => x.Email == model.Email);
+        ////reset password
+        //[HttpPatch("reset-password")]
+        //public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        //check if the user exists in the table by email
+        //        var user = _userManager.Users.SingleOrDefault(x => x.Email == model.Email);
 
-                if (user == null)
-                    return NotFound(ResponseMessage.Message("Bad request", errors: new { message = $"User with email: {model.Email}, is not found" }));
+        //        if (user == null)
+        //            return NotFound(ResponseMessage.Message("Bad request", errors: new { message = $"User with email: {model.Email}, is not found" }));
 
-                if (!user.IsActive)
-                    return Unauthorized(ResponseMessage.Message("Unauthorized", errors: new { message = "In-active account" }));
+        //        if (!user.IsActive)
+        //            return Unauthorized(ResponseMessage.Message("Unauthorized", errors: new { message = "In-active account" }));
 
-                try
-                {
-                    // reset user password
-                    var setNewPassword = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
-                    if (setNewPassword.Succeeded)
-                        return Ok(ResponseMessage.Message("Success", data: new { message = $"Password for {model.Email} is successfully updated" }));
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e.Message);
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = $"Could not update password for {model.Email}" }));
-                }
-            }
-            return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Invalid input value" }));
-        }
+        //        try
+        //        {
+        //            // reset user password
+        //            var setNewPassword = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+        //            if (setNewPassword.Succeeded)
+        //                return Ok(ResponseMessage.Message("Success", data: new { message = $"Password for {model.Email} is successfully updated" }));
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            _logger.LogError(e.Message);
+        //            return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = $"Could not update password for {model.Email}" }));
+        //        }
+        //    }
+        //    return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Invalid input value" }));
+        //}
 
         // register user
         [HttpPost("register")]
@@ -404,11 +404,11 @@ namespace Groundforce.Services.API.Controllers
                 if (phoneNumberIsInRequestTable.Status == "pending")
                     return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Phone number has not been confirmed yet" }));
 
-                var emailIsInEmailVerificationTable = await _emailVerificationRepository.GetEmailVerificationByEmail(model.Email);
-                if (emailIsInEmailVerificationTable == null)
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Email address has not gone through verification yet" }));
-                if (emailIsInEmailVerificationTable != null && !emailIsInEmailVerificationTable.IsVerified)
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Email address has not verified yet" }));
+                //var emailIsInEmailVerificationTable = await _emailVerificationRepository.GetEmailVerificationByEmail(model.Email);
+                //if (emailIsInEmailVerificationTable == null)
+                //    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Email address has not gone through verification yet" }));
+                //if (emailIsInEmailVerificationTable != null && !emailIsInEmailVerificationTable.IsVerified)
+                //    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Email address has not verified yet" }));
 
             }
             catch (Exception e)
@@ -431,6 +431,10 @@ namespace Groundforce.Services.API.Controllers
                 if (numberToAdd != null)
                     return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Phone number already exist" }));
 
+                // check if modol contains role
+                if(model.Roles.Count < 1)
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "User to be registered must have at least one role" }));
+
                 // convert list to lowercase
                 var convertedList = Util.ListToLowerCase(model.Roles);
 
@@ -439,7 +443,7 @@ namespace Groundforce.Services.API.Controllers
                     if (!User.Identity.IsAuthenticated)
                         return Unauthorized(ResponseMessage.Message("Unauthorized", errors: new { message = "User must be signed-in, to register other users" }));
 
-                    if (!User.IsInRole("Admin"))
+                    if (!User.IsInRole("admin"))
                         return Unauthorized(ResponseMessage.Message("Unauthorized", errors: new { message = "User must be an Admin to perform this task" }));
 
                 }
@@ -477,29 +481,29 @@ namespace Groundforce.Services.API.Controllers
                     loginToken.Token = JwtTokenConfig.GetToken(createdUser, _config, model.Roles);
                 }
 
-                try
-                {
-                    if (successResult)
-                    {
-                        string baseUrl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-                        var request = new MailRequest
-                        {
-                            GroundForceUrl = baseUrl,
-                            ToEmail = model.Email,
-                            Content = "Welcome Email Template.",
-                            IsHidden = true,
-                            MainHeader = "Welcome to Ground Force",
-                            SubHeader = $"Hello {model.FirstName}, you have successfully registered on our platform. Welcome Onboard!!!"
-                        };
+                //try
+                //{
+                //    if (successResult)
+                //    {
+                //        string baseUrl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+                //        var request = new MailRequest
+                //        {
+                //            GroundForceUrl = baseUrl,
+                //            ToEmail = model.Email,
+                //            Content = "Welcome Email Template.",
+                //            IsHidden = true,
+                //            MainHeader = "Welcome to Ground Force",
+                //            SubHeader = $"Hello {model.FirstName}, you have successfully registered on our platform. Welcome Onboard!!!"
+                //        };
 
-                        await _mailService.SendMailAsync(request);
-                    }
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e.Message);
-                    return BadRequest(ResponseMessage.Message("Bad request", errors: "Could not send welcome mail"));
-                }
+                //        await _mailService.SendMailAsync(request);
+                //    }
+                //}
+                //catch (Exception e)
+                //{
+                //    _logger.LogError(e.Message);
+                //    return BadRequest(ResponseMessage.Message("Bad request", errors: "Could not send welcome mail"));
+                //}
 
             }
             catch (Exception e)
@@ -555,5 +559,31 @@ namespace Groundforce.Services.API.Controllers
 
         }
 
+        //Verify Location
+        [HttpPatch("verify-location")]
+        [Authorize(Roles = "agent")]
+        public async Task<IActionResult> VerifyLocation([FromBody] LocationToVerifyDTO model)
+        {
+            if (ModelState.IsValid)
+            {
+                //get loggedin user
+                var user = await _userManager.GetUserAsync(User);
+                //get agent object
+                var agent = await _agentRepository.GetAgentById(user.Id);
+                agent.Longitude = model.Longitude;
+                agent.Latitude = model.Latitude;
+                try
+                {
+                    await _agentRepository.UpdateAgent(agent);
+                    return Ok(ResponseMessage.Message("Success", data: new { message = "User updated successfully" }));
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Failed to update user" }));
+                }
+            }
+            return BadRequest(ResponseMessage.Message("Invalid model state", errors: new { message = ModelState }));
+        }
     }
 }

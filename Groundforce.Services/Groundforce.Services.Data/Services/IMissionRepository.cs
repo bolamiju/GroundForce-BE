@@ -14,6 +14,11 @@ namespace Groundforce.Services.Data.Services
         Task<bool> Update<T>(T model) where T : class;
         Task<bool> Delete<T>(T model) where T : class;
 
+
+        Task<IEnumerable<BuildingType>> GetAllBuildingTypes();
+        Task<IEnumerable<BuildingType>> GetAllBuildingTypesPaginated(int page, int per_page);
+
+
         Task<VerificationItem> GetVerificationItemById(string id);
         Task<IEnumerable<VerificationItem>> GetAllVerificationItems();
         Task<IEnumerable<VerificationItem>> GetVerificationItemsPaginated(int page, int per_page);

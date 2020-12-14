@@ -20,9 +20,9 @@ namespace Groundforce.Services.Data
             {
                 var listOfRoles = new List<IdentityRole>
                 {
-                    new IdentityRole("Admin"),
-                    new IdentityRole("Client"),
-                    new IdentityRole("Agent")
+                    new IdentityRole("admin"),
+                    new IdentityRole("client"),
+                    new IdentityRole("agent")
                 };
                 foreach (var role in listOfRoles)
                 {

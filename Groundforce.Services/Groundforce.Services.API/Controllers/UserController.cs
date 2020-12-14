@@ -31,10 +31,12 @@ namespace Groundforce.Services.API.Controllers
         private readonly IAgentRepository _agentRepository;
         private readonly IRequestRepository _requestRepository;
         private readonly IPhotoRepository _photoRepo;
+        private readonly int perPage;
 
         public UserController(ILogger<UserController> logger, UserManager<ApplicationUser> userManager, 
             IOptions<CloudinarySettings> cloudinaryConfig, IAgentRepository agentRepository,
-                                 IRequestRepository requestRepository, IPhotoRepository photoRepository)
+                                 IRequestRepository requestRepository, IPhotoRepository photoRepository,
+                                 IConfiguration configuration)
         {
             _userManager = userManager;
             _cloudinaryConfig = cloudinaryConfig;
@@ -42,6 +44,7 @@ namespace Groundforce.Services.API.Controllers
             _logger = logger;
             _requestRepository = requestRepository;
             _photoRepo = photoRepository;
+            perPage = Convert.ToInt32(configuration.GetSection("PaginationSettings:PerPage").Get<string>());
         }
         
 
@@ -60,7 +63,7 @@ namespace Groundforce.Services.API.Controllers
                 if (user == null)
                     return NotFound(ResponseMessage.Message("Notfound", errors: new { message = $"User with id: {id} was not found" }));
 
-                if (_userManager.GetUserId(User) != id && !User.IsInRole("Admin"))
+                if (_userManager.GetUserId(User) != id && !User.IsInRole("admin"))
                     return Unauthorized(ResponseMessage.Message("Unauthorized", errors: new { message = $"User must be logged-in or must have admin role" }));
 
                 // construct the object
@@ -112,6 +115,73 @@ namespace Groundforce.Services.API.Controllers
             }
         }
 
+        #region Get all agents. ONLY FOR DEVELOPMENT PURPOSE
+        // fetch all agents
+        [HttpGet("agents/{page}")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> Get(int page)
+        {
+            try
+            {
+                var users = _userManager.Users;
+
+                if (users == null)
+                    return NotFound(ResponseMessage.Message("Notfound", errors: new { message = "Not found" }));
+
+
+                users = users.Skip(page - 1).Take(perPage);
+
+                // Returns the field agent by userId
+                //var userRoles = await _userManager.GetRolesAsync(user);
+
+                var agents = new List<UserToReturnDTO>();
+                foreach(var user in users)
+                {
+                    if (await _userManager.IsInRoleAsync(user, "agent"))
+                    {
+                        var agent = await _agentRepository.GetAgentById(user.Id);
+                        if (agent != null)
+                        {
+                            var profile = new UserToReturnDTO
+                            {
+                                Id = agent.ApplicationUserId,
+                                FirstName = agent.ApplicationUser.FirstName,
+                                LastName = agent.ApplicationUser.LastName,
+                                DOB = agent.ApplicationUser.DOB,
+                                Gender = agent.ApplicationUser.Gender,
+                                Religion = agent.Religion,
+                                Email = agent.ApplicationUser.Email,
+                                AdditionalPhoneNumber = agent.AdditionalPhoneNumber,
+                                ResidentialAddress = agent.ResidentialAddress,
+                                BankName = agent.AccountName,
+                                AccountNumber = agent.AccountNumber,
+                                AvatarUrl = agent.ApplicationUser.AvatarUrl,
+                                PublicId = agent.ApplicationUser.PublicId
+                            };
+
+                            agents.Add(profile);
+                        }
+
+                    }
+                }
+
+                page = page <= 0 ? 1 : page;
+
+                var pagedResult = new PaginatedItemsToReturnDTO
+                {
+                    PageMetaData = Util.Paginate(page, perPage, users.Count()),
+                    Data = agents
+                };
+
+                return Ok(ResponseMessage.Message("Agents found", data: pagedResult));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Data processing error" }));
+            }
+        }
+        #endregion
 
         // edit field agent
         [HttpPut]
@@ -256,7 +326,7 @@ namespace Groundforce.Services.API.Controllers
 
         //verify user
         [HttpPatch("verify-account")]
-        [Authorize(Roles = "Agent")]
+        [Authorize(Roles = "agent")]
         public async Task<IActionResult> VerifyUserAccount([FromBody] UserToVerifyDTO model)
         {
             if (ModelState.IsValid)
@@ -302,10 +372,11 @@ namespace Groundforce.Services.API.Controllers
             return BadRequest(ResponseMessage.Message("Invalid model state", errors: new { message = ModelState }));
         }
 
+
         #region DELETE USER. ONLY FOR DEVELOPMENT PURPOSE
         //remove user
         [HttpDelete("{Id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteUser(string Id)
         {
             if (String.IsNullOrWhiteSpace(Id))

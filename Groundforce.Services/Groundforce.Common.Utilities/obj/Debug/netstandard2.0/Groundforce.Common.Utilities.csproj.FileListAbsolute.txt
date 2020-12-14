@@ -22,3 +22,15 @@ C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Gr
 C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Common.Utilities\obj\Debug\netstandard2.0\Groundforce.Common.Utilities.csproj.CopyComplete
 C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Common.Utilities\obj\Debug\netstandard2.0\Groundforce.Common.Utilities.dll
 C:\Users\hp\Videos\GroundForce Copied\12-3-2020\GForce Project\GroundforceAPI\Groundforce.Services\Groundforce.Common.Utilities\obj\Debug\netstandard2.0\Groundforce.Common.Utilities.pdb
+C:\Users\cidos\Source\Live Projects\Live\Latest pull_request 12132020\GroundforceAPI\Groundforce.Services\Groundforce.Common.Utilities\bin\Debug\netstandard2.0\Groundforce.Common.Utilities.deps.json
+C:\Users\cidos\Source\Live Projects\Live\Latest pull_request 12132020\GroundforceAPI\Groundforce.Services\Groundforce.Common.Utilities\bin\Debug\netstandard2.0\Groundforce.Common.Utilities.dll
+C:\Users\cidos\Source\Live Projects\Live\Latest pull_request 12132020\GroundforceAPI\Groundforce.Services\Groundforce.Common.Utilities\bin\Debug\netstandard2.0\Groundforce.Common.Utilities.pdb
+C:\Users\cidos\Source\Live Projects\Live\Latest pull_request 12132020\GroundforceAPI\Groundforce.Services\Groundforce.Common.Utilities\bin\Debug\netstandard2.0\Groundforce.Services.Models.dll
+C:\Users\cidos\Source\Live Projects\Live\Latest pull_request 12132020\GroundforceAPI\Groundforce.Services\Groundforce.Common.Utilities\bin\Debug\netstandard2.0\Groundforce.Services.Models.pdb
+C:\Users\cidos\Source\Live Projects\Live\Latest pull_request 12132020\GroundforceAPI\Groundforce.Services\Groundforce.Common.Utilities\obj\Debug\netstandard2.0\Groundforce.Common.Utilities.csprojAssemblyReference.cache
+C:\Users\cidos\Source\Live Projects\Live\Latest pull_request 12132020\GroundforceAPI\Groundforce.Services\Groundforce.Common.Utilities\obj\Debug\netstandard2.0\Groundforce.Common.Utilities.AssemblyInfoInputs.cache
+C:\Users\cidos\Source\Live Projects\Live\Latest pull_request 12132020\GroundforceAPI\Groundforce.Services\Groundforce.Common.Utilities\obj\Debug\netstandard2.0\Groundforce.Common.Utilities.AssemblyInfo.cs
+C:\Users\cidos\Source\Live Projects\Live\Latest pull_request 12132020\GroundforceAPI\Groundforce.Services\Groundforce.Common.Utilities\obj\Debug\netstandard2.0\Groundforce.Common.Utilities.csproj.CoreCompileInputs.cache
+C:\Users\cidos\Source\Live Projects\Live\Latest pull_request 12132020\GroundforceAPI\Groundforce.Services\Groundforce.Common.Utilities\obj\Debug\netstandard2.0\Groundforce.Common.Utilities.csproj.CopyComplete
+C:\Users\cidos\Source\Live Projects\Live\Latest pull_request 12132020\GroundforceAPI\Groundforce.Services\Groundforce.Common.Utilities\obj\Debug\netstandard2.0\Groundforce.Common.Utilities.dll
+C:\Users\cidos\Source\Live Projects\Live\Latest pull_request 12132020\GroundforceAPI\Groundforce.Services\Groundforce.Common.Utilities\obj\Debug\netstandard2.0\Groundforce.Common.Utilities.pdb

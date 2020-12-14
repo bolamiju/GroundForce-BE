@@ -18,7 +18,7 @@ namespace Groundforce.Services.API.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "admin")]
     public class NotificationController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -164,7 +164,7 @@ namespace Groundforce.Services.API.Controllers
 
         //get all notifications by userId paginated
         [HttpGet]
-        [Authorize(Roles = "Admin, Agent, Client")]
+        [Authorize(Roles = "admin, agent, client")]
         [Route("{userId}/notifications/{page}")]
         public async Task<IActionResult> FetchNotificationsByUserId(string userId, int page)
         {

@@ -130,5 +130,19 @@ namespace Groundforce.Services.Data.Services
             if (result == null) return false;
             return true;
         }
+
+        public async Task<IEnumerable<BuildingType>> GetAllBuildingTypes()
+        {
+            var items = await _ctx.BuildingTypes.ToListAsync();
+            TotalCount = items.Count;
+            return items;
+        }
+
+        public async Task<IEnumerable<BuildingType>> GetAllBuildingTypesPaginated(int page, int per_page)
+        {
+            var result = await GetAllBuildingTypes();
+            var pagedResult = result.Skip(page - 1).Take(per_page);
+            return pagedResult;
+        }
     }
 }

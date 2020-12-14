@@ -37,7 +37,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin, Client")]
+        [Authorize(Roles = "admin, client")]
         [HttpPost]
         [Route("add-address")]
         public async Task<IActionResult> AddAddress([FromBody] ItemToAddDTO model)
@@ -84,7 +84,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin, Client")]
+        [Authorize(Roles = "admin, client")]
         [HttpPut]
         [Route("edit-address")]
         public async Task<IActionResult> EditAddress([FromBody] ItemToEditDTO model)
@@ -130,7 +130,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin, Client")]
+        [Authorize(Roles = "admin, client")]
         [HttpDelete]
         [Route("{id}/delete-address")]
         public async Task<IActionResult> DeleteAddress(string id)
@@ -164,7 +164,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin, Client")]
+        [Authorize(Roles = "admin, client")]
         [HttpGet]
         [Route("addresses/{page}")]
         public async Task<IActionResult> GetAllAddress(int page)
@@ -214,7 +214,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin, Client")]
+        [Authorize(Roles = "admin, client")]
         [HttpGet]
         [Route("{id}/address")]
         public async Task<IActionResult> GetAddress(string id)
@@ -251,7 +251,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost]
         [Route("assign-mission")]
         public async Task<IActionResult> AssignMission([FromBody] MissionTOAssignDTO model)
@@ -307,7 +307,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPut]
         [Route("edit-mission-assigned")]
         public async Task<IActionResult> EditMission([FromBody] MissionToEditDTO model)
@@ -371,7 +371,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpDelete]
         [Route("{missionId}/delete-mission")]
         public async Task<IActionResult> DeleteMission(string missionId)
@@ -417,7 +417,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
 
-        [Authorize(Roles = "Agent")]
+        [Authorize(Roles = "agent")]
         [HttpPatch]
         [Route("{missionId}/acceptance-status/{status}")]
         public async Task<IActionResult> UpdateMissionStatus(string missionId, string status)
@@ -453,7 +453,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin, Agent")]
+        [Authorize(Roles = "admin, agent")]
         [HttpGet]
         [Route("{agentId}/{status}/{page}")]
         public async Task<IActionResult> GetMissions(string agentId, string status, int page)
@@ -515,7 +515,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
 
-        [Authorize(Roles = "Agent")]
+        [Authorize(Roles = "agent")]
         [HttpPost]
         [Route("submit")]
         public async Task<IActionResult> SubmitMission(MissionToVerifyDTO model)
@@ -578,5 +578,41 @@ namespace Groundforce.Services.API.Controllers
                 return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
             }
         }
+
+        #region ONLY FOR DEVELOPMENT PURPOSE
+        [HttpGet]
+        [Route("building-types/{page}")]
+        public async Task<IActionResult> GetBuildingTypes(int page)
+        {
+            try
+            {
+                var buildingTypes = await _missionRepository.GetAllBuildingTypesPaginated(page, perPage);
+                if (buildingTypes == null)
+                    return NotFound(ResponseMessage.Message("Null result", errors: new { message = $"No result found" }));
+
+                List<BuildingTypeToReturnDTO> list = new List<BuildingTypeToReturnDTO>();
+                foreach (var item in buildingTypes)
+                {
+                    list.Add(new BuildingTypeToReturnDTO { TypeId = item.TypeId, TypeName = item.TypeName });
+                }
+
+                page = page <= 0 ? 1 : page;
+
+                var pagedResult = new PaginatedItemsToReturnDTO
+                {
+                    PageMetaData = Util.Paginate(page, perPage, _missionRepository.TotalCount),
+                    Data = list
+                };
+
+                return Ok(ResponseMessage.Message("BuildingTypes found", data: pagedResult));
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Data access error", errors: new { message = "Could not access record from data source, error written to log file" }));
+            }
+        }
+        #endregion
     }
 }
