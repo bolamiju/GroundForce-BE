@@ -16,13 +16,6 @@ namespace Groundforce.Services.DTOs
         [MaxLength(50, ErrorMessage = "First name must not be more than 50 characters")]
         [Display(Name = "First name")]
         public string FirstName { get; set; }
-<<<<<<< HEAD
-        public string PhoneNumber { get; set; }
-
-        //additional Phonenumber
-        public string AdditionalPhoneNumber { get; set; }
-=======
->>>>>>> deployment-git
 
         [MaxLength(1, ErrorMessage ="Max length 1")]
         [RegularExpression(@"\w{1}", ErrorMessage = "Gender should be a single character eg: m or f")]

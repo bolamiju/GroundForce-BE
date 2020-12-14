@@ -205,18 +205,6 @@ namespace Groundforce.Services.API.Controllers
         [HttpPost("verify-email")]
         public async Task<IActionResult> VerifyEmail([FromForm] EmailToVerifyDTO model)
         {
-<<<<<<< HEAD
-            bool response;
-            if (model.AdditionalPhoneNumber.Length > 0)
-            {
-                response = InputValidator.PhoneNumberValidator(model.AdditionalPhoneNumber);
-
-                if (!response)
-                {
-                    return BadRequest(ResponseMessage.Message("Additional phone number is invalid. Must have country-code and must be 13, 14 chars long e.g. +2348050000000"));
-                }
-            }
-=======
             string emailCode;
             try
             {                
@@ -225,7 +213,6 @@ namespace Groundforce.Services.API.Controllers
                 {
                     return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "User is already verified" }));
                 }
->>>>>>> deployment-git
 
                 emailCode = Guid.NewGuid().ToString();
                 emailCode = Regex.Replace(emailCode, @"\D", "");
