@@ -8,7 +8,7 @@ namespace Groundforce.Services.Data.Services
 {
     public interface INotificationRepository
     {
-        Task<List<Notification>> GetNotificationsByUserId(string userId, int page, int per_page);
+        //Task<List<Notification>> GetNotificationsByUserId(string userId, int page, int per_page);
         Task<Notification> GetNotificationById(string Id);
         Task<IEnumerable<Notification>> GetAllNotificationsPaginated(int page, int per_page);
         Task<bool> AddNotification(Notification model);

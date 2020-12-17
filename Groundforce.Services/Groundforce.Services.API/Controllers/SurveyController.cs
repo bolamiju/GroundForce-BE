@@ -89,7 +89,7 @@ namespace Groundforce.Services.API.Controllers
             }
         }
 
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPatch("edit-survey-type")]
         public async Task<IActionResult> EditSurveyType([FromBody] UpdateSurveyTypeDTO model)
         {
@@ -521,7 +521,7 @@ namespace Groundforce.Services.API.Controllers
             // new dto that contains pagination details 
             var pagedSurveyQuestions = new PaginatedSurveyQuestionsToReturnDTO
             {
-                PageMetaData = Util.Paginate(page, perPage, _surveyQuestionCrudRepo.TotalNumberOfItems),
+                PageMetaData = Util.Paginate(page, perPage, _surveyRepository.TotalNumberOfItems),
                 Data = surveyQuestionList
             };
 
@@ -579,6 +579,39 @@ namespace Groundforce.Services.API.Controllers
             }
 
             return Ok(ResponseMessage.Message("Survey question found", data: surveyQuestionToReturn));
+        }
+
+        [HttpGet]
+        [Route("survey-questions/{surveyId}")]
+        [Authorize(Roles = "admin, agent")]
+        public async Task<IActionResult> GetSurveyQuestionsBySurveyId(string surveyId)
+        {
+            if (string.IsNullOrWhiteSpace(surveyId))
+                return BadRequest(ResponseMessage.Message("Empty survey Id", 
+                    errors: new { message = "Survey Id must not be null or empty"}));
+
+            try
+            {
+                var survey = await _surveyRepository.GetSurveyQuestionsBySurveyId(surveyId);
+                if (survey == null)
+                    return NotFound(ResponseMessage.Message("Null result",
+                        errors: new { message = $"No record found for survey Id {surveyId}" }));
+
+                return Ok(ResponseMessage.Message("Result found", 
+                    data: survey ));
+               
+            }
+            catch(NullReferenceException e)
+            {
+                return NotFound(ResponseMessage.Message("Null result",
+                        errors: new { message = e.Message }));
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Data access error", 
+                    errors: new { message = "Could not access record from data source, error written to log file" }));
+            }
         }
         #endregion
 
@@ -791,7 +824,7 @@ namespace Groundforce.Services.API.Controllers
             }
         }
 
-        [Authorize(Roles = "admin")]
+
         [HttpGet("{agentId}/{status}/{page}")]
         public async Task<IActionResult> GetUserSurveyForAgent(string agentId, string status, int page)
         {

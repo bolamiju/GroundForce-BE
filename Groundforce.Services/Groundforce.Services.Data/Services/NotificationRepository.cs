@@ -49,13 +49,13 @@ namespace Groundforce.Services.Data.Services
             return await _ctx.SaveChangesAsync() > 0;
         }
 
-        public async Task<List<Notification>> GetNotificationsByUserId(string userId, int page, int per_page)
-        {
-            var allNotifications = await _ctx.Notifications.Where(x => x.ApplicationUserId == userId).ToListAsync();
-            TotalNotifications = allNotifications.Count();
-            var paginatedNotifications = allNotifications.Skip((page - 1) * per_page).Take(per_page).OrderByDescending(x => x.DateUpdated).ToList();
+        //public async Task<List<Notification>> GetNotificationsByUserId(string userId, int page, int per_page)
+        //{
+        //    var allNotifications = await _ctx.Notifications.Where(x => x.ApplicationUserId == userId).ToListAsync();
+        //    TotalNotifications = allNotifications.Count();
+        //    var paginatedNotifications = allNotifications.Skip((page - 1) * per_page).Take(per_page).OrderByDescending(x => x.DateUpdated).ToList();
             
-            return paginatedNotifications;
-        }
+        //    return paginatedNotifications;
+        //}
     }
 }

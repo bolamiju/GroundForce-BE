@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Groundforce.Services.Models
@@ -14,11 +15,14 @@ namespace Groundforce.Services.Models
         public DateTime DateCreated { get; set; } = DateTime.Now;
         public DateTime DateUpdated { get; set; } = DateTime.Now;
 
-        [Required]
-        public string ApplicationUserId { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
+        List<NotificationUser> NotificationUsers { get; set; }
 
         public string AddedBy { get; set; }
         public string UpdatedBy { get; set; }
+
+        public Notification()
+        {
+            NotificationUsers = new List<NotificationUser>();
+        }
     }
 }

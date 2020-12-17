@@ -1,4 +1,5 @@
-﻿using Groundforce.Services.Models;
+﻿using Groundforce.Services.DTOs;
+using Groundforce.Services.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -56,6 +57,25 @@ namespace Groundforce.Services.Data.Services
             return await _ctx.Surveys.FirstOrDefaultAsync(x => x.SurveyId == Id);
         }
 
+        public async Task<SurveyToReturnDTO> GetSurveyQuestionsBySurveyId(string Id)
+        {
+            var survey = await _ctx.Surveys.FirstOrDefaultAsync(x => x.SurveyId == Id);
+            var questions = await _ctx.SurveyQuestions.Where(x => x.SurveyId == Id).Select(x => x.SurveyQuestionId).ToListAsync();
+
+            if (survey == null || questions == null)
+                throw new NullReferenceException("Null result found for survey or questions");
+
+            var surveyQuestions = new SurveyToReturnDTO
+            {
+                SurveyId = Id,
+                Topic = survey.Topic,
+                Questions = questions
+            };
+
+            return surveyQuestions;
+
+        }
+
         public async Task<SurveyQuestion> GetSurveyQuestionById(string Id)
         {
             return await _ctx.SurveyQuestions.Where(x => x.SurveyQuestionId == Id).Include(x => x.QuestionOptions).FirstOrDefaultAsync();
@@ -84,14 +104,10 @@ namespace Groundforce.Services.Data.Services
             return await _ctx.Responses.Where(x => x.SurveyId == surveyId && x.ApplicationUserId == userId).ToListAsync();
         }
 
-        public async Task<IEnumerable<SurveyQuestion>> GetSurveyQuestionsBySurveyId(string surveyId)
-        {
-            return await _ctx.SurveyQuestions.Where(x => x.SurveyId == surveyId).ToListAsync();
-        }
-
+       
         public async Task<IEnumerable<SurveyQuestion>> GetAllSurveyQuestionsAndSurveyOptions()
         {
-            return _ctx.SurveyQuestions.Include(x => x.QuestionOptions);
+            return await _ctx.SurveyQuestions.Include(x => x.QuestionOptions).ToListAsync();
         }
 
         public async Task<IEnumerable<SurveyQuestion>> GetAllSurveyQuestionsAndSurveyOptionsPaginated(int page, int per_page)

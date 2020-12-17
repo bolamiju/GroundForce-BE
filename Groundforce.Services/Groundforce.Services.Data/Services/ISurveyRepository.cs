@@ -1,4 +1,5 @@
-﻿using Groundforce.Services.Models;
+﻿using Groundforce.Services.DTOs;
+using Groundforce.Services.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -24,10 +25,11 @@ namespace Groundforce.Services.Data.Services
 
         Response GetUserSurveyResponseByIds(string surveyId, string userId, string questionId);
 
+        Task<SurveyToReturnDTO> GetSurveyQuestionsBySurveyId(string Id);
+
         Task<IEnumerable<Response>> GetUserSurveyResponsesByQuestionIdPaginated(string questionId, int page, int per_page);
 
         Task<IEnumerable<Response>> GetUserSurveyResponsesByUserAndSurveyIds(string surveyId, string userId);
-        Task<IEnumerable<SurveyQuestion>> GetSurveyQuestionsBySurveyId(string surveyId);
         Task<IEnumerable<SurveyQuestion>> GetAllSurveyQuestionsAndSurveyOptions();
         Task<IEnumerable<SurveyQuestion>> GetAllSurveyQuestionsAndSurveyOptionsPaginated(int page, int per_page);
     }

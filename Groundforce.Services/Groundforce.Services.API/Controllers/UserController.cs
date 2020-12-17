@@ -78,6 +78,7 @@ namespace Groundforce.Services.API.Controllers
                     user.AvatarUrl,
                     user.PublicId,
                     user.UpdatedAt,
+                    user.IsVerified
                 };
 
                 // Returns the field agent by userId
@@ -101,7 +102,8 @@ namespace Groundforce.Services.API.Controllers
                         BankName = agent.AccountName,
                         AccountNumber = agent.AccountNumber,
                         AvatarUrl = appUser.AvatarUrl,
-                        PublicId = appUser.PublicId
+                        PublicId = appUser.PublicId,
+                        IsVerified = appUser.IsVerified
                     };
                     return Ok(ResponseMessage.Message("User found", data: profile));
                 }
@@ -156,7 +158,8 @@ namespace Groundforce.Services.API.Controllers
                                 BankName = agent.AccountName,
                                 AccountNumber = agent.AccountNumber,
                                 AvatarUrl = agent.ApplicationUser.AvatarUrl,
-                                PublicId = agent.ApplicationUser.PublicId
+                                PublicId = agent.ApplicationUser.PublicId,
+                                IsVerified = agent.ApplicationUser.IsVerified
                             };
 
                             agents.Add(profile);

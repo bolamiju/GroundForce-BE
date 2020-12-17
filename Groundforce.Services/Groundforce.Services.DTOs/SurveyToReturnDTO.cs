@@ -9,7 +9,11 @@ namespace Groundforce.Services.DTOs
     {
         public string SurveyId { get; set; }
         public string Topic { get; set; }
-        public ICollection<UserSurveyToReturnDTO> UserSurveys { get; set; }
-        public ICollection<SurveyQuestionToReturnDTO> Questions { get; set; }
+        public List<string> Questions { get; set; }
+
+        public SurveyToReturnDTO()
+        {
+            Questions = new List<string>();
+        }
     }
 }

@@ -16,6 +16,7 @@ FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /app
 EXPOSE 5000
 COPY --from=build /app/Groundforce.Services.API/gforce.db .
+COPY --from=build /app/Groundforce.Services.API/Templates/MailSender.html .
 COPY --from=build /app/publish .
 CMD ASPNETCORE_URLS=http://*:$PORT dotnet Groundforce.Services.API.dll
 #ENTRYPOINT ["dotnet", "Groundforce.Services.API.dll"]

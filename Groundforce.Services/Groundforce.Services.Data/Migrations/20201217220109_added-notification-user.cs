@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Groundforce.Services.Data.Migrations
 {
-    public partial class ChangeColName : Migration
+    public partial class addednotificationuser : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -135,7 +135,7 @@ namespace Groundforce.Services.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     RoleId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -156,7 +156,7 @@ namespace Groundforce.Services.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     UserId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -273,9 +273,9 @@ namespace Groundforce.Services.Data.Migrations
                     Type = table.Column<int>(nullable: false),
                     DateCreated = table.Column<DateTime>(nullable: false),
                     DateUpdated = table.Column<DateTime>(nullable: false),
-                    ApplicationUserId = table.Column<string>(nullable: false),
                     AddedBy = table.Column<string>(nullable: true),
-                    UpdatedBy = table.Column<string>(nullable: true)
+                    UpdatedBy = table.Column<string>(nullable: true),
+                    ApplicationUserId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -285,7 +285,7 @@ namespace Groundforce.Services.Data.Migrations
                         column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -386,6 +386,32 @@ namespace Groundforce.Services.Data.Migrations
                         principalTable: "FieldAgents",
                         principalColumn: "ApplicationUserId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "NotificationUsers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    NotificationId = table.Column<string>(nullable: true),
+                    ApplicationUserId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NotificationUsers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_NotificationUsers_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_NotificationUsers_Notifications_NotificationId",
+                        column: x => x.NotificationId,
+                        principalTable: "Notifications",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -579,8 +605,7 @@ namespace Groundforce.Services.Data.Migrations
                 name: "RoleNameIndex",
                 table: "AspNetRoles",
                 column: "NormalizedName",
-                unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -606,8 +631,7 @@ namespace Groundforce.Services.Data.Migrations
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
-                unique: true,
-                filter: "[NormalizedUserName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Missions_FieldAgentId",
@@ -635,6 +659,16 @@ namespace Groundforce.Services.Data.Migrations
                 name: "IX_Notifications_ApplicationUserId",
                 table: "Notifications",
                 column: "ApplicationUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NotificationUsers_ApplicationUserId",
+                table: "NotificationUsers",
+                column: "ApplicationUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NotificationUsers_NotificationId",
+                table: "NotificationUsers",
+                column: "NotificationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PointAllocated_FieldAgentId",
@@ -726,7 +760,7 @@ namespace Groundforce.Services.Data.Migrations
                 name: "MissionsVerified");
 
             migrationBuilder.DropTable(
-                name: "Notifications");
+                name: "NotificationUsers");
 
             migrationBuilder.DropTable(
                 name: "PointAllocated");
@@ -748,6 +782,9 @@ namespace Groundforce.Services.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Missions");
+
+            migrationBuilder.DropTable(
+                name: "Notifications");
 
             migrationBuilder.DropTable(
                 name: "Points");

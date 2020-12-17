@@ -18,7 +18,6 @@ namespace Groundforce.Services.API.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [Authorize(Roles = "admin")]
     public class NotificationController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -44,6 +43,7 @@ namespace Groundforce.Services.API.Controllers
 
         //create a notification
         [HttpPost]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> CreateNotification([FromBody] NotificationDTO newNotification)
         {
             if (ModelState.IsValid)
@@ -61,8 +61,7 @@ namespace Groundforce.Services.API.Controllers
                 {
                     Id = NotifID,
                     Notifications = newNotification.Description,
-                    Type = newNotification.Type,
-                    ApplicationUserId = currentUser.Id
+                    Type = newNotification.Type
                 };
 
                 var addNotification = await _notificationRepository.AddNotification(createNotification);
@@ -77,6 +76,7 @@ namespace Groundforce.Services.API.Controllers
 
         //delete a notification
         [HttpDelete("{NotificationId}/delete-notification")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteNotification(string NotificationId)
         {
             if (NotificationId == null) BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "You need to provide a notification Id" }));
@@ -95,6 +95,7 @@ namespace Groundforce.Services.API.Controllers
 
         //update a notification
         [HttpPatch("{Id}/edit-notification")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> UpdateNotification(string Id, [FromBody] NotificationDTO UpdateNotification)
         {
             if (Id == null) BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "You need to provide a notification Id" }));
@@ -130,8 +131,7 @@ namespace Groundforce.Services.API.Controllers
             {
                 Id = notificationWithId.Id,
                 Notifications = notificationWithId.Notifications,
-                Type = notificationWithId.Type.ToString(),
-                ApplicationUserId = notificationWithId.ApplicationUserId
+                Type = notificationWithId.Type.ToString()
             };
             return Ok(ResponseMessage.Message("Success", data: notificationDTOResult));
         }
@@ -154,8 +154,7 @@ namespace Groundforce.Services.API.Controllers
                 {
                     Id = notification.Id,
                     Notifications = notification.Notifications,
-                    Type = notification.Type.ToString(),
-                    ApplicationUserId = notification.ApplicationUserId
+                    Type = notification.Type.ToString()
                 };
                 notificationList.Add(notificationDTOResult);
             }
@@ -163,30 +162,30 @@ namespace Groundforce.Services.API.Controllers
         }
 
         //get all notifications by userId paginated
-        [HttpGet]
-        [Authorize(Roles = "admin, agent, client")]
-        [Route("{userId}/notifications/{page}")]
-        public async Task<IActionResult> FetchNotificationsByUserId(string userId, int page)
-        {
-            IEnumerable<Notification> paginatedResults;
-            var notificationList = new List<NotificationToReturnDTO>();
+        //[HttpGet]
+        //[Authorize(Roles = "admin, agent, client")]
+        //[Route("{userId}/notifications/{page}")]
+        //public async Task<IActionResult> FetchNotificationsByUserId(string userId, int page)
+        //{
+        //    IEnumerable<Notification> paginatedResults;
+        //    var notificationList = new List<NotificationToReturnDTO>();
 
-            paginatedResults = await _notificationRepository.GetNotificationsByUserId(userId, page, per_page);
-            if (paginatedResults == null)
-                return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "There are no notifications" }));
+        //    paginatedResults = await _notificationRepository.GetNotificationsByUserId(userId, page, per_page);
+        //    if (paginatedResults == null)
+        //        return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "There are no notifications" }));
 
-            foreach (var notification in paginatedResults)
-            {
-                var notificationDTOResult = new NotificationToReturnDTO
-                {
-                    Id = notification.Id,
-                    Notifications = notification.Notifications,
-                    Type = notification.Type.ToString(),
-                    ApplicationUserId = notification.ApplicationUserId
-                };
-                notificationList.Add(notificationDTOResult);
-            }
-            return Ok(ResponseMessage.Message("Success", data: notificationList));
-        }
+        //    foreach (var notification in paginatedResults)
+        //    {
+        //        var notificationDTOResult = new NotificationToReturnDTO
+        //        {
+        //            Id = notification.Id,
+        //            Notifications = notification.Notifications,
+        //            Type = notification.Type.ToString(),
+        //            ApplicationUserId = notification.ApplicationUserId
+        //        };
+        //        notificationList.Add(notificationDTOResult);
+        //    }
+        //    return Ok(ResponseMessage.Message("Success", data: notificationList));
+        //}
     }
 }
