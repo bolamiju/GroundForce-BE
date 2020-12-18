@@ -203,7 +203,7 @@ namespace Groundforce.Services.API.Controllers
         }
 
         [HttpPost("verify-email")]
-        public async Task<IActionResult> VerifyEmail([FromForm] EmailToVerifyDTO model)
+        public async Task<IActionResult> VerifyEmail([FromBody] EmailToVerifyDTO model)
         {
             string emailCode;
             try
@@ -288,7 +288,7 @@ namespace Groundforce.Services.API.Controllers
 
         //confirm email
         [HttpPost("confirm-email")]
-        public async Task<IActionResult> ConfirmEmail([FromForm] EmailToConfirmDTO email)
+        public async Task<IActionResult> ConfirmEmail([FromBody] EmailToConfirmDTO email)
         {
             if (!ModelState.IsValid) return BadRequest(ResponseMessage.Message("Wrong input", errors: new { message = "Please enter a valid email address" }));
             EmailVerification result;
@@ -324,7 +324,7 @@ namespace Groundforce.Services.API.Controllers
 
         // forgot password route
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromForm] ForgotPasswordDTO model)
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO model)
         {
             var user = await _userManager.FindByEmailAsync(model.EmailAddress);
             if (user == null) return NotFound(ResponseMessage.Message("Not Found", errors: new { message = "Email does not exist" }));

@@ -34,3 +34,15 @@ C:\Users\cidos\Source\Live Projects\Live\Latest pull_request 12132020\Groundforc
 C:\Users\cidos\Source\Live Projects\Live\Latest pull_request 12132020\GroundforceAPI\Groundforce.Services\Groundforce.Services.DTOs\obj\Debug\netcoreapp3.1\Groundforce.Services.DTOs.csproj.CopyComplete
 C:\Users\cidos\Source\Live Projects\Live\Latest pull_request 12132020\GroundforceAPI\Groundforce.Services\Groundforce.Services.DTOs\obj\Debug\netcoreapp3.1\Groundforce.Services.DTOs.dll
 C:\Users\cidos\Source\Live Projects\Live\Latest pull_request 12132020\GroundforceAPI\Groundforce.Services\Groundforce.Services.DTOs\obj\Debug\netcoreapp3.1\Groundforce.Services.DTOs.pdb
+C:\Users\hp\Source\Repos\GroundforceAPI\Groundforce.Services\Groundforce.Services.DTOs\bin\Debug\netcoreapp3.1\Groundforce.Services.DTOs.deps.json
+C:\Users\hp\Source\Repos\GroundforceAPI\Groundforce.Services\Groundforce.Services.DTOs\bin\Debug\netcoreapp3.1\Groundforce.Services.DTOs.dll
+C:\Users\hp\Source\Repos\GroundforceAPI\Groundforce.Services\Groundforce.Services.DTOs\bin\Debug\netcoreapp3.1\Groundforce.Services.DTOs.pdb
+C:\Users\hp\Source\Repos\GroundforceAPI\Groundforce.Services\Groundforce.Services.DTOs\bin\Debug\netcoreapp3.1\Groundforce.Services.Models.dll
+C:\Users\hp\Source\Repos\GroundforceAPI\Groundforce.Services\Groundforce.Services.DTOs\bin\Debug\netcoreapp3.1\Groundforce.Services.Models.pdb
+C:\Users\hp\Source\Repos\GroundforceAPI\Groundforce.Services\Groundforce.Services.DTOs\obj\Debug\netcoreapp3.1\Groundforce.Services.DTOs.csprojAssemblyReference.cache
+C:\Users\hp\Source\Repos\GroundforceAPI\Groundforce.Services\Groundforce.Services.DTOs\obj\Debug\netcoreapp3.1\Groundforce.Services.DTOs.AssemblyInfoInputs.cache
+C:\Users\hp\Source\Repos\GroundforceAPI\Groundforce.Services\Groundforce.Services.DTOs\obj\Debug\netcoreapp3.1\Groundforce.Services.DTOs.AssemblyInfo.cs
+C:\Users\hp\Source\Repos\GroundforceAPI\Groundforce.Services\Groundforce.Services.DTOs\obj\Debug\netcoreapp3.1\Groundforce.Services.DTOs.csproj.CoreCompileInputs.cache
+C:\Users\hp\Source\Repos\GroundforceAPI\Groundforce.Services\Groundforce.Services.DTOs\obj\Debug\netcoreapp3.1\Groundforce.Services.DTOs.csproj.CopyComplete
+C:\Users\hp\Source\Repos\GroundforceAPI\Groundforce.Services\Groundforce.Services.DTOs\obj\Debug\netcoreapp3.1\Groundforce.Services.DTOs.dll
+C:\Users\hp\Source\Repos\GroundforceAPI\Groundforce.Services\Groundforce.Services.DTOs\obj\Debug\netcoreapp3.1\Groundforce.Services.DTOs.pdb

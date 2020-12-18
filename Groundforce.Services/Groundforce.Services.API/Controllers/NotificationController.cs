@@ -61,14 +61,15 @@ namespace Groundforce.Services.API.Controllers
                 {
                     Id = NotifID,
                     Notifications = newNotification.Description,
-                    Type = newNotification.Type
+                    Type = newNotification.Type,
+                    AddedBy = currentUser.Id,
+                    UpdatedBy = currentUser.Id
                 };
 
                 var addNotification = await _notificationRepository.AddNotification(createNotification);
-                if (addNotification)
-                {
-                    return Ok(ResponseMessage.Message("Success", data: new { message = $"Notification with id {NotifID} has been created" }));
-                }
+
+                if (addNotification) return Ok(ResponseMessage.Message("Success", data: new { message = $"Notification with id {NotifID} has been created" }));
+
                 return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Failed to create notification" }));
             }
             return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Please enter the correct details" }));
@@ -79,7 +80,7 @@ namespace Groundforce.Services.API.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteNotification(string NotificationId)
         {
-            if (NotificationId == null) BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "You need to provide a notification Id" }));
+            if (String.IsNullOrWhiteSpace(NotificationId)) return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "You need to provide a notification Id" }));
 
             var fetchedNotification = await _notificationRepository.GetNotificationById(NotificationId);
             if (fetchedNotification != null)
@@ -98,7 +99,9 @@ namespace Groundforce.Services.API.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> UpdateNotification(string Id, [FromBody] NotificationDTO UpdateNotification)
         {
-            if (Id == null) BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "You need to provide a notification Id" }));
+            if (String.IsNullOrWhiteSpace(Id)) return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "You need to provide a notification Id" }));
+
+            var currentAdmin = await _userManager.GetUserAsync(User);
 
             var fetchedNotification = await _notificationRepository.GetNotificationById(Id);
             if (fetchedNotification != null)
@@ -106,6 +109,7 @@ namespace Groundforce.Services.API.Controllers
                 fetchedNotification.Notifications = UpdateNotification.Description;
                 fetchedNotification.Type = UpdateNotification.Type;
                 fetchedNotification.DateUpdated = DateTime.Now;
+                fetchedNotification.UpdatedBy = currentAdmin.Id;
 
                 var notificationToUpdate = await _notificationRepository.UpdateNotification(fetchedNotification);
 
@@ -119,9 +123,11 @@ namespace Groundforce.Services.API.Controllers
         //get a notification by Id
         [HttpGet]
         [Route("{NotificationId}")]
+        [Authorize(Roles = "admin, client, agent")]
         public async Task<IActionResult> FetchSingleNotification(string NotificationId)
         {
-            if (NotificationId == null) BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "You need to provide a notification Id" }));
+            if (String.IsNullOrWhiteSpace(NotificationId))
+                return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "You need to provide a notification Id" }));
 
             var notificationWithId = await _notificationRepository.GetNotificationById(NotificationId);
             if (notificationWithId == null)
@@ -131,7 +137,9 @@ namespace Groundforce.Services.API.Controllers
             {
                 Id = notificationWithId.Id,
                 Notifications = notificationWithId.Notifications,
-                Type = notificationWithId.Type.ToString()
+                Type = notificationWithId.Type.ToString(),
+                AddedBy = notificationWithId.AddedBy,
+                UpdatedBy = notificationWithId.UpdatedBy
             };
             return Ok(ResponseMessage.Message("Success", data: notificationDTOResult));
         }
@@ -139,6 +147,7 @@ namespace Groundforce.Services.API.Controllers
         //get all notifications paginated
         [HttpGet]
         [Route("{page}/all-notifications")]
+        [Authorize(Roles = "admin, client, agent")]
         public async Task<IActionResult> FetchNotificationsPaginated(int page)
         {
             IEnumerable<Notification> paginatedResults;
@@ -154,11 +163,25 @@ namespace Groundforce.Services.API.Controllers
                 {
                     Id = notification.Id,
                     Notifications = notification.Notifications,
-                    Type = notification.Type.ToString()
+                    Type = notification.Type.ToString(),
+                    AddedBy = notification.AddedBy,
+                    UpdatedBy = notification.UpdatedBy
                 };
                 notificationList.Add(notificationDTOResult);
             }
-            return Ok(ResponseMessage.Message("Success", data: notificationList));
+
+            // set default page to start from 1 if page inputted is <= 0
+            //****************************************************************************************/
+            page = page <= 0 ? 1 : page;
+            //****************************************************************************************/
+
+            var paginatedNotifications = new PaginatedItemsToReturnDTO
+            {
+                PageMetaData = Util.Paginate(page, per_page, _notificationRepository.TotalNotifications),
+                Data = notificationList
+            };
+
+            return Ok(ResponseMessage.Message("Success", data: paginatedNotifications));
         }
 
         //get all notifications by userId paginated

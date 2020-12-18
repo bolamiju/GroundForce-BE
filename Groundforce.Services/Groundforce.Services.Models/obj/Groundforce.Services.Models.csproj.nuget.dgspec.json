@@ -1,26 +1,21 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\cidos\\Source\\Live Projects\\Live\\Latest pull_request 12132020\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj": {}
+    "C:\\Users\\hp\\Source\\Repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj": {}
   },
   "projects": {
-    "C:\\Users\\cidos\\Source\\Live Projects\\Live\\Latest pull_request 12132020\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj": {
+    "C:\\Users\\hp\\Source\\Repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\cidos\\Source\\Live Projects\\Live\\Latest pull_request 12132020\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj",
+        "projectUniqueName": "C:\\Users\\hp\\Source\\Repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj",
         "projectName": "Groundforce.Services.Models",
-        "projectPath": "C:\\Users\\cidos\\Source\\Live Projects\\Live\\Latest pull_request 12132020\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj",
-        "packagesPath": "C:\\Users\\cidos\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\cidos\\Source\\Live Projects\\Live\\Latest pull_request 12132020\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\obj\\",
+        "projectPath": "C:\\Users\\hp\\Source\\Repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj",
+        "packagesPath": "C:\\Users\\hp\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\hp\\Source\\Repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Microsoft\\Xamarin\\NuGet\\",
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\cidos\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+          "C:\\Users\\hp\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netstandard2.0"
@@ -68,7 +63,7 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.301\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.401\\RuntimeIdentifierGraph.json"
         }
       }
     }

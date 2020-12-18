@@ -10,6 +10,7 @@ namespace Groundforce.Services.DTOs
         public string Id { get; set; }
         public string Notifications { get; set; }
         public string Type { get; set; }
-        public string ApplicationUserId { get; set; }
+        public string AddedBy { get; set; }
+        public string UpdatedBy { get; set; }
     }
 }

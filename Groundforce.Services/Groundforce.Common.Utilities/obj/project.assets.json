@@ -5716,27 +5716,20 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\cidos\\.nuget\\packages\\": {},
-    "C:\\Microsoft\\Xamarin\\NuGet\\": {},
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+    "C:\\Users\\hp\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\cidos\\Source\\Live Projects\\Live\\Latest pull_request 12132020\\GroundforceAPI\\Groundforce.Services\\Groundforce.Common.Utilities\\Groundforce.Common.Utilities.csproj",
+      "projectUniqueName": "C:\\Users\\hp\\Source\\Repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Common.Utilities\\Groundforce.Common.Utilities.csproj",
       "projectName": "Groundforce.Common.Utilities",
-      "projectPath": "C:\\Users\\cidos\\Source\\Live Projects\\Live\\Latest pull_request 12132020\\GroundforceAPI\\Groundforce.Services\\Groundforce.Common.Utilities\\Groundforce.Common.Utilities.csproj",
-      "packagesPath": "C:\\Users\\cidos\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\cidos\\Source\\Live Projects\\Live\\Latest pull_request 12132020\\GroundforceAPI\\Groundforce.Services\\Groundforce.Common.Utilities\\obj\\",
+      "projectPath": "C:\\Users\\hp\\Source\\Repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Common.Utilities\\Groundforce.Common.Utilities.csproj",
+      "packagesPath": "C:\\Users\\hp\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\hp\\Source\\Repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Common.Utilities\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Microsoft\\Xamarin\\NuGet\\",
-        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-      ],
       "configFilePaths": [
-        "C:\\Users\\cidos\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+        "C:\\Users\\hp\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "netstandard2.0"
@@ -5748,8 +5741,8 @@
       "frameworks": {
         "netstandard2.0": {
           "projectReferences": {
-            "C:\\Users\\cidos\\Source\\Live Projects\\Live\\Latest pull_request 12132020\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj": {
-              "projectPath": "C:\\Users\\cidos\\Source\\Live Projects\\Live\\Latest pull_request 12132020\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj"
+            "C:\\Users\\hp\\Source\\Repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj": {
+              "projectPath": "C:\\Users\\hp\\Source\\Repos\\GroundforceAPI\\Groundforce.Services\\Groundforce.Services.Models\\Groundforce.Services.Models.csproj"
             }
           }
         }
@@ -5804,7 +5797,7 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.301\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.401\\RuntimeIdentifierGraph.json"
       }
     }
   }
