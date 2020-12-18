@@ -17,7 +17,9 @@ namespace Groundforce.Services.Models
 
         List<NotificationUser> NotificationUsers { get; set; }
 
+        [Required]
         public string AddedBy { get; set; }
+        [Required]
         public string UpdatedBy { get; set; }
 
         public Notification()
