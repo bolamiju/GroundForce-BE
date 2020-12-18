@@ -37,7 +37,7 @@ namespace Groundforce.Services.API
 
 
             // db connection string
-            services.AddDbContext<AppDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("DbConnection")));
+            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DbConnection")));
             
 
             services.AddScoped<IRequestRepository, RequestRepository>();
