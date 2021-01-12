@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Text.RegularExpressions;
 using System.Data.Common;
+using System.Web;
 
 namespace Groundforce.Services.API.Controllers
 {
@@ -336,6 +337,7 @@ namespace Groundforce.Services.API.Controllers
 
                 // Use token to genetate password reset link
                 var emailUrl = Url.Action("ResetPassword", "Auth", new { email = model.EmailAddress, token }, Request.Scheme);
+                
                 string baseUrl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
                 var forgotPassword = new MailRequest
                 {
@@ -376,7 +378,8 @@ namespace Groundforce.Services.API.Controllers
                 try
                 {
                     // reset user password
-                    var setNewPassword = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+                    var token = HttpUtility.UrlDecode(model.Token);
+                    var setNewPassword = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
                     if (setNewPassword.Succeeded)
                         return Ok(ResponseMessage.Message("Success", data: new { message = $"Password for {model.Email} is successfully updated" }));
                 }
@@ -572,6 +575,7 @@ namespace Groundforce.Services.API.Controllers
                 var agent = await _agentRepository.GetAgentById(user.Id);
                 agent.Longitude = model.Longitude;
                 agent.Latitude = model.Latitude;
+                agent.IsLocationVerified = true;
                 try
                 {
                     await _agentRepository.UpdateAgent(agent);

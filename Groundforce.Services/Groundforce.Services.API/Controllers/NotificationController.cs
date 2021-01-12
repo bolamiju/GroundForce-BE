@@ -139,7 +139,8 @@ namespace Groundforce.Services.API.Controllers
                 Notifications = notificationWithId.Notifications,
                 Type = notificationWithId.Type.ToString(),
                 AddedBy = notificationWithId.AddedBy,
-                UpdatedBy = notificationWithId.UpdatedBy
+                UpdatedBy = notificationWithId.UpdatedBy,
+                Date = notificationWithId.DateUpdated
             };
             return Ok(ResponseMessage.Message("Success", data: notificationDTOResult));
         }
@@ -165,7 +166,8 @@ namespace Groundforce.Services.API.Controllers
                     Notifications = notification.Notifications,
                     Type = notification.Type.ToString(),
                     AddedBy = notification.AddedBy,
-                    UpdatedBy = notification.UpdatedBy
+                    UpdatedBy = notification.UpdatedBy,
+                    Date = notification.DateUpdated
                 };
                 notificationList.Add(notificationDTOResult);
             }

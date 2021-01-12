@@ -103,7 +103,8 @@ namespace Groundforce.Services.API.Controllers
                         AccountNumber = agent.AccountNumber,
                         AvatarUrl = appUser.AvatarUrl,
                         PublicId = appUser.PublicId,
-                        IsVerified = appUser.IsVerified
+                        IsVerified = appUser.IsVerified,
+                        IsLocationVerified = agent.IsLocationVerified
                     };
                     return Ok(ResponseMessage.Message("User found", data: profile));
                 }
@@ -343,6 +344,9 @@ namespace Groundforce.Services.API.Controllers
                     return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Photo must be uploaded" }));
 
                 var agent = await _agentRepository.GetAgentById(user.Id);
+
+                if (agent.IsLocationVerified == false)
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Location must be verified" }));
 
                 var validateAccountNumber = InputValidator.NUBANAccountValidator(model.BankCode, model.AccountNumber);
 

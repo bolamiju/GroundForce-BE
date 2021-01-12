@@ -12,5 +12,6 @@ namespace Groundforce.Services.DTOs
         public string Type { get; set; }
         public string AddedBy { get; set; }
         public string UpdatedBy { get; set; }
+        public DateTime Date { get; set; }
     }
 }

@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Groundforce.Services.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class SurveyController : ControllerBase
     {
@@ -89,7 +89,7 @@ namespace Groundforce.Services.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPatch("edit-survey-type")]
         public async Task<IActionResult> EditSurveyType([FromBody] UpdateSurveyTypeDTO model)
         {

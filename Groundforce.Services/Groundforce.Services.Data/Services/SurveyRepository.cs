@@ -60,10 +60,12 @@ namespace Groundforce.Services.Data.Services
         public async Task<SurveyToReturnDTO> GetSurveyQuestionsBySurveyId(string Id)
         {
             var survey = await _ctx.Surveys.FirstOrDefaultAsync(x => x.SurveyId == Id);
+            if (survey == null)
+                throw new NullReferenceException("Null result found for survey");
             var questions = await _ctx.SurveyQuestions.Where(x => x.SurveyId == Id).Select(x => x.SurveyQuestionId).ToListAsync();
 
-            if (survey == null || questions == null)
-                throw new NullReferenceException("Null result found for survey or questions");
+            if (questions == null)
+                throw new NullReferenceException("Null result found for questions");
 
             var surveyQuestions = new SurveyToReturnDTO
             {

@@ -19,6 +19,7 @@ namespace Groundforce.Services.DTOs
         public string AccountNumber { get; set; }
         public string AvatarUrl { get; set; }
         public string PublicId { get; set; }
+        public bool IsLocationVerified { get; set; }
     }
 
 }

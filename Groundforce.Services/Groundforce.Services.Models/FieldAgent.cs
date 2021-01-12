@@ -48,6 +48,8 @@ namespace Groundforce.Services.Models
         [MaxLength(10)]
         public string AccountNumber { get; set; }
 
+        public bool IsLocationVerified { get; set; } = false;
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
