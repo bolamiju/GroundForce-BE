@@ -51,6 +51,12 @@ namespace Groundforce.Services.Core
         // create Field Agent
         public async Task<bool> CreateFieldAgent(UserToRegisterDTO model, string userId)
         {
+            var validLocationData = false;
+            if(!string.IsNullOrWhiteSpace(model.Latitude) && !string.IsNullOrWhiteSpace(model.Longitude))
+            {
+                validLocationData = true;
+            }
+
             // construct the object
             var userModel = new FieldAgent
             {
@@ -60,7 +66,8 @@ namespace Groundforce.Services.Core
                 State = model.State,
                 Longitude = model.Longitude,
                 Latitude = model.Latitude,
-                ResidentialAddress = model.ResidentialAddress
+                ResidentialAddress = model.ResidentialAddress,
+                IsLocationVerified = validLocationData
             };
 
             // create user
