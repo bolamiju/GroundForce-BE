@@ -334,11 +334,14 @@ namespace Groundforce.Services.API.Controllers
             {
                 // Use user to generate token
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-
-                // Use token to genetate password reset link
-                var emailUrl = Url.Action("ResetPassword", "Auth", new { email = model.EmailAddress, token }, Request.Scheme);
+                
+                // var emailUrl = Url.Action("ResetPassword", "Auth", new { email = model.EmailAddress, token }, Request.Scheme);
                 
                 string baseUrl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+
+                // Use token to genetate password reset link
+                string emailUrl = baseUrl + $"/api/v1/Auth/reset-password?email={model.EmailAddress}&token={token}";
+
                 var forgotPassword = new MailRequest
                 {
                     ToEmail = model.EmailAddress,
