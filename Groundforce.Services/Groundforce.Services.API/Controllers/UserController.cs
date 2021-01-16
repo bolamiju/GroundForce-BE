@@ -127,7 +127,7 @@ namespace Groundforce.Services.API.Controllers
         {
             try
             {
-                var users = _userManager.Users;
+                var users = _userManager.Users.Where(c => c.IsActive == true);
 
                 if (users == null)
                     return NotFound(ResponseMessage.Message("Notfound", errors: new { message = "Not found" }));
@@ -410,8 +410,8 @@ namespace Groundforce.Services.API.Controllers
 
             try
             {
-                if (!await _agentRepository.DeleteAgent(agent))
-                    throw new Exception("Could not delete agent record");
+                //if (!await _agentRepository.DeleteAgent(agent))
+                //    throw new Exception("Could not delete agent record");
 
                 user.IsActive = false;
                 var result = await _userManager.UpdateAsync(user);
