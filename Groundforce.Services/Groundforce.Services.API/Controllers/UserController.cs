@@ -60,7 +60,7 @@ namespace Groundforce.Services.API.Controllers
 
                 var user = await _userManager.FindByIdAsync(id);
 
-                if (user == null)
+                if (user == null && user.IsActive == false)
                     return NotFound(ResponseMessage.Message("Notfound", errors: new { message = $"User with id: {id} was not found" }));
 
                 if (_userManager.GetUserId(User) != id && !User.IsInRole("admin"))
