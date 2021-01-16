@@ -448,7 +448,8 @@ namespace Groundforce.Services.API.Controllers
             if (user == null)
                 return NotFound(ResponseMessage.Message("Notfound", new { message = $"User with id {Email} was not found" }));
 
-
+            if (user.IsActive == true)
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = $"User with this {Email} is active" }));
             try
             {
                 user.IsActive = true;
