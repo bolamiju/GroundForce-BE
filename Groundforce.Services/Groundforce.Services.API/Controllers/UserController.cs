@@ -415,16 +415,16 @@ namespace Groundforce.Services.API.Controllers
 
                 user.IsActive = false;
                 var result = await _userManager.UpdateAsync(user);
-               //// var result = await _userManager.DeleteAsync(user);
+                //// var result = await _userManager.DeleteAsync(user);
 
-               // if (!result)
-               // {
-               //     foreach (var err in result.Errors)
-               //         ModelState.AddModelError("", err.Description);
-               //     return BadRequest(ResponseMessage.Message("", errors: new { message = ModelState }));
-               // }
+                //if (!result.Succeeded)
+                    // {
+                    //     foreach (var err in result.Errors)
+                    //         ModelState.AddModelError("", err.Description);
+                    //     return BadRequest(ResponseMessage.Message("", errors: new { message = ModelState }));
+                    // }
 
-                if (!await _requestRepository.DeleteRequestByPhone(user.PhoneNumber))
+                    if (!await _requestRepository.DeleteRequestByPhone(user.PhoneNumber))
                     throw new Exception("Could not delete request record");
 
             }
@@ -434,6 +434,33 @@ namespace Groundforce.Services.API.Controllers
                 return BadRequest(ResponseMessage.Message("", errors: new { message = "Failed to delete user!" }));
             }
             return Ok(ResponseMessage.Message("Deleted successfully", data: new { message = "User deleted!" }));
+        }
+
+        //activate user
+        [HttpPatch("activate-user")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> ActivateUser(string Email)
+        {
+            if (String.IsNullOrWhiteSpace(Email))
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Invalid Id" }));
+
+            var user = await _userManager.FindByEmailAsync(Email);
+            if (user == null)
+                return NotFound(ResponseMessage.Message("Notfound", new { message = $"User with id {Email} was not found" }));
+
+
+            try
+            {
+                user.IsActive = true;
+                var result = await _userManager.UpdateAsync(user);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(ResponseMessage.Message("", errors: new { message = "Failed to activate user!" }));
+            }
+            return Ok(ResponseMessage.Message("User Activation successfully", data: new { message = "User activated!" }));
         }
 
         #endregion
