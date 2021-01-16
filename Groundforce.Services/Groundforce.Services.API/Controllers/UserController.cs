@@ -79,6 +79,7 @@ namespace Groundforce.Services.API.Controllers
                     user.PublicId,
                     user.UpdatedAt,
                     user.IsVerified
+                    
                 };
 
                 // Returns the field agent by userId
@@ -412,13 +413,16 @@ namespace Groundforce.Services.API.Controllers
                 if (!await _agentRepository.DeleteAgent(agent))
                     throw new Exception("Could not delete agent record");
 
-                var result = await _userManager.DeleteAsync(user);
-                if (!result.Succeeded)
-                {
-                    foreach (var err in result.Errors)
-                        ModelState.AddModelError("", err.Description);
-                    return BadRequest(ResponseMessage.Message("", errors: new { message = ModelState }));
-                }
+                user.IsActive = false;
+                var result = await _userManager.UpdateAsync(user);
+               //// var result = await _userManager.DeleteAsync(user);
+
+               // if (!result)
+               // {
+               //     foreach (var err in result.Errors)
+               //         ModelState.AddModelError("", err.Description);
+               //     return BadRequest(ResponseMessage.Message("", errors: new { message = ModelState }));
+               // }
 
                 if (!await _requestRepository.DeleteRequestByPhone(user.PhoneNumber))
                     throw new Exception("Could not delete request record");
