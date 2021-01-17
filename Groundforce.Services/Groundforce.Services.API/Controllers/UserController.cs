@@ -424,8 +424,8 @@ namespace Groundforce.Services.API.Controllers
                     //     return BadRequest(ResponseMessage.Message("", errors: new { message = ModelState }));
                     // }
 
-                    if (!await _requestRepository.DeleteRequestByPhone(user.PhoneNumber))
-                    throw new Exception("Could not delete request record");
+                    //if (!await _requestRepository.DeleteRequestByPhone(user.PhoneNumber))
+                    //throw new Exception("Could not delete request record");
 
             }
             catch (Exception ex)
