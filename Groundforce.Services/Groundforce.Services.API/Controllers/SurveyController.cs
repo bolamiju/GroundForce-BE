@@ -864,7 +864,8 @@ namespace Groundforce.Services.API.Controllers
                     Topic = userSurvey.Survey.Topic,
                     Status = userSurvey.Status,
                     ApplicationUserId = userSurvey.Survey.AddedBy,
-                    SurveyId = userSurvey.SurveyId
+                    SurveyId = userSurvey.SurveyId,
+                    SurveyType = userSurvey.Survey.SurveyType.Type
                 })
                 .ToList();
 

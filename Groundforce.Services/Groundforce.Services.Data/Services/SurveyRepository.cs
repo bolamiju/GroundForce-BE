@@ -21,7 +21,7 @@ namespace Groundforce.Services.Data.Services
 
         public async Task<IEnumerable<UserSurvey>> GetUserSurveyByAgentIdandByStatus(string agentId, string status)
         {
-            return await _ctx.UserSurveys.Where(x => x.ApplicationUserId == agentId && x.Status == status).Include(x => x.Survey).ToListAsync();
+            return await _ctx.UserSurveys.Where(x => x.ApplicationUserId == agentId && x.Status == status).Include(x => x.Survey).Include(x => x.Survey.SurveyType).ToListAsync();
         }
 
         public async Task<IEnumerable<UserSurvey>> GetUserSurveysByAgentIdandByStatusPaginated(string agentId, string status, int page, int per_page)
