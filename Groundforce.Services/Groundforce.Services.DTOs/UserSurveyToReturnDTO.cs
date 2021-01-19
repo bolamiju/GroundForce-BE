@@ -9,6 +9,7 @@ namespace Groundforce.Services.DTOs
         public string Topic { get; set; }
         public string ApplicationUserId { get; set; }
         public string SurveyId { get; set; }
+        public string SurveyType { get; set; }
         public string Status { get; set; }
     }
 }
