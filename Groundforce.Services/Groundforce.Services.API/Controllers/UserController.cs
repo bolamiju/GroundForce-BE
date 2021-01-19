@@ -60,7 +60,7 @@ namespace Groundforce.Services.API.Controllers
 
                 var user = await _userManager.FindByIdAsync(id);
 
-                if (user == null)
+                if (user == null && user.IsActive == false)
                     return NotFound(ResponseMessage.Message("Notfound", errors: new { message = $"User with id: {id} was not found" }));
 
                 if (_userManager.GetUserId(User) != id && !User.IsInRole("admin"))
@@ -79,6 +79,7 @@ namespace Groundforce.Services.API.Controllers
                     user.PublicId,
                     user.UpdatedAt,
                     user.IsVerified
+                    
                 };
 
                 // Returns the field agent by userId
@@ -126,7 +127,7 @@ namespace Groundforce.Services.API.Controllers
         {
             try
             {
-                var users = _userManager.Users;
+                var users = _userManager.Users.Where(c => c.IsActive == true);
 
                 if (users == null)
                     return NotFound(ResponseMessage.Message("Notfound", errors: new { message = "Not found" }));
@@ -409,19 +410,22 @@ namespace Groundforce.Services.API.Controllers
 
             try
             {
-                if (!await _agentRepository.DeleteAgent(agent))
-                    throw new Exception("Could not delete agent record");
+                //if (!await _agentRepository.DeleteAgent(agent))
+                //    throw new Exception("Could not delete agent record");
 
-                var result = await _userManager.DeleteAsync(user);
-                if (!result.Succeeded)
-                {
-                    foreach (var err in result.Errors)
-                        ModelState.AddModelError("", err.Description);
-                    return BadRequest(ResponseMessage.Message("", errors: new { message = ModelState }));
-                }
+                user.IsActive = false;
+                var result = await _userManager.UpdateAsync(user);
+                //// var result = await _userManager.DeleteAsync(user);
 
-                if (!await _requestRepository.DeleteRequestByPhone(user.PhoneNumber))
-                    throw new Exception("Could not delete request record");
+                //if (!result.Succeeded)
+                    // {
+                    //     foreach (var err in result.Errors)
+                    //         ModelState.AddModelError("", err.Description);
+                    //     return BadRequest(ResponseMessage.Message("", errors: new { message = ModelState }));
+                    // }
+
+                    //if (!await _requestRepository.DeleteRequestByPhone(user.PhoneNumber))
+                    //throw new Exception("Could not delete request record");
 
             }
             catch (Exception ex)
@@ -430,6 +434,34 @@ namespace Groundforce.Services.API.Controllers
                 return BadRequest(ResponseMessage.Message("", errors: new { message = "Failed to delete user!" }));
             }
             return Ok(ResponseMessage.Message("Deleted successfully", data: new { message = "User deleted!" }));
+        }
+
+        //activate user
+        [HttpPatch("activate-user")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> ActivateUser(string Email)
+        {
+            if (String.IsNullOrWhiteSpace(Email))
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Invalid Id" }));
+
+            var user = await _userManager.FindByEmailAsync(Email);
+            if (user == null)
+                return NotFound(ResponseMessage.Message("Notfound", new { message = $"User with id {Email} was not found" }));
+
+            if (user.IsActive == true)
+                return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = $"User with this {Email} is active" }));
+            try
+            {
+                user.IsActive = true;
+                var result = await _userManager.UpdateAsync(user);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(ResponseMessage.Message("", errors: new { message = "Failed to activate user!" }));
+            }
+            return Ok(ResponseMessage.Message("User Activation successfully", data: new { message = "User activated!" }));
         }
 
         #endregion

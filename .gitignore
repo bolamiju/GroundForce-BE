@@ -358,5 +358,7 @@ obj
 bin
 .dockerignore
 *.db
+*.db-shm
+*.db-wal
 Groundforce.Services/Groundforce.Services.API/appsettings.json
 Groundforce.Services/Groundforce.Services.API/appsettings.Development.json
