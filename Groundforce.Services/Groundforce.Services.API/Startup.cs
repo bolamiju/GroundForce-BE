@@ -49,6 +49,7 @@ namespace Groundforce.Services.API
             services.AddTransient<IMailService, MailService>();
             services.AddScoped(typeof(IAllRepo<>), typeof(AllRepo<>));
             services.AddScoped<ISurveyRepository, SurveyRepository>();
+            services.AddScoped<IPasswordVerificationRepository, PasswordVerificationRepository>();
             //services.AddScoped<IAdminRepository, AdminRepository>();
 
             // Identity service

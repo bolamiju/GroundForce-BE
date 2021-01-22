@@ -36,12 +36,14 @@ namespace Groundforce.Services.API.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IAgentRepository _agentRepository;
+        private readonly IPasswordVerificationRepository _passwordVerificationRepository;
 
         public AuthController(IConfiguration configuration, ILogger<AuthController> logger,
                                  SignInManager<ApplicationUser> signInManager,
                                  UserManager<ApplicationUser> userManager, AppDbContext ctx,
                                  IRequestRepository requestRepository, IAgentRepository agentRepository,
-                                 IEmailVerificationRepository emailVerificationRepository, IMailService mailService)
+                                 IEmailVerificationRepository emailVerificationRepository, IMailService mailService,
+                                 IPasswordVerificationRepository passwordVerificationRepository)
         {
             _config = configuration;
             _logger = logger;
@@ -52,6 +54,7 @@ namespace Groundforce.Services.API.Controllers
             _mailService = mailService;
             _userManager = userManager;
             _agentRepository = agentRepository;
+            _passwordVerificationRepository = passwordVerificationRepository;
         }
 
         //verify OTP
@@ -330,13 +333,47 @@ namespace Groundforce.Services.API.Controllers
             var user = await _userManager.FindByEmailAsync(model.EmailAddress);
             if (user == null) return NotFound(ResponseMessage.Message("Not Found", errors: new { message = "Email does not exist" }));
 
+            string token;
             try
             {
-                // Use user to generate token
-                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                
-                // var emailUrl = Url.Action("ResetPassword", "Auth", new { email = model.EmailAddress, token }, Request.Scheme);
-                
+                var result = await _passwordVerificationRepository.GetPasswordVerificationByEmail(model.EmailAddress);
+
+                if(result == null)                {
+
+                    token = Guid.NewGuid().ToString();
+                    token += Guid.NewGuid().ToString();
+                    token = token.Replace("-", "");
+
+                    string passwordId = Guid.NewGuid().ToString();
+
+                    var passwordVerify = new PasswordVerification
+                    {
+                        Id = passwordId,
+                        EmailAddress = model.EmailAddress,
+                        Token = token
+                    };
+
+                    await _passwordVerificationRepository.AddPasswordVerification(passwordVerify);
+                }
+                else
+                {
+                    token = Guid.NewGuid().ToString();
+                    token += Guid.NewGuid().ToString();
+                    token = token.Replace("-", "");
+
+                    result.Token = token;
+
+                    await _passwordVerificationRepository.UpdatePasswordVerification(result);
+                }               
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return BadRequest(ResponseMessage.Message("Bad Request", errors: new { message = "Data processing error" }));
+            }
+
+            try
+            {                                
                 string baseUrl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
 
                 // Use token to genetate password reset link
@@ -380,10 +417,23 @@ namespace Groundforce.Services.API.Controllers
 
                 try
                 {
-                    // reset user password
-                    var token = HttpUtility.UrlDecode(model.Token);
-                    var setNewPassword = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
-                    if (setNewPassword.Succeeded)
+                    var result = await _passwordVerificationRepository.GetPasswordVerificationByEmailAndToken(model.Email, model.Token);
+
+                    if (result == null)
+                        return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Invalid credentials provided" }));
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Data  processing error" }));
+                }
+
+                try
+                {
+                    await _userManager.RemovePasswordAsync(user);
+                    var result = await _userManager.AddPasswordAsync(user, model.NewPassword);
+
+                    if(result.Succeeded)
                         return Ok(ResponseMessage.Message("Success", data: new { message = $"Password for {model.Email} is successfully updated" }));
                 }
                 catch (Exception e)
@@ -521,7 +571,6 @@ namespace Groundforce.Services.API.Controllers
             return Ok(ResponseMessage.Message("Success! User created", data: new { loginToken }));
 
         }
-
 
         //User Login
         [HttpPost("login")]

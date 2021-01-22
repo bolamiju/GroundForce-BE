@@ -24,6 +24,7 @@ namespace Groundforce.Services.Data
         public DbSet<UserSurvey> UserSurveys { get; set; }
         public DbSet<Response> Responses { get; set; }
         public DbSet<NotificationUser> NotificationUsers { get; set; }
+        public DbSet<PasswordVerification> PasswordVerifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
