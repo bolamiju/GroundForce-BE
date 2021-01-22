@@ -386,6 +386,9 @@ namespace Groundforce.Services.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasColumnType("TEXT");

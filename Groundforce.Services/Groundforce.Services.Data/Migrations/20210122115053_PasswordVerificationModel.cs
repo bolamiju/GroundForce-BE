@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Groundforce.Services.Data.Migrations
 {
-    public partial class ForgotPasswordModel : Migration
+    public partial class PasswordVerificationModel : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -107,7 +107,8 @@ namespace Groundforce.Services.Data.Migrations
                 {
                     Id = table.Column<string>(nullable: false),
                     EmailAddress = table.Column<string>(nullable: false),
-                    Token = table.Column<string>(nullable: false)
+                    Token = table.Column<string>(nullable: false),
+                    IsVerified = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {

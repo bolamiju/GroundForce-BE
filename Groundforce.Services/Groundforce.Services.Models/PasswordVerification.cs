@@ -15,5 +15,7 @@ namespace Groundforce.Services.Models
 
         [Required]
         public string Token { get; set; }
+
+        public bool IsVerified { get; set; } = false;
     }
 }

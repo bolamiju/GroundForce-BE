@@ -338,8 +338,8 @@ namespace Groundforce.Services.API.Controllers
             {
                 var result = await _passwordVerificationRepository.GetPasswordVerificationByEmail(model.EmailAddress);
 
-                if(result == null)                {
-
+                if(result == null)                
+                {
                     token = Guid.NewGuid().ToString();
                     token += Guid.NewGuid().ToString();
                     token = token.Replace("-", "");
@@ -361,6 +361,7 @@ namespace Groundforce.Services.API.Controllers
                     token += Guid.NewGuid().ToString();
                     token = token.Replace("-", "");
 
+                    result.IsVerified = false;
                     result.Token = token;
 
                     await _passwordVerificationRepository.UpdatePasswordVerification(result);
@@ -415,12 +416,26 @@ namespace Groundforce.Services.API.Controllers
                 if (!user.IsActive)
                     return Unauthorized(ResponseMessage.Message("Unauthorized", errors: new { message = "In-active account" }));
 
+                PasswordVerification result;
                 try
                 {
-                    var result = await _passwordVerificationRepository.GetPasswordVerificationByEmailAndToken(model.Email, model.Token);
+                    result = await _passwordVerificationRepository.GetPasswordVerificationByEmailAndToken(model.Email, model.Token);
 
                     if (result == null)
                         return NotFound(ResponseMessage.Message("Not found", errors: new { message = "Invalid credentials provided" }));
+                    if (result.IsVerified)
+                        return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Click on forgot password, for a link to be sent to your email" }));
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Data  processing error" }));
+                }
+
+                try
+                {
+                    result.IsVerified = true;
+                    await _passwordVerificationRepository.UpdatePasswordVerification(result);
                 }
                 catch (Exception e)
                 {
@@ -431,9 +446,9 @@ namespace Groundforce.Services.API.Controllers
                 try
                 {
                     await _userManager.RemovePasswordAsync(user);
-                    var result = await _userManager.AddPasswordAsync(user, model.NewPassword);
+                    var passwordUpdate = await _userManager.AddPasswordAsync(user, model.NewPassword);
 
-                    if(result.Succeeded)
+                    if(passwordUpdate.Succeeded)
                         return Ok(ResponseMessage.Message("Success", data: new { message = $"Password for {model.Email} is successfully updated" }));
                 }
                 catch (Exception e)
