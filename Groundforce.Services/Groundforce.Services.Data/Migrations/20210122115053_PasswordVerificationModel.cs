@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Groundforce.Services.Data.Migrations
 {
-    public partial class InitMigration : Migration
+    public partial class PasswordVerificationModel : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -99,6 +99,20 @@ namespace Groundforce.Services.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Notifications", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PasswordVerifications",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    EmailAddress = table.Column<string>(nullable: false),
+                    Token = table.Column<string>(nullable: false),
+                    IsVerified = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PasswordVerifications", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -750,6 +764,9 @@ namespace Groundforce.Services.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "NotificationUsers");
+
+            migrationBuilder.DropTable(
+                name: "PasswordVerifications");
 
             migrationBuilder.DropTable(
                 name: "PointAllocated");

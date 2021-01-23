@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Groundforce.Services.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20210115122327_InitMigration")]
-    partial class InitMigration
+    [Migration("20210122115053_PasswordVerificationModel")]
+    partial class PasswordVerificationModel
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -377,6 +377,27 @@ namespace Groundforce.Services.Data.Migrations
                     b.HasIndex("NotificationId");
 
                     b.ToTable("NotificationUsers");
+                });
+
+            modelBuilder.Entity("Groundforce.Services.Models.PasswordVerification", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EmailAddress")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PasswordVerifications");
                 });
 
             modelBuilder.Entity("Groundforce.Services.Models.Point", b =>

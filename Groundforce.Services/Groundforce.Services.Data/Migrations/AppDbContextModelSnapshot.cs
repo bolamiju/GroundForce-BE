@@ -377,6 +377,27 @@ namespace Groundforce.Services.Data.Migrations
                     b.ToTable("NotificationUsers");
                 });
 
+            modelBuilder.Entity("Groundforce.Services.Models.PasswordVerification", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EmailAddress")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PasswordVerifications");
+                });
+
             modelBuilder.Entity("Groundforce.Services.Models.Point", b =>
                 {
                     b.Property<string>("PointId")
