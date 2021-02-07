@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Groundforce.Services.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20210122115053_PasswordVerificationModel")]
-    partial class PasswordVerificationModel
+    [Migration("20210207162748_BankDetailsUpdated")]
+    partial class BankDetailsUpdated
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -179,6 +179,10 @@ namespace Groundforce.Services.Data.Migrations
                         .HasColumnType("TEXT")
                         .HasMaxLength(14);
 
+                    b.Property<string>("BankName")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(100);
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
@@ -197,10 +201,6 @@ namespace Groundforce.Services.Data.Migrations
                     b.Property<string>("Longitude")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<string>("Religion")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(25);
 
                     b.Property<string>("ResidentialAddress")
                         .HasColumnType("TEXT")
@@ -300,10 +300,6 @@ namespace Groundforce.Services.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("MissionId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Remarks")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

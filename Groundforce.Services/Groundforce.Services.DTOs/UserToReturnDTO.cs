@@ -10,12 +10,12 @@ namespace Groundforce.Services.DTOs
         public string LastName { get; set; }
         public string DOB { get; set; }
         public string Gender { get; set; }
-        public string Religion { get; set; }
         public string Email { get; set; }
         public bool IsVerified { get; set; } = false;
         public string AdditionalPhoneNumber { get; set; }
         public string ResidentialAddress { get; set; }
         public string BankName { get; set; }
+        public string AccountName { get; set; }
         public string AccountNumber { get; set; }
         public string AvatarUrl { get; set; }
         public string PublicId { get; set; }

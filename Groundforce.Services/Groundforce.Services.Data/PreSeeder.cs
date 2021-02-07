@@ -149,8 +149,8 @@ namespace Groundforce.Services.Data
                                 ResidentialAddress = agent.FieldAgent.ResidentialAddress,
                                 Longitude = agent.FieldAgent.Longitude,
                                 Latitude = agent.FieldAgent.Latitude,
-                                Religion = agent.FieldAgent.Religion,
                                 AdditionalPhoneNumber = agent.FieldAgent.AdditionalPhoneNumber,
+                                BankName = agent.FieldAgent.BankName,
                                 AccountName = agent.FieldAgent.AccountName,
                                 AccountNumber = agent.FieldAgent.AccountNumber,
                             };

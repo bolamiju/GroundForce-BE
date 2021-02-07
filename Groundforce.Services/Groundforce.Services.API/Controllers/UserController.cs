@@ -30,13 +30,14 @@ namespace Groundforce.Services.API.Controllers
         private readonly IOptions<CloudinarySettings> _cloudinaryConfig;
         private readonly IAgentRepository _agentRepository;
         private readonly IRequestRepository _requestRepository;
+        private readonly IBankDetailsService _bankDetailsService;
         private readonly IPhotoRepository _photoRepo;
         private readonly int perPage;
 
         public UserController(ILogger<UserController> logger, UserManager<ApplicationUser> userManager, 
             IOptions<CloudinarySettings> cloudinaryConfig, IAgentRepository agentRepository,
                                  IRequestRepository requestRepository, IPhotoRepository photoRepository,
-                                 IConfiguration configuration)
+                                 IConfiguration configuration, IBankDetailsService bankDetailsService)
         {
             _userManager = userManager;
             _cloudinaryConfig = cloudinaryConfig;
@@ -44,6 +45,7 @@ namespace Groundforce.Services.API.Controllers
             _logger = logger;
             _requestRepository = requestRepository;
             _photoRepo = photoRepository;
+            _bankDetailsService = bankDetailsService;
             perPage = Convert.ToInt32(configuration.GetSection("PaginationSettings:PerPage").Get<string>());
         }
         
@@ -60,7 +62,9 @@ namespace Groundforce.Services.API.Controllers
 
                 var user = await _userManager.FindByIdAsync(id);
 
-                if (user == null && user.IsActive == false)
+                if (user == null)
+                    return NotFound(ResponseMessage.Message("Notfound", errors: new { message = $"User with id: {id} was not found" }));
+                if(!user.IsActive)
                     return NotFound(ResponseMessage.Message("Notfound", errors: new { message = $"User with id: {id} was not found" }));
 
                 if (_userManager.GetUserId(User) != id && !User.IsInRole("admin"))
@@ -96,11 +100,11 @@ namespace Groundforce.Services.API.Controllers
                         LastName = appUser.LastName,
                         DOB = appUser.DOB,
                         Gender = appUser.Gender,
-                        Religion = agent.Religion,
                         Email = appUser.Email,
                         AdditionalPhoneNumber = agent.AdditionalPhoneNumber,
                         ResidentialAddress = agent.ResidentialAddress,
-                        BankName = agent.AccountName,
+                        BankName = agent.BankName,
+                        AccountName = agent.AccountName,
                         AccountNumber = agent.AccountNumber,
                         AvatarUrl = appUser.AvatarUrl,
                         PublicId = appUser.PublicId,
@@ -153,11 +157,11 @@ namespace Groundforce.Services.API.Controllers
                                 LastName = agent.ApplicationUser.LastName,
                                 DOB = agent.ApplicationUser.DOB,
                                 Gender = agent.ApplicationUser.Gender,
-                                Religion = agent.Religion,
                                 Email = agent.ApplicationUser.Email,
                                 AdditionalPhoneNumber = agent.AdditionalPhoneNumber,
                                 ResidentialAddress = agent.ResidentialAddress,
-                                BankName = agent.AccountName,
+                                BankName = agent.BankName,
+                                AccountName = agent.AccountName,
                                 AccountNumber = agent.AccountNumber,
                                 AvatarUrl = agent.ApplicationUser.AvatarUrl,
                                 PublicId = agent.ApplicationUser.PublicId,
@@ -217,7 +221,6 @@ namespace Groundforce.Services.API.Controllers
                     if (agent == null) return NotFound(ResponseMessage.Message("Notfound", errors: new { message = "User's extended details not found" }));
                     
                     agent.AdditionalPhoneNumber = model.AdditionalPhoneNumber;
-                    agent.Religion = model.Religion;
 
                     var res = await _agentRepository.UpdateAgent(agent);
                     if(!res)
@@ -353,11 +356,12 @@ namespace Groundforce.Services.API.Controllers
 
                 if (!validateAccountNumber) return BadRequest(ResponseMessage.Message("Bad request", errors: new { message = "Invalid account number" }));
 
-                var accountName = Enum.GetName(typeof(BankCode), Convert.ToInt32(model.BankCode));
+                var accountName = await _bankDetailsService.GetAccountName(model.AccountNumber, model.BankCode);
+                var bankName = Enum.GetName(typeof(BankCode), Convert.ToInt32(model.BankCode));
 
+                agent.BankName = bankName;
                 agent.AccountName = accountName;
                 agent.AccountNumber = model.AccountNumber;
-                agent.Religion = model.Religion;
                 agent.AdditionalPhoneNumber = model.AdditionalPhoneNumber;
                 user.Gender = model.Gender;
                 user.IsVerified = true;

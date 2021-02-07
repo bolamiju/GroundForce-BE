@@ -50,6 +50,7 @@ namespace Groundforce.Services.API
             services.AddScoped(typeof(IAllRepo<>), typeof(AllRepo<>));
             services.AddScoped<ISurveyRepository, SurveyRepository>();
             services.AddScoped<IPasswordVerificationRepository, PasswordVerificationRepository>();
+            services.AddScoped<IBankDetailsService, BankDetailsService>();
             //services.AddScoped<IAdminRepository, AdminRepository>();
 
             // Identity service
@@ -71,6 +72,9 @@ namespace Groundforce.Services.API
 
             //register sendGrid
             services.Configure<SendGridSettings>(Configuration.GetSection("SendGridSettings"));
+
+            //register bankdetails
+            services.Configure<BankDetailsSettings>(Configuration.GetSection("BankDetailsSettings"));
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>

@@ -12,9 +12,6 @@ namespace Groundforce.Services.DTOs
         [Required]
         [MaxLength(10, ErrorMessage = "Account Number must not be more than 10 characters")]
         public string AccountNumber { get; set; }
-        [Required]
-        [MaxLength(25, ErrorMessage = "Religion must not be more than 25 characters")]
-        public string Religion { get; set; }
         [MaxLength(14, ErrorMessage = "Additional Phone Number must not be more than 14 characters")]
         public string AdditionalPhoneNumber { get; set; }
         [Required]

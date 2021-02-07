@@ -20,8 +20,9 @@ namespace Groundforce.Services.Data.Services
         }
 
         public async Task SendMailAsync(MailRequest request)
-        {            
-            StreamReader str = new StreamReader(@"MailSender.html"); 
+        {
+            string FilePath = Directory.GetCurrentDirectory() + "\\Templates\\MailSender.html";
+            StreamReader str = new StreamReader(FilePath); // @"MailSender.html"
             string MailText = str.ReadToEnd();
             str.Close();
             MailText = MailText.Replace("[GroundForceUrl]", request.GroundForceUrl).Replace("[GroundForceLogo]", _sendGridSettings.GroundForceLogo)

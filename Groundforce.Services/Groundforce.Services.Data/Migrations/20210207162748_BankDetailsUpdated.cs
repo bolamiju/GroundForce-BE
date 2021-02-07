@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Groundforce.Services.Data.Migrations
 {
-    public partial class PasswordVerificationModel : Migration
+    public partial class BankDetailsUpdated : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -278,8 +278,8 @@ namespace Groundforce.Services.Data.Migrations
                     ResidentialAddress = table.Column<string>(maxLength: 200, nullable: true),
                     Longitude = table.Column<string>(nullable: false),
                     Latitude = table.Column<string>(nullable: false),
-                    Religion = table.Column<string>(maxLength: 25, nullable: true),
                     AdditionalPhoneNumber = table.Column<string>(maxLength: 14, nullable: true),
+                    BankName = table.Column<string>(maxLength: 100, nullable: true),
                     AccountName = table.Column<string>(maxLength: 100, nullable: true),
                     AccountNumber = table.Column<string>(maxLength: 10, nullable: true),
                     IsLocationVerified = table.Column<bool>(nullable: false),
@@ -515,7 +515,6 @@ namespace Groundforce.Services.Data.Migrations
                     TypeOfStructure = table.Column<string>(maxLength: 35, nullable: false),
                     Longitude = table.Column<string>(nullable: false),
                     Latitude = table.Column<string>(nullable: false),
-                    Remarks = table.Column<string>(nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false),
                     UpdatedAt = table.Column<DateTime>(nullable: false)
                 },

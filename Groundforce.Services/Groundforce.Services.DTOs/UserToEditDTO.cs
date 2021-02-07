@@ -17,7 +17,6 @@ namespace Groundforce.Services.DTOs
         public string DOB { get; set; }
         public string Gender { get; set; }
         public string AdditionalPhoneNumber { get; set; }
-        public string Religion { get; set; }
     }
 
 }
