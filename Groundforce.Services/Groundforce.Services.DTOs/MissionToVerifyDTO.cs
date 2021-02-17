@@ -36,8 +36,5 @@ namespace Groundforce.Services.DTOs
 
         [Required]
         public string Latitude { get; set; }
-
-        [Required]
-        public string Remarks { get; set; }
     }
 }

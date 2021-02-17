@@ -40,9 +40,6 @@ namespace Groundforce.Services.Models
         
         [Required]
         public string Latitude { get; set; }
-        
-        [Required]
-        public string Remarks { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;

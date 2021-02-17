@@ -33,17 +33,14 @@ namespace Groundforce.Services.Models
         [Required]
         public string Latitude { get; set; }
 
-
-        [MaxLength(25)]
-        public string Religion { get; set; }
-
         [MaxLength(14)]
         public string AdditionalPhoneNumber { get; set; }
 
+        [MaxLength(100)]
+        public string BankName { get; set; }
 
         [MaxLength(100)]
         public string AccountName { get; set; }
-
 
         [MaxLength(10)]
         public string AccountNumber { get; set; }

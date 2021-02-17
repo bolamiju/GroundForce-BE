@@ -556,8 +556,7 @@ namespace Groundforce.Services.API.Controllers
                     AddressExists = model.AddressExists,
                     TypeOfStructure = model.TypeOfStructure,
                     Longitude = model.Longitude,
-                    Latitude = model.Latitude,
-                    Remarks = model.Remarks
+                    Latitude = model.Latitude
                 };
 
                 var result2 = await _missionRepository.Add(missionVerified);

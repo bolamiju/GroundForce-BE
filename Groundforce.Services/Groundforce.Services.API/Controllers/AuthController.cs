@@ -642,6 +642,7 @@ namespace Groundforce.Services.API.Controllers
                 var agent = await _agentRepository.GetAgentById(user.Id);
                 agent.Longitude = model.Longitude;
                 agent.Latitude = model.Latitude;
+                agent.ResidentialAddress = model.Address;
                 agent.IsLocationVerified = true;
                 try
                 {
